@@ -17,10 +17,10 @@ class Activity_Logger_Admin {
 
 	public function admin_menu() {
 		$page = add_menu_page(
-			'Activity Log',
-			'Activity Log',
+			'WP Site Prober',
+			'WP Site Prober',
 			'manage_options',
-			'activity-logger',
+			'wp-site-prober',
 			[ $this, 'render_page' ],
 			'dashicons-list-view',
 			80
@@ -28,12 +28,12 @@ class Activity_Logger_Admin {
 	}
 
 	public function enqueue_assets( $hook ) {
-		if ( $hook !== 'toplevel_page_activity-logger' ) {
+		if ( $hook !== 'toplevel_page_wp-site-prober' ) {
 			return;
 		}
-		wp_enqueue_style( 'activity-logger-admin', plugin_dir_url( __FILE__ ) . '../css/admin.css' );
-		wp_enqueue_script( 'activity-logger-admin', plugin_dir_url( __FILE__ ) . '../js/admin.js', [ 'jquery' ], false, true );
-		wp_localize_script( 'activity-logger-admin', 'ActivityLogger', [
+		wp_enqueue_style( 'wp-site-prober-admin', plugin_dir_url( __FILE__ ) . '../css/admin.css' );
+		wp_enqueue_script( 'wp-site-prober-admin', plugin_dir_url( __FILE__ ) . '../js/admin.js', [ 'jquery' ], false, true );
+		wp_localize_script( 'wp-site-prober-admin', 'ActivityLogger', [
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 		] );
 	}
@@ -55,26 +55,26 @@ class Activity_Logger_Admin {
 
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Activity Log', 'activity-logger' ); ?></h1>
+			<h1><?php esc_html_e( 'WP Site Prober', 'wp-site-prober' ); ?></h1>
 
 			<form method="get">
-				<input type="hidden" name="page" value="activity-logger" />
+				<input type="hidden" name="page" value="wp-site-prober" />
 				<p class="search-box">
-					<input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search actions, descriptions, IP', 'activity-logger' ); ?>" />
-					<button class="button"><?php esc_html_e( 'Search', 'activity-logger' ); ?></button>
-					<a class="button" href="<?php echo esc_url( admin_url( 'admin-post.php?action=activity_logger_export_csv' ) ); ?>"><?php esc_html_e( 'Export CSV', 'activity-logger' ); ?></a>
+					<input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search actions, descriptions, IP', 'wp-site-prober' ); ?>" />
+					<button class="button"><?php esc_html_e( 'Search', 'wp-site-prober' ); ?></button>
+					<a class="button" href="<?php echo esc_url( admin_url( 'admin-post.php?action=activity_logger_export_csv' ) ); ?>"><?php esc_html_e( 'Export CSV', 'wp-site-prober' ); ?></a>
 				</p>
 			</form>
 
 			<table class="widefat fixed striped">
 				<thead>
 					<tr>
-						<th><?php esc_html_e( 'Time', 'activity-logger' ); ?></th>
-						<th><?php esc_html_e( 'User ID', 'activity-logger' ); ?></th>
-						<th><?php esc_html_e( 'Action', 'activity-logger' ); ?></th>
-						<th><?php esc_html_e( 'Object', 'activity-logger' ); ?></th>
-						<th><?php esc_html_e( 'Description', 'activity-logger' ); ?></th>
-						<th><?php esc_html_e( 'IP', 'activity-logger' ); ?></th>
+						<th><?php esc_html_e( 'Time', 'wp-site-prober' ); ?></th>
+						<th><?php esc_html_e( 'User ID', 'wp-site-prober' ); ?></th>
+						<th><?php esc_html_e( 'Action', 'wp-site-prober' ); ?></th>
+						<th><?php esc_html_e( 'Object', 'wp-site-prober' ); ?></th>
+						<th><?php esc_html_e( 'Description', 'wp-site-prober' ); ?></th>
+						<th><?php esc_html_e( 'IP', 'wp-site-prober' ); ?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -90,7 +90,7 @@ class Activity_Logger_Admin {
 							</tr>
 						<?php endforeach; ?>
 					<?php else : ?>
-						<tr><td colspan="6"><?php esc_html_e( 'No activity found', 'activity-logger' ); ?></td></tr>
+						<tr><td colspan="6"><?php esc_html_e( 'No activity found', 'wp-site-prober' ); ?></td></tr>
 					<?php endif; ?>
 				</tbody>
 			</table>
@@ -103,7 +103,7 @@ class Activity_Logger_Admin {
 	 */
 	public function handle_export_csv() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'Permission denied', 'activity-logger' ) );
+			wp_die( __( 'Permission denied', 'wp-site-prober' ) );
 		}
 		global $wpdb;
 		$table = $this->logger->get_table_name();

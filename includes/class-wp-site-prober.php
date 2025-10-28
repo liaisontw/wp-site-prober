@@ -12,7 +12,7 @@ class Activity_Logger {
 		global $wpdb;
 		$this->table_name = $wpdb->prefix . 'activity_log';
 
-		register_activation_hook( plugin_dir_path( __FILE__ ) . '../activity-logger.php', [ $this, 'install' ] );
+		register_activation_hook( plugin_dir_path( __FILE__ ) . '../wp-site-prober.php', [ $this, 'install' ] );
 
 		// register hooks to capture actions
 		add_action( 'wp_login', [ $this, 'on_wp_login' ], 10, 2 );
