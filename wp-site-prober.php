@@ -8,7 +8,7 @@
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
  *
- * @link              https://github.com/liaisontw
+ * @link              https://github.com/liaisontw/wp-site-prober
  * @since             1.0.0
  * @package           wp-site-prober
  *
