@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-site-prober.php';
-require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-site-prober-admin.php';
+require_once plugin_dir_path( __FILE__ ) . 'admin/class-wp-site-prober-admin.php';
 
 function activity_logger() {
 	static $instance = null;
