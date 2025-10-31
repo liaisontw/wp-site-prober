@@ -3,40 +3,117 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class Activity_Logger_Admin {
+class wp_site_prober_Admin {
+
+    /**
+     * The ID of this plugin.
+     *
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $plugin_name    The ID of this plugin.
+     */
+    private $plugin_name;
+
+    /**
+     * The version of this plugin.
+     *
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $version    The current version of this plugin.
+     */
+    private $version;
+
 
 	protected $logger;
-	public function __construct( $logger ) {
+	public function __construct( $logger, $plugin_name, $version ) {
 		$this->logger = $logger;
-
-		add_action( 'admin_menu', [ $this, 'admin_menu' ] );
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ] );
+		$this->plugin_name = $plugin_name;
+        $this->version = $version;
+        add_action('admin_menu', array($this, 'admin_menu'));
+		//add_action( 'admin_menu', [ $this, 'admin_menu' ] );
+		//add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ] );
 		// handle csv export
-		add_action( 'admin_post_activity_logger_export_csv', [ $this, 'handle_export_csv' ] );
+		add_action( 'admin_post_WP_Site_Prober_export_csv', [ $this, 'handle_export_csv' ] );
 	}
 
+	    /**
+     * Register the stylesheets for the admin area.
+     *
+     * @since    1.0.0
+     */
+    public function enqueue_styles()
+    {
+
+        /**
+         * This function is provided for demonstration purposes only.
+         *
+         * An instance of this class should be passed to the run() function
+         * defined in hidden_Stuff_Loader as all of the hooks are defined
+         * in that particular class.
+         *
+         * The hidden_Stuff_Loader will then create the relationship
+         * between the defined hooks and the functions defined in this
+         * class.
+         */
+
+        wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/wp-site-prober-admin.css', array(), $this->version, 'all');
+    }
+
+    /**
+     * Register the JavaScript for the admin area.
+     *
+     * @since    1.0.0
+     */
+    public function enqueue_scripts()
+    {
+
+        /**
+         * This function is provided for demonstration purposes only.
+         *
+         * An instance of this class should be passed to the run() function
+         * defined in hidden_Stuff_Loader as all of the hooks are defined
+         * in that particular class.
+         *
+         * The hidden_Stuff_Loader will then create the relationship
+         * between the defined hooks and the functions defined in this
+         * class.
+         */
+
+        wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/wp-site-prober-admin.js', array( 'jquery' ), $this->version, false);
+    }
+
+    /**
+     * hidden_stuff_menu_settings function.
+     * Add a menu item
+     * @access public
+     * @return void
+     */
+
 	public function admin_menu() {
-		$page = add_menu_page(
+		add_menu_page(
 			'WP Site Prober',
 			'WP Site Prober',
 			'manage_options',
 			'wp-site-prober',
-			[ $this, 'render_page' ],
+			array(&$this, 'render_page'),
 			'dashicons-list-view',
 			80
 		);
+
 	}
 
+	/*
 	public function enqueue_assets( $hook ) {
 		if ( $hook !== 'toplevel_page_wp-site-prober' ) {
 			return;
 		}
 		wp_enqueue_style( 'wp-site-prober-admin', plugin_dir_url( __FILE__ ) . '../css/admin.css' );
 		wp_enqueue_script( 'wp-site-prober-admin', plugin_dir_url( __FILE__ ) . '../js/admin.js', [ 'jquery' ], false, true );
-		wp_localize_script( 'wp-site-prober-admin', 'ActivityLogger', [
+		wp_localize_script( 'wp-site-prober-admin', 'SiteProber', [
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 		] );
 	}
+		*/
 
 	public function render_page() {
 		global $wpdb;
@@ -62,7 +139,7 @@ class Activity_Logger_Admin {
 				<p class="search-box">
 					<input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search actions, descriptions, IP', 'wp-site-prober' ); ?>" />
 					<button class="button"><?php esc_html_e( 'Search', 'wp-site-prober' ); ?></button>
-					<a class="button" href="<?php echo esc_url( admin_url( 'admin-post.php?action=activity_logger_export_csv' ) ); ?>"><?php esc_html_e( 'Export CSV', 'wp-site-prober' ); ?></a>
+					<a class="button" href="<?php echo esc_url( admin_url( 'admin-post.php?action=WP_Site_Prober_export_csv' ) ); ?>"><?php esc_html_e( 'Export CSV', 'wp-site-prober' ); ?></a>
 				</p>
 			</form>
 

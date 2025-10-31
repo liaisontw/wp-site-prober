@@ -30,22 +30,76 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-site-prober.php';
-require_once plugin_dir_path( __FILE__ ) . 'admin/class-wp-site-prober-admin.php';
+/**
+ * Currently plugin version.
+ * Start at version 1.0.0 and use SemVer - https://semver.org
+ * Rename this for your plugin and update it as you release new versions.
+ */
+define( 'WP_SITE_PROBER_VERSION', '1.0.0' );
 
-function activity_logger() {
+//require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-site-prober.php';
+//require_once plugin_dir_path( __FILE__ ) . 'admin/class-wp-site-prober-admin.php';
+
+/**
+ * The code that runs during plugin activation.
+ * This action is documented in includes/class-wp-site-prober-activator.php
+ */
+function activate_wp_site_prober() {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-site-prober-activator.php';
+	wp_site_prober_Activator::activate();
+}
+
+/**
+ * The code that runs during plugin deactivation.
+ * This action is documented in includes/class-wp-site-prober-deactivator.php
+ */
+function deactivate_wp_site_prober() {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-site-prober-deactivator.php';
+	wp_site_prober_Deactivator::deactivate();
+}
+
+register_activation_hook( __FILE__, 'activate_wp_site_prober' );
+register_deactivation_hook( __FILE__, 'deactivate_wp_site_prober' );
+
+
+/**
+ * The core plugin class that is used to define internationalization,
+ * admin-specific hooks, and public-facing site hooks.
+ */
+require plugin_dir_path( __FILE__ ) . 'includes/class-wp-site-prober.php';
+
+/**
+ * Begins execution of the plugin.
+ *
+ * Since everything within the plugin is registered via hooks,
+ * then kicking off the plugin from this point in the file does
+ * not affect the page life cycle.
+ *
+ * @since    1.0.0
+ */
+function run_wp_site_prober() {
+
+	$plugin = new WP_Site_Prober();
+	$plugin->run();
+
+}
+run_wp_site_prober();
+
+/*
+function wp_site_prober() {
 	static $instance = null;
 	if ( null === $instance ) {
-		$instance = new Activity_Logger();
+		$instance = new WP_Site_Prober();
 	}
 	return $instance;
 }
 
 // bootstrap
-add_action( 'plugins_loaded', 'activity_logger' );
+add_action( 'plugins_loaded', 'wp_site_prober' );
 
 // helper global func
-function activity_logger_log( $action, $object_type = '', $object_id = null, $description = '' ) {
-	$logger = activity_logger();
+function wp_site_prober_log( $action, $object_type = '', $object_id = null, $description = '' ) {
+	$logger = WP_Site_Prober();
 	$logger->log( $action, $object_type, $object_id, $description );
 }
+*/
