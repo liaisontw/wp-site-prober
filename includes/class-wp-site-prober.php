@@ -58,15 +58,15 @@ class WP_Site_Prober {
 		//register_activation_hook( plugin_dir_path( __FILE__ ) . '../wp-site-prober.php', [ $this, 'install' ] );
 
 		// register hooks to capture actions
-		add_action( 'wp_login', [ $this, 'on_wp_login' ], 10, 2 );
-		add_action( 'wp_logout', [ $this, 'on_wp_logout' ] );
-		add_action( 'wp_login_failed', [ $this, 'on_login_failed' ] );
-		add_action( 'save_post', [ $this, 'on_save_post' ], 10, 3 );
-		add_action( 'delete_post', [ $this, 'on_delete_post' ], 10, 1 );
-		add_action( 'switch_theme', [ $this, 'on_switch_theme' ], 10, 2 );
-		add_action( 'activated_plugin', [ $this, 'on_plugin_activated' ], 10, 2 );
-		add_action( 'deactivated_plugin', [ $this, 'on_plugin_deactivated' ], 10, 2 );
-		add_action( 'profile_update', [ $this, 'on_profile_update' ], 10, 2 );
+		add_action( 'wp_login', [ $this, 'wpsp_wp_login' ], 10, 2 );
+		add_action( 'wp_logout', [ $this, 'wpsp_wp_logout' ] );
+		add_action( 'wp_login_failed', [ $this, 'wpsp_login_failed' ] );
+		add_action( 'save_post', [ $this, 'wpsp_save_post' ], 10, 3 );
+		add_action( 'delete_post', [ $this, 'wpsp_delete_post' ], 10, 1 );
+		add_action( 'switch_theme', [ $this, 'wpsp_switch_theme' ], 10, 2 );
+		add_action( 'activated_plugin', [ $this, 'wpsp_plugin_activated' ], 10, 2 );
+		add_action( 'deactivated_plugin', [ $this, 'wpsp_plugin_deactivated' ], 10, 2 );
+		add_action( 'profile_update', [ $this, 'wpsp_profile_update' ], 10, 2 );
 
 
 	}
@@ -244,41 +244,41 @@ class WP_Site_Prober {
 	}
 
 	/* --- hooked handlers --- */
-	public function on_wp_login( $user_login, $user ) {
+	public function wpsp_wp_login( $user_login, $user ) {
 		$this->log( 'user_login', 'user', $user->ID, sprintf( 'User %s logged in', $user_login ) );
 	}
 
-	public function on_wp_logout() {
+	public function wpsp_wp_logout() {
 		$user = wp_get_current_user();
 		$this->log( 'user_logout', 'user', $user->ID, sprintf( 'User %s logged out', $user->user_login ) );
 	}
 
-	public function on_login_failed( $username ) {
+	public function wpsp_login_failed( $username ) {
 		$this->log( 'login_failed', 'user', null, sprintf( 'Failed login attempt for username %s', $username ) );
 	}
 
-	public function on_save_post( $post_id, $post, $update ) {
+	public function wpsp_save_post( $post_id, $post, $update ) {
 		$action = $update ? 'update_post' : 'create_post';
 		$this->log( $action, 'post', $post_id, sprintf( 'Post %d title: %s', $post_id, $post->post_title ) );
 	}
 
-	public function on_delete_post( $post_id ) {
+	public function wpsp_delete_post( $post_id ) {
 		$this->log( 'delete_post', 'post', $post_id, sprintf( 'Post %d deleted', $post_id ) );
 	}
 
-	public function on_switch_theme( $new_name, $new_theme ) {
+	public function wpsp_switch_theme( $new_name, $new_theme ) {
 		$this->log( 'switch_theme', 'theme', null, sprintf( 'Switched to theme %s', $new_name ) );
 	}
 
-	public function on_plugin_activated( $plugin, $network_wide ) {
+	public function wpsp_plugin_activated( $plugin, $network_wide ) {
 		$this->log( 'plugin_activated', 'plugin', null, sprintf( 'Activated plugin %s', $plugin ) );
 	}
 
-	public function on_plugin_deactivated( $plugin, $network_wide ) {
+	public function wpsp_plugin_deactivated( $plugin, $network_wide ) {
 		$this->log( 'plugin_deactivated', 'plugin', null, sprintf( 'Deactivated plugin %s', $plugin ) );
 	}
 
-	public function on_profile_update( $user_id, $old_user_data ) {
+	public function wpsp_profile_update( $user_id, $old_user_data ) {
 		$this->log( 'profile_updated', 'user', $user_id, sprintf( 'Profile updated for user id %d', $user_id ) );
 	}
 
