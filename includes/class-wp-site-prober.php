@@ -68,8 +68,7 @@ class WP_Site_Prober {
 		add_action( 'deactivated_plugin', [ $this, 'on_plugin_deactivated' ], 10, 2 );
 		add_action( 'profile_update', [ $this, 'on_profile_update' ], 10, 2 );
 
-		// instantiate admin UI
-		//new WP_Site_Prober_Admin( $this );
+
 	}
 
 	/**
@@ -153,12 +152,8 @@ class WP_Site_Prober {
 
 		$plugin_admin = new wp_site_prober_Admin( $this, $this->get_plugin_name(), $this->get_version() );
 
-		// instantiate admin UI
-		//new WP_Site_Prober_Admin( $this );
-
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-
 	}
 
 	/**
@@ -220,32 +215,6 @@ class WP_Site_Prober {
 	}
 
 
-	/**
-	 * Create DB table using dbDelta
-	 */
-	/*
-	public function install() {
-		global $wpdb;
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		$charset_collate = $wpdb->get_charset_collate();
-
-		$sql = "CREATE TABLE {$this->table_name} (
-			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-			user_id bigint(20) DEFAULT NULL,
-			action varchar(191) NOT NULL,
-			object_type varchar(100) DEFAULT NULL,
-			object_id bigint(20) DEFAULT NULL,
-			description text DEFAULT NULL,
-			ip varchar(45) DEFAULT NULL,
-			user_agent text DEFAULT NULL,
-			created_at datetime DEFAULT CURRENT_TIMESTAMP,
-			PRIMARY KEY (id)
-		) $charset_collate;";
-
-		dbDelta( $sql );
-	}
-
-	*/
 	/**
 	 * Generic logger function
 	 */

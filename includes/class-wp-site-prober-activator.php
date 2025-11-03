@@ -32,17 +32,18 @@ class wp_site_prober_Activator {
 	 */
 	public static function activate() {
 		add_option( 'wp_site_prober_active', 'yes' );
-		//install();
-		//self::_create_tables();
+		self::_create_tables();
 	}
 
+	/**
+	 * Create DB table using dbDelta
+	 */
 
 	protected static function _create_tables() {
 		global $wpdb;
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 		$table_name = $wpdb->prefix . 'site_prober';
-		//$table_name = get_table_name();
 		$charset_collate = $wpdb->get_charset_collate();
 
 		$sql = "CREATE TABLE {$table_name} (

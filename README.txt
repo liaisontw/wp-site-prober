@@ -19,6 +19,13 @@ WP Site Prober plugin not compatible with all themes.
 
 == Build Status ==
 
+[2025/11/3] Tested:
+1. wp_site_prober table delete and create when plugin activated.
+2. Action logger:
+'wp_login', 'wp_logout', 'wp_login_failed', 'save_post', 'update_post',
+'switch_theme', 'activated_plugin', 'deactivated_plugin', 'profile_update'
+3. Search actions, description
+
 
 == Development ==
 [WP Site Prober](https://github.com/liaisontw/wp-site-prober)  
@@ -48,9 +55,6 @@ For manual installation via FTP:
 4. After-WP Site Prober.
 
 == Changelog ==
-
-= 1.0.0 =
-* First release
 
 
 == Upgrade Notice ==
