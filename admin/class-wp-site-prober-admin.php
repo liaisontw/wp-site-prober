@@ -31,7 +31,7 @@ class wp_site_prober_Admin {
         $this->version = $version;
         add_action('admin_menu', array($this, 'admin_menu'));
 		//add_action( 'admin_menu', [ $this, 'admin_menu' ] );
-		//add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ] );
+
 		// handle csv export
 		add_action( 'admin_post_WP_Site_Prober_export_csv', [ $this, 'handle_export_csv' ] );
 	}

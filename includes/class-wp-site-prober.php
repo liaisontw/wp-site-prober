@@ -13,6 +13,16 @@ class WP_Site_Prober {
 	protected $loader;
 
 	/**
+	 * The actions logger that's responsible for registering hooks of all actions
+	 * 
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      wp_site_prober_Actions    $actions    Registers hooks of all actions.
+	 */
+	protected $actions;
+
+	/**
 	 * The unique identifier of this plugin.
 	 *
 	 * @since    1.0.0
@@ -55,19 +65,9 @@ class WP_Site_Prober {
 
 		global $wpdb;
 		$this->table_name = $wpdb->prefix . 'site_prober';
-		//register_activation_hook( plugin_dir_path( __FILE__ ) . '../wp-site-prober.php', [ $this, 'install' ] );
 
-		// register hooks to capture actions
-		add_action( 'wp_login', [ $this, 'wpsp_wp_login' ], 10, 2 );
-		add_action( 'wp_logout', [ $this, 'wpsp_wp_logout' ] );
-		add_action( 'wp_login_failed', [ $this, 'wpsp_login_failed' ] );
-		add_action( 'save_post', [ $this, 'wpsp_save_post' ], 10, 3 );
-		add_action( 'delete_post', [ $this, 'wpsp_delete_post' ], 10, 1 );
-		add_action( 'switch_theme', [ $this, 'wpsp_switch_theme' ], 10, 2 );
-		add_action( 'activated_plugin', [ $this, 'wpsp_plugin_activated' ], 10, 2 );
-		add_action( 'deactivated_plugin', [ $this, 'wpsp_plugin_deactivated' ], 10, 2 );
-		add_action( 'profile_update', [ $this, 'wpsp_profile_update' ], 10, 2 );
-
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wp-site-prober-actions.php';
+		$this->actions = new wp_site_prober_Actions($this, $this->get_plugin_name(), $this->get_version());
 
 	}
 
@@ -111,6 +111,10 @@ class WP_Site_Prober {
 		 * side of the site.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-wp-site-prober-public.php';
+
+
+		//require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wp-site-prober-actions.php';
+		//$this->actions = new wp_site_prober_Actions($this->get_plugin_name(), $this->get_version());
 
 		$this->loader = new wp_site_prober_Loader();
 
@@ -212,74 +216,6 @@ class WP_Site_Prober {
 	 */
 	public function get_version() {
 		return $this->version;
-	}
-
-
-	/**
-	 * Generic logger function
-	 */
-	public function log( $action, $object_type = '', $object_id = null, $description = '' ) {
-		global $wpdb;
-		$user_id = null;
-		$user = wp_get_current_user();
-		if ( $user && $user->ID ) {
-			$user_id = $user->ID;
-		}
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-		$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
-
-		$wpdb->insert(
-			$this->table_name,
-			[
-				'user_id'     => $user_id,
-				'action'      => sanitize_text_field( $action ),
-				'object_type' => sanitize_text_field( $object_type ),
-				'object_id'   => $object_id ? intval( $object_id ) : null,
-				'description' => wp_kses_post( $description ),
-				'ip'          => $ip,
-				'user_agent'  => $ua,
-			],
-			[ '%d', '%s', '%s', '%d', '%s', '%s', '%s' ]
-		);
-	}
-
-	/* --- hooked handlers --- */
-	public function wpsp_wp_login( $user_login, $user ) {
-		$this->log( 'user_login', 'user', $user->ID, sprintf( 'User %s logged in', $user_login ) );
-	}
-
-	public function wpsp_wp_logout() {
-		$user = wp_get_current_user();
-		$this->log( 'user_logout', 'user', $user->ID, sprintf( 'User %s logged out', $user->user_login ) );
-	}
-
-	public function wpsp_login_failed( $username ) {
-		$this->log( 'login_failed', 'user', null, sprintf( 'Failed login attempt for username %s', $username ) );
-	}
-
-	public function wpsp_save_post( $post_id, $post, $update ) {
-		$action = $update ? 'update_post' : 'create_post';
-		$this->log( $action, 'post', $post_id, sprintf( 'Post %d title: %s', $post_id, $post->post_title ) );
-	}
-
-	public function wpsp_delete_post( $post_id ) {
-		$this->log( 'delete_post', 'post', $post_id, sprintf( 'Post %d deleted', $post_id ) );
-	}
-
-	public function wpsp_switch_theme( $new_name, $new_theme ) {
-		$this->log( 'switch_theme', 'theme', null, sprintf( 'Switched to theme %s', $new_name ) );
-	}
-
-	public function wpsp_plugin_activated( $plugin, $network_wide ) {
-		$this->log( 'plugin_activated', 'plugin', null, sprintf( 'Activated plugin %s', $plugin ) );
-	}
-
-	public function wpsp_plugin_deactivated( $plugin, $network_wide ) {
-		$this->log( 'plugin_deactivated', 'plugin', null, sprintf( 'Deactivated plugin %s', $plugin ) );
-	}
-
-	public function wpsp_profile_update( $user_id, $old_user_data ) {
-		$this->log( 'profile_updated', 'user', $user_id, sprintf( 'Profile updated for user id %d', $user_id ) );
 	}
 
 	/* helpers for admin class */
