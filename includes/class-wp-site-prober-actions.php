@@ -23,22 +23,26 @@ class wp_site_prober_Actions {
 	protected $logger;
 
 	protected $table_name;
+	protected $dir;
 
     public function __construct( $logger, $plugin_name, $version ) {
 		$this->logger = $logger;
         $this->plugin_name = $plugin_name;
         $this->version = $version;
 		$this->table_name = $this->logger->get_table_name();
+		$this->dir = $this->logger->get_plugin_dir();
 
         // register hooks to capture actions
+		add_action( 'activated_plugin', [ $this, 'wpsp_plugin_activated' ], 10, 2 );
+		add_action( 'deactivated_plugin', [ $this, 'wpsp_plugin_deactivated' ], 10, 2 );
+
 		add_action( 'wp_login', [ $this, 'wpsp_wp_login' ], 10, 2 );
 		add_action( 'wp_logout', [ $this, 'wpsp_wp_logout' ] );
 		add_action( 'wp_login_failed', [ $this, 'wpsp_login_failed' ] );
 		add_action( 'save_post', [ $this, 'wpsp_save_post' ], 10, 3 );
 		add_action( 'delete_post', [ $this, 'wpsp_delete_post' ], 10, 1 );
 		add_action( 'switch_theme', [ $this, 'wpsp_switch_theme' ], 10, 2 );
-		add_action( 'activated_plugin', [ $this, 'wpsp_plugin_activated' ], 10, 2 );
-		add_action( 'deactivated_plugin', [ $this, 'wpsp_plugin_deactivated' ], 10, 2 );
+		
 		add_action( 'profile_update', [ $this, 'wpsp_profile_update' ], 10, 2 );
     }
 
@@ -71,6 +75,37 @@ class wp_site_prober_Actions {
 	}
 
 	/* --- hooked handlers --- */
+	private function get_plugin_name( $plugin ) {
+		$plugin_name = '';
+		if ( false !== strpos( $plugin, '/' ) ) {
+			$plugin_dir  = explode( '/', $plugin );
+			$plugin_data = array_values( get_plugins( '/' . $plugin_dir[0] ) );
+			$plugin_data = array_shift( $plugin_data );
+			/*
+			ob_start(); // Start output buffering
+			var_dump( $plugin_data ); // Dump the variable
+			$dump_output = ob_get_clean(); // Get the buffered output and clear the buffer
+			error_log(  'Plugin data: ' . $dump_output );
+			*/
+			$plugin_name = $plugin_data['Name'];
+
+			if ( ! empty( $plugin_data['Version'] ) ) {
+				$plugin_version = $plugin_data['Version'];
+			}
+		}
+		
+		return $plugin_name;
+	}
+	public function wpsp_plugin_activated( $plugin, $network_wide ) {
+		$plugin_name = $this->get_plugin_name( $plugin );
+		$this->log( 'plugin_activated', 'plugin', null, sprintf( 'Activated plugin : %s', $plugin_name ) );
+	}
+
+	public function wpsp_plugin_deactivated( $plugin, $network_wide ) {
+		$plugin_name = $this->get_plugin_name( $plugin );
+		$this->log( 'plugin_deactivated', 'plugin', null, sprintf( 'Deactivated plugin : %s', $plugin_name ) );
+	}
+	
 	public function wpsp_wp_login( $user_login, $user ) {
 		$this->log( 'user_login', 'user', $user->ID, sprintf( 'User %s logged in', $user_login ) );
 	}
@@ -97,13 +132,7 @@ class wp_site_prober_Actions {
 		$this->log( 'switch_theme', 'theme', null, sprintf( 'Switched to theme %s', $new_name ) );
 	}
 
-	public function wpsp_plugin_activated( $plugin, $network_wide ) {
-		$this->log( 'plugin_activated', 'plugin', null, sprintf( 'Activated plugin %s', $plugin ) );
-	}
-
-	public function wpsp_plugin_deactivated( $plugin, $network_wide ) {
-		$this->log( 'plugin_deactivated', 'plugin', null, sprintf( 'Deactivated plugin %s', $plugin ) );
-	}
+	
 
 	public function wpsp_profile_update( $user_id, $old_user_data ) {
 		$this->log( 'profile_updated', 'user', $user_id, sprintf( 'Profile updated for user id %d', $user_id ) );
