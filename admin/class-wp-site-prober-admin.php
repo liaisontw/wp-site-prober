@@ -114,6 +114,8 @@ class wp_site_prober_Admin {
 	}
 		*/
 
+	
+
 	private function get_filtered_link( $name = '', $value = '' ) {
 		$base_page_url = menu_page_url( 'wp-site-prober', false );
 
@@ -150,12 +152,25 @@ class wp_site_prober_Admin {
 		return $msg;
 	}
 
+	public function delete_all_items() {
+		global $wpdb;
+		$table = $this->logger->get_table_name();
+
+		//$wpdb->query( 'TRUNCATE `' . $wpdb->activity_log . '`' );
+		$wpdb->query( "TRUNCATE {$table}" );
+	}
+
 	public function render_page() {
 		global $wpdb;
 
 		$table = $this->logger->get_table_name();
 
 		$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+		$clear  = isset( $_POST['clearLogs'] ) ? sanitize_text_field( wp_unslash( $_POST['clearLogs'] ) ) : '';
+		if ($clear)	{
+			error_log(  'clearLogs');
+			$this->delete_all_items();
+		}
 
 		$where = '';
 		if ( $search ) {
@@ -169,6 +184,18 @@ class wp_site_prober_Admin {
 		<div class="wrap">
 			<h1><?php esc_html_e( 'WP Site Prober', 'wp-site-prober' ); ?></h1>
 
+			<form id="wpsp-form-delete" method="post" action="">
+				<div class="tablenav top">
+					<br class="clear" />
+				    <input type="hidden" id="clearLogs" name="clearLogs" value="Yes">
+					<div class="alignleft actions">
+						<?php submit_button( __( 'Clear Logs', 'wp-site-prober' ), '', 'clear_action', false ); ?>
+					</div>
+
+					<br class="clear" />
+				</div>
+			</form>
+			
 			<form method="get">
 				<input type="hidden" name="page" value="wp-site-prober" />
 				<p class="search-box">
