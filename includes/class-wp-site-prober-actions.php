@@ -56,6 +56,16 @@ class wp_site_prober_Actions {
 		if ( $user && $user->ID ) {
 			$user_id = $user->ID;
 		}
+		/*
+		if ( 'user' == $object_type ) {
+			$user_id = $object_id;
+		} else {
+			$user = wp_get_current_user();
+			if ( $user && $user->ID ) {
+				$user_id = $user->ID;
+			} 
+		}
+		*/
 		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 		$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 
@@ -107,16 +117,16 @@ class wp_site_prober_Actions {
 	}
 	
 	public function wpsp_wp_login( $user_login, $user ) {
-		$this->log( 'user_login', 'user', $user->ID, sprintf( 'User %s logged in', $user_login ) );
+		$this->log( 'user_login', 'user', $user->ID, sprintf( 'Logged in User: %s ', $user_login ) );
 	}
 
 	public function wpsp_wp_logout() {
 		$user = wp_get_current_user();
-		$this->log( 'user_logout', 'user', $user->ID, sprintf( 'User %s logged out', $user->user_login ) );
+		$this->log( 'user_logout', 'user', $user->ID, sprintf( 'Logged out User: %s ', $user->ID ) );
 	}
 
 	public function wpsp_login_failed( $username ) {
-		$this->log( 'login_failed', 'user', null, sprintf( 'Failed login attempt for username %s', $username ) );
+		$this->log( 'login_failed', 'user', null, sprintf( 'Login Failed username: %s', $username ) );
 	}
 
 	public function wpsp_save_post( $post_id, $post, $update ) {

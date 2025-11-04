@@ -30,7 +30,6 @@ class wp_site_prober_Admin {
 		$this->plugin_name = $plugin_name;
         $this->version = $version;
         add_action('admin_menu', array($this, 'admin_menu'));
-		//add_action( 'admin_menu', [ $this, 'admin_menu' ] );
 
 		// handle csv export
 		add_action( 'admin_post_WP_Site_Prober_export_csv', [ $this, 'handle_export_csv' ] );
@@ -115,6 +114,42 @@ class wp_site_prober_Admin {
 	}
 		*/
 
+	private function get_filtered_link( $name = '', $value = '' ) {
+		$base_page_url = menu_page_url( 'wp-site-prober', false );
+
+		if ( empty( $name ) ) {
+			return $base_page_url;
+		}
+
+		return add_query_arg( $name, $value, $base_page_url );
+	}
+
+	public function user_info( $user_id ) {
+		global $wp_roles;
+
+		$msg = '';
+		
+		if ( ! empty( $user_id ) && 0 !== (int) $user_id ) {
+			$user = get_user_by( 'id', $user_id );
+			if ( $user instanceof WP_User && 0 !== $user->ID ) {
+				$msg = sprintf(
+					'<a href="%s">%s <span class="wpsp-author-name">%s</span></a><br /><small>%s</small>',
+					$this->get_filtered_link( 'usershow', $user->ID ),
+					get_avatar( $user->ID, 40 ),
+					$user->display_name,
+					isset( $user->roles[0] ) && isset( $wp_roles->role_names[ $user->roles[0] ] ) ? $wp_roles->role_names[ $user->roles[0] ] : __( 'Unknown', 'wp-site-prober' )
+				);		
+			}
+		} else {
+			$msg =  sprintf(
+				'<span class="wpsp-author-name">%s</span>',
+				__( 'N/A', 'wp-site-prober' )
+			);
+		}
+		
+		return $msg;
+	}
+
 	public function render_page() {
 		global $wpdb;
 
@@ -147,7 +182,7 @@ class wp_site_prober_Admin {
 				<thead>
 					<tr>
 						<th><?php esc_html_e( 'Time', 'wp-site-prober' ); ?></th>
-						<th><?php esc_html_e( 'User ID', 'wp-site-prober' ); ?></th>
+						<th><?php esc_html_e( 'User Info', 'wp-site-prober' ); ?></th>
 						<th><?php esc_html_e( 'Action', 'wp-site-prober' ); ?></th>
 						<th><?php esc_html_e( 'Object', 'wp-site-prober' ); ?></th>
 						<th><?php esc_html_e( 'Description', 'wp-site-prober' ); ?></th>
@@ -159,7 +194,10 @@ class wp_site_prober_Admin {
 						<?php foreach ( $rows as $r ) : ?>
 							<tr>
 								<td><?php echo esc_html( $r['created_at'] ); ?></td>
-								<td><?php echo esc_html( $r['user_id'] ); ?></td>
+								<td><?php 
+									/*echo esc_html( $r['user_id'] ); */
+									echo $this->user_info( $r['user_id'] ); 
+								?></td>
 								<td><?php echo esc_html( $r['action'] ); ?></td>
 								<td><?php echo esc_html( $r['object_type'] . ' ' . $r['object_id'] ); ?></td>
 								<td><?php echo esc_html( $r['description'] ); ?></td>

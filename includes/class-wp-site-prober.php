@@ -115,9 +115,6 @@ class WP_Site_Prober {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-wp-site-prober-public.php';
 
 
-		//require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wp-site-prober-actions.php';
-		//$this->actions = new wp_site_prober_Actions($this->get_plugin_name(), $this->get_version());
-
 		$this->loader = new wp_site_prober_Loader();
 
 	}
