@@ -37,7 +37,9 @@ class wp_site_prober_Actions {
 		add_action( 'deactivated_plugin', [ $this, 'wpsp_plugin_deactivated' ], 10, 2 );
 
 		add_action( 'wp_login', [ $this, 'wpsp_wp_login' ], 10, 2 );
-		add_action( 'wp_logout', [ $this, 'wpsp_wp_logout' ] );
+		//add_action( 'wp_logout', [ $this, 'wpsp_wp_logout' ] );
+		add_action( 'clear_auth_cookie', [ $this, 'wpsp_wp_logout' ] );
+		
 		add_action( 'wp_login_failed', [ $this, 'wpsp_login_failed' ] );
 		add_action( 'save_post', [ $this, 'wpsp_save_post' ], 10, 3 );
 		add_action( 'delete_post', [ $this, 'wpsp_delete_post' ], 10, 1 );
@@ -52,11 +54,6 @@ class wp_site_prober_Actions {
 	public function log( $action, $object_type = '', $object_id = null, $description = '' ) {
 		global $wpdb;
 		$user_id = null;
-		$user = wp_get_current_user();
-		if ( $user && $user->ID ) {
-			$user_id = $user->ID;
-		}
-		/*
 		if ( 'user' == $object_type ) {
 			$user_id = $object_id;
 		} else {
@@ -65,7 +62,7 @@ class wp_site_prober_Actions {
 				$user_id = $user->ID;
 			} 
 		}
-		*/
+		
 		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 		$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 
@@ -122,7 +119,7 @@ class wp_site_prober_Actions {
 
 	public function wpsp_wp_logout() {
 		$user = wp_get_current_user();
-		$this->log( 'user_logout', 'user', $user->ID, sprintf( 'Logged out User: %s ', $user->ID ) );
+		$this->log( 'user_logout', 'user', $user->ID, sprintf( 'Logged out User: %s ', $user->user_nicename ) );
 	}
 
 	public function wpsp_login_failed( $username ) {
