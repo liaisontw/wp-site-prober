@@ -65,7 +65,9 @@ class WP_Site_Prober {
 		$this->define_public_hooks();
 
 		global $wpdb;
-		$this->table_name = $wpdb->prefix . 'site_prober';
+		$wpdb->wpsp_activity = $wpdb->prefix . 'site_prober';
+		$this->table_name = $wpdb->wpsp_activity;
+		//$this->table_name = $wpdb->prefix . 'site_prober';
 		$this->dir = plugin_basename( __FILE__ );
 
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wp-site-prober-actions.php';
