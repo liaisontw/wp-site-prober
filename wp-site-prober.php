@@ -37,9 +37,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 define( 'WP_SITE_PROBER_VERSION', '1.0.0' );
 
-//require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-site-prober.php';
-//require_once plugin_dir_path( __FILE__ ) . 'admin/class-wp-site-prober-admin.php';
-
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-wp-site-prober-activator.php

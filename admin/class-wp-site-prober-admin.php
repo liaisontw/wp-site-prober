@@ -25,6 +25,7 @@ class wp_site_prober_Admin {
 
 
 	protected $logger;
+	protected $wpsp_list_table = null;
 	public function __construct( $logger, $plugin_name, $version ) {
 		$this->logger = $logger;
 		$this->plugin_name = $plugin_name;
@@ -94,7 +95,9 @@ class wp_site_prober_Admin {
 			'WP Site Prober',
 			'manage_options',
 			'wp-site-prober',
-			array(&$this, 'render_page'),
+			//array(&$this, 'render_page'),
+			//array(&$this, 'render_page_list_table'),
+			array(&$this, 'render_page_mixed'),
 			'dashicons-list-view',
 			80
 		);
@@ -159,6 +162,38 @@ class wp_site_prober_Admin {
 		//$wpdb->query( 'TRUNCATE `' . $wpdb->activity_log . '`' );
 		$wpdb->query( "TRUNCATE {$table}" );
 	}
+
+	public function render_page_mixed() {
+		$this->render_page_list_table();
+		$this->render_page();
+	}
+
+	public function get_list_table() {
+		if ( is_null( $this->wpsp_list_table ) ) {
+			//$this->_list_table = new AAL_Activity_Log_List_Table( array( 'screen' => $this->_screens['main'] ) );
+			$this->wpsp_list_table = new wp_site_prober_List_Table( );
+			
+			//do_action( 'aal_admin_page_load', $this->_list_table );
+		}
+
+		return $this->wpsp_list_table;
+	}
+	public function render_page_list_table() {
+		$this->get_list_table()->prepare_items();
+	?>
+		<div class="wrap">
+			<h1><?php esc_html_e( 'WP Site Prober', 'wp-site-prober' ); ?></h1>
+
+			<form id="activity-filter" method="get">
+				<input type="hidden" name="page" value="<?php echo esc_attr( $_REQUEST['page'] ); ?>" />
+				<?php $this->get_list_table()->display(); ?>
+			</form>
+
+		</div>
+	<?php
+
+	}
+
 
 	public function render_page() {
 		global $wpdb;

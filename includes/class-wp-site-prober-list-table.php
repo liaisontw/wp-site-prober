@@ -35,8 +35,34 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		return esc_html( $item['created_at'] );
 	}
 
+    public function user_info( $user_id ) {
+		global $wp_roles;
+
+		$msg = '';
+		
+		if ( ! empty( $user_id ) && 0 !== (int) $user_id ) {
+			$user = get_user_by( 'id', $user_id );
+			if ( $user instanceof WP_User && 0 !== $user->ID ) {
+				$msg = sprintf(
+					'<a href="%s">%s <span class="wpsp-author-name">%s</span></a><br /><small>%s</small>',
+					$this->get_filtered_link( 'usershow', $user->ID ),
+					get_avatar( $user->ID, 40 ),
+					$user->display_name,
+					isset( $user->roles[0] ) && isset( $wp_roles->role_names[ $user->roles[0] ] ) ? $wp_roles->role_names[ $user->roles[0] ] : __( 'Unknown', 'wp-site-prober' )
+				);		
+			}
+		} else {
+			$msg =  sprintf(
+				'<span class="wpsp-author-name">%s</span>',
+				__( 'N/A', 'wp-site-prober' )
+			);
+		}
+		
+		return $msg;
+	}
     public function column_user_id( $item ) {
-		return esc_html( $item['user_id'] );
+        return $this->user_info( $item['user_id'] ); 
+		//return esc_html( $item['user_id'] );
 	}
 
     public function column_action( $item ) {
