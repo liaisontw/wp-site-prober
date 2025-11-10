@@ -320,7 +320,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
     public function prepare_items() {
 		global $wpdb;
 
-        $items_per_page = 20;
+        $items_per_page = 10;
         $this->set_pagination_args(
 			array(
 				'total_items' => $this->total_items,
@@ -337,37 +337,14 @@ class wp_site_prober_List_Table extends WP_List_Table {
         $this->items = $wpdb->get_results( 
             "SELECT * FROM {$table} {$where} ORDER BY created_at DESC LIMIT 200", ARRAY_A );
         
-        /*
-        $this->_column_headers = 
-            array( $this->get_columns(), 
-                   get_hidden_columns( $this->screen ), 
-                   $this->get_sortable_columns() );
-        $this->items = $wpdb->get_results( $wpdb->prepare(
-			'SELECT * FROM `' . $wpdb->activity_log . '`
-				' . $where . '
-					' . $this->_get_where_by_role() . '
-					ORDER BY ' . $items_orderby . ' ' . $items_order . '
-					LIMIT %d, %d;',
-			$offset,
-			$items_per_page
+        $total_items = count( $this->items );
+        
+        $this->set_pagination_args( array(
+			'total_items' => $total_items,
+			'per_page' => $items_per_page,
+			'total_pages' => ceil( $total_items / $items_per_page ),
 		) );
-         */
-
-        /*
-		$this->set_pagination_args(
-			array(
-				'total_items' => $this->total_items,
-				'per_page'    => 20
-			)
-		);
-
-		$this->_column_headers = 
-            array( $this->get_columns(), 
-                $this->get_hidden_columns(), 
-                $this->get_sortable_columns();
-		$this->items = $this->table_data();
-        */
-
+        
     }
 
 }

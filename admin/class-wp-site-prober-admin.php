@@ -181,7 +181,7 @@ class wp_site_prober_Admin {
 		?>
 		<div class="tablenav <?php echo esc_attr( $which ); ?>">
 			<?php
-			//$this->extra_tablenav( $which );
+			$this->extra_tablenav( $which );
 			$this->pagination( $which );
 			?>
 			<br class="clear" />
