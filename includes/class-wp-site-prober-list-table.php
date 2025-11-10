@@ -141,17 +141,19 @@ class wp_site_prober_List_Table extends WP_List_Table {
 			<input type="hidden" name="wpsp-record-action" value="<?php echo esc_attr( $action_key ); ?>">
 			<?php endif; ?>
 
-			<button type="submit" name="wpsp-record-actions-submit" id="record-actions-submit" class="button button-primary" value="1">
+			<button type="submit" name="wpsp-record-actions-submit" id="record-actions-submit" class="button button-primary" value="1" href="<?php echo esc_url( admin_url( 'admin-post.php?action=WP_Site_Prober_export_csv' ) ); ?>">
 				<?php
 				// Is result filtering enabled?
 				if ( array_key_exists( 'wpsp-filter', $_GET ) ) {
 					echo sprintf( esc_html__( 'Export filtered records as %s', 'wp-site-prober' ), $action_title );
 				} else {
-					echo sprintf( esc_html__( 'Export as %s', 'wp-site-prober' ), $action_title );
+					//echo sprintf( esc_html__( 'Export as %s', 'wp-site-prober' ), $action_title );
+                    echo esc_html_e( 'Export CSV', 'wp-site-prober' );
 				}
 				?>
 			</button>
 
+            
 			<?php wp_nonce_field( 'wpsp_actions_nonce', 'wpsp_actions_nonce' ); ?>
 		<?php
 	}
@@ -316,6 +318,34 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		}
 
 		echo '</div>';
+	}
+
+    public function search_box( $text, $input_id ) {
+		$search_data = isset( $_REQUEST['s'] ) ? sanitize_text_field( $_REQUEST['s'] ) : '';
+
+		$input_id = $input_id . '-search-input';
+		?>
+		<p class="search-box">
+			<label class="screen-reader-text" for="<?php echo $input_id ?>"><?php echo $text; ?>:</label>
+			<input type="search" id="<?php echo $input_id ?>" name="s" value="<?php echo esc_attr( $search_data ); ?>" />
+			<?php submit_button( $text, 'button', false, false, array('id' => 'search-submit') ); ?>
+		</p>
+	<?php
+	}
+
+	public function display_tablenav( $which ) {
+		if ( 'top' == $which ) {
+			$this->search_box( __( 'Search', 'wp-site-prober' ), 'aal-search' );
+		}
+		?>
+		<div class="tablenav <?php echo esc_attr( $which ); ?>">
+			<?php
+			$this->extra_tablenav( $which );
+			$this->pagination( $which );
+			?>
+			<br class="clear" />
+		</div>
+		<?php
 	}
     public function prepare_items() {
 		global $wpdb;

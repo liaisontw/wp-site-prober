@@ -161,33 +161,7 @@ class wp_site_prober_Admin {
 		$wpdb->query( "TRUNCATE {$table}" );
 	}
 
-	public function search_box( $text, $input_id ) {
-		$search_data = isset( $_REQUEST['s'] ) ? sanitize_text_field( $_REQUEST['s'] ) : '';
-
-		$input_id = $input_id . '-search-input';
-		?>
-		<p class="search-box">
-			<label class="screen-reader-text" for="<?php echo $input_id ?>"><?php echo $text; ?>:</label>
-			<input type="search" id="<?php echo $input_id ?>" name="s" value="<?php echo esc_attr( $search_data ); ?>" />
-			<?php submit_button( $text, 'button', false, false, array('id' => 'search-submit') ); ?>
-		</p>
-	<?php
-	}
-
-	public function display_tablenav( $which ) {
-		if ( 'top' == $which ) {
-			$this->search_box( __( 'Search', 'wp-site-prober' ), 'aal-search' );
-		}
-		?>
-		<div class="tablenav <?php echo esc_attr( $which ); ?>">
-			<?php
-			$this->extra_tablenav( $which );
-			$this->pagination( $which );
-			?>
-			<br class="clear" />
-		</div>
-		<?php
-	}
+	
 
 	
 
