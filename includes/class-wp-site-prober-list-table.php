@@ -123,38 +123,11 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		 *
 		 * @return array Array items should represent action_id => 'Action Title'
 		 */
-		$actions = apply_filters( 'wpsp_record_actions', array() );
-		?>
-			<?php if ( count( $actions ) > 1 ) : ?>
-			<div class="alignleft actions recordactions">
-				<select name="wpsp-record-action">
-					<option value=""><?php echo esc_attr__( 'Export File Format', 'wp-site-prober' ); ?></option>
-					<?php foreach ( $actions as $action_key => $action_title ) : ?>
-					<option value="<?php echo esc_attr( $action_key ); ?>"><?php echo esc_html( $action_title ); ?></option>
-					<?php endforeach; ?>
-				</select>
-			</div>
-			<?php else :
-				$action_title = reset( $actions );
-				$action_key = key( $actions );
-			?>
-			<input type="hidden" name="wpsp-record-action" value="<?php echo esc_attr( $action_key ); ?>">
-			<?php endif; ?>
-
-			<button type="submit" name="wpsp-record-actions-submit" id="record-actions-submit" class="button button-primary" value="1" href="<?php echo esc_url( admin_url( 'admin-post.php?action=WP_Site_Prober_export_csv' ) ); ?>">
-				<?php
-				// Is result filtering enabled?
-				if ( array_key_exists( 'wpsp-filter', $_GET ) ) {
-					echo sprintf( esc_html__( 'Export filtered records as %s', 'wp-site-prober' ), $action_title );
-				} else {
-					//echo sprintf( esc_html__( 'Export as %s', 'wp-site-prober' ), $action_title );
-                    echo esc_html_e( 'Export CSV', 'wp-site-prober' );
-				}
-				?>
-			</button>
-
-            
-			<?php wp_nonce_field( 'wpsp_actions_nonce', 'wpsp_actions_nonce' ); ?>
+	    ?>
+			<form method="get">
+				<input type="hidden" name="page" value="wp-site-prober" />
+				<a class="button" href="<?php echo esc_url( admin_url( 'admin-post.php?action=WP_Site_Prober_export_csv' ) ); ?>"><?php esc_html_e( 'Export CSV', 'wp-site-prober' ); ?></a>
+			</form>
 		<?php
 	}
 
@@ -326,8 +299,8 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		$input_id = $input_id . '-search-input';
 		?>
 		<p class="search-box">
-			<label class="screen-reader-text" for="<?php echo $input_id ?>"><?php echo $text; ?>:</label>
-			<input type="search" id="<?php echo $input_id ?>" name="s" value="<?php echo esc_attr( $search_data ); ?>" />
+            <label class="screen-reader-text" for="<?php echo $input_id ?>"><?php echo $text; ?>:</label>
+			<input type="search" id="<?php echo $input_id ?>" name="s" value="<?php echo esc_attr( $search_data ); ?>" placeholder="<?php esc_attr_e( 'Search actions, descriptions, IP', 'wp-site-prober' ); ?>"/>
 			<?php submit_button( $text, 'button', false, false, array('id' => 'search-submit') ); ?>
 		</p>
 	<?php
