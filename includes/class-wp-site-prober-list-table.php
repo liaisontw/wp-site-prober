@@ -7,8 +7,10 @@ if ( ! class_exists( 'WP_List_Table' ) )
 
 class wp_site_prober_List_Table extends WP_List_Table {
 
+    protected $data_types = array();
+
     public function __construct( $args = array() ) {
-        $this->total_items = 20;
+        $this->total_items = 10;
 
 		parent::__construct(
 			array(
@@ -136,9 +138,8 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		echo '<div class="alignleft actions">';
 
 		$users = $wpdb->get_results(
-			'SELECT DISTINCT `user_id` FROM `' . $wpdb->activity_log . '`
+			'SELECT DISTINCT `user_id` FROM `' . $wpdb->wpsp_activity . '`
 				WHERE 1 = 1
-				' . $this->_get_where_by_role() . '
 				GROUP BY `user_id`
 				ORDER BY `user_id`
 				LIMIT 100
@@ -146,9 +147,8 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		);
 
 		$this->data_types = $wpdb->get_col(
-			'SELECT DISTINCT `object_type` FROM `' . $wpdb->activity_log . '`
+			'SELECT DISTINCT `object_type` FROM `' . $wpdb->wpsp_activity . '`
 				WHERE 1 = 1
-				' . $this->_get_where_by_role() . '
 				GROUP BY `object_type`
 				ORDER BY `object_type`
 			;'
@@ -156,42 +156,10 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
 		// Make sure we get items for filter.
 		if ( $users || $this->data_types ) {
-			if ( ! isset( $_REQUEST['dateshow'] ) )
-				$_REQUEST['dateshow'] = '';
-
-			$date_options = array(
-				'' => __( 'All Time', 'wp-site-prober' ),
-				'today' => __( 'Today', 'wp-site-prober' ),
-				'yesterday' => __( 'Yesterday', 'wp-site-prober' ),
-				'week' => __( 'Week', 'wp-site-prober' ),
-				'month' => __( 'Month', 'wp-site-prober' ),
-			);
-			echo '<select name="dateshow" id="hs-filter-date">';
-			foreach ( $date_options as $key => $value )
-				printf( '<option value="%s"%s>%s</option>', $key, selected( $_REQUEST['dateshow'], $key, false ), $value );
-			echo '</select>';
-
-			submit_button( __( 'Filter', 'wp-site-prober' ), 'button', 'wpsp-filter', false, array( 'id' => 'activity-query-submit' ) );
+			submit_button( __( 'Filter', 'wp-site-prober' ), 'button', 'wpsp-filter', false, array() );
 		}
 
 		if ( $users ) {
-			if ( ! isset( $_REQUEST['capshow'] ) )
-				$_REQUEST['capshow'] = '';
-
-			$output = array();
-			foreach ( $this->_get_allow_caps() as $cap ) {
-				$output[ $cap ] = __( ucwords( $cap ), 'wp-site-prober' );
-			}
-
-			if ( ! empty( $output ) ) {
-				echo '<select name="capshow" id="hs-filter-capshow">';
-				printf( '<option value="">%s</option>', __( 'All Roles', 'wp-site-prober' ) );
-				foreach ( $output as $key => $value ) {
-					printf( '<option value="%s"%s>%s</option>', $key, selected( $_REQUEST['capshow'], $key, false ), $value );
-				}
-				echo '</select>';
-			}
-
 			if ( ! isset( $_REQUEST['usershow'] ) )
 				$_REQUEST['usershow'] = '';
 
@@ -233,40 +201,14 @@ class wp_site_prober_List_Table extends WP_List_Table {
 			}
 
 			echo '<select name="typeshow" id="hs-filter-typeshow">';
-			printf( '<option value="">%s</option>', __( 'All Topics', 'wp-site-prober' ) );
-			echo implode( '', $output );
-			echo '</select>';
-		}
-
-		$actions = $wpdb->get_results(
-			'SELECT DISTINCT `action` FROM  `' . $wpdb->activity_log . '`
-				WHERE 1 = 1
-				' . $this->_get_where_by_role() . '
-				GROUP BY `action`
-				ORDER BY `action`
-			;'
-		);
-
-		if ( $actions ) {
-			if ( ! isset( $_REQUEST['showaction'] ) )
-				$_REQUEST['showaction'] = '';
-
-			$output = array();
-			foreach ( $actions as $action )
-				$output[] = sprintf( '<option value="%s"%s>%s</option>', $action->action, selected( $_REQUEST['showaction'], $action->action, false ), $this->get_action_label( $action->action ) );
-
-			echo '<select name="showaction" id="hs-filter-showaction">';
-			printf( '<option value="">%s</option>', __( 'All Actions', 'wp-site-prober' ) );
+			printf( '<option value="">%s</option>', __( 'All Objects', 'wp-site-prober' ) );
 			echo implode( '', $output );
 			echo '</select>';
 		}
 
 		$filters = array(
-			'dateshow',
-			'capshow',
 			'usershow',
-			'typeshow',
-			'showaction',
+            'typeshow',
 		);
 
 		foreach ( $filters as $filter ) {
@@ -317,14 +259,28 @@ class wp_site_prober_List_Table extends WP_List_Table {
                    $this->get_sortable_columns() );
 
         $table = $wpdb->wpsp_activity;
-        $where = '';
+        
+        $where = ' WHERE 1 = 1';
 
-        $search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+        
+		if ( ! empty( $_REQUEST['typeshow'] ) ) {
+			$where .= $wpdb->prepare( ' AND `object_type` = %s', sanitize_text_field( $_REQUEST['typeshow'] ) );
+		}
+
+        
+		if ( isset( $_REQUEST['usershow'] ) && '' !== $_REQUEST['usershow'] ) {
+			$where .= $wpdb->prepare( ' AND `user_id` = %d', sanitize_text_field( $_REQUEST['usershow'] ) );
+		}
+
+        //$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+        $search = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
 		
 		if ( $search ) {
 			$like = '%' . $wpdb->esc_like( $search ) . '%';
-			$where = $wpdb->prepare( " WHERE action LIKE %s OR description LIKE %s OR ip LIKE %s ", $like, $like, $like );
+			//$where = $wpdb->prepare( " WHERE action LIKE %s OR description LIKE %s OR ip LIKE %s ", $like, $like, $like );
+            $where .= $wpdb->prepare( ' AND (`action` LIKE %s OR `description` LIKE %s OR `ip` LIKE %s)', $like, $like, $like );
 		}
+
         
         $this->items = $wpdb->get_results( 
             "SELECT * FROM {$table} {$where} ORDER BY created_at DESC LIMIT 200", ARRAY_A );
