@@ -18,19 +18,6 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		);
     }
 
-    /*
-    public function prepare_items() {
-		die( 'function WP_List_Table::prepare_items() must be overridden in a subclass.' );
-	}
-    public function get_columns() {
-		die( 'function WP_List_Table::get_columns() must be overridden in a subclass.' );
-	}    
-    public function ajax_user_can() {
-		die( 'function WP_List_Table::ajax_user_can() must be overridden in a subclass.' );
-	}
-
-    */
-
     private function get_filtered_link( $name = '', $value = '' ) {
 		$base_page_url = menu_page_url( 'wp-site-prober', false );
 
@@ -72,7 +59,6 @@ class wp_site_prober_List_Table extends WP_List_Table {
 	}
     public function column_user_id( $item ) {
         return $this->user_info( $item['user_id'] ); 
-		//return esc_html( $item['user_id'] );
 	}
 
     public function column_action( $item ) {
@@ -308,7 +294,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
 	public function display_tablenav( $which ) {
 		if ( 'top' == $which ) {
-			$this->search_box( __( 'Search', 'wp-site-prober' ), 'aal-search' );
+			$this->search_box( __( 'Search', 'wp-site-prober' ), 'wpsp-search' );
 		}
 		?>
 		<div class="tablenav <?php echo esc_attr( $which ); ?>">
@@ -324,12 +310,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		global $wpdb;
 
         $items_per_page = 10;
-        $this->set_pagination_args(
-			array(
-				'total_items' => $this->total_items,
-				'per_page'    => $items_per_page
-			)
-		);
+
         $this->_column_headers = 
             array( $this->get_columns(), 
                    $this->get_hidden_columns( ), 
@@ -337,6 +318,14 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
         $table = $wpdb->wpsp_activity;
         $where = '';
+
+        $search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+		
+		if ( $search ) {
+			$like = '%' . $wpdb->esc_like( $search ) . '%';
+			$where = $wpdb->prepare( " WHERE action LIKE %s OR description LIKE %s OR ip LIKE %s ", $like, $like, $like );
+		}
+        
         $this->items = $wpdb->get_results( 
             "SELECT * FROM {$table} {$where} ORDER BY created_at DESC LIMIT 200", ARRAY_A );
         
