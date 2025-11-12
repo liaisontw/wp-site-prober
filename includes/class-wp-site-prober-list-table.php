@@ -10,7 +10,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
     protected $data_types = array();
 
     public function __construct( $args = array() ) {
-        $this->total_items = 10;
+        //$this->total_items = 10;
 
 		parent::__construct(
 			array(
@@ -29,6 +29,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
 		return add_query_arg( $name, $value, $base_page_url );
 	}
+
 
     public function column_created_at( $item ) {
 		return esc_html( $item['created_at'] );
@@ -60,7 +61,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		return $msg;
 	}
     public function column_user_id( $item ) {
-        return $this->user_info( $item['user_id'] ); 
+        return $this->user_ino( $item['user_id'] ); 
 	}
 
     public function column_action( $item ) {
@@ -281,11 +282,21 @@ class wp_site_prober_List_Table extends WP_List_Table {
             $where .= $wpdb->prepare( ' AND (`action` LIKE %s OR `description` LIKE %s OR `ip` LIKE %s)', $like, $like, $like );
 		}
 
+        $offset = ( $this->get_pagenum() - 1 ) * $items_per_page;
+        //Since pagiation gets LIMIT $items_per_page=20 from DB table
+        //$total_items must get whole table count directly
+        //$total_items = count( $this->items ); gets only $items_per_page
+        $total_items = $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
         
         $this->items = $wpdb->get_results( 
-            "SELECT * FROM {$table} {$where} ORDER BY created_at DESC LIMIT 200", ARRAY_A );
+            $wpdb->prepare(
+                "SELECT * FROM {$table} {$where} 
+                ORDER BY created_at DESC LIMIT %d, %d",
+                $offset,
+                $items_per_page
+            ), ARRAY_A
+        );
         
-        $total_items = count( $this->items );
         
         $this->set_pagination_args( array(
 			'total_items' => $total_items,
