@@ -139,8 +139,6 @@ class wp_site_prober_Actions {
 		$this->log( 'switch_theme', 'theme', null, sprintf( 'Switched to theme %s', $new_name ) );
 	}
 
-	
-
 	public function wpsp_profile_update( $user_id, $old_user_data ) {
 		$this->log( 'profile_updated', 'user', $user_id, sprintf( 'Profile updated for user id %d', $user_id ) );
 	}

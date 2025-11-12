@@ -8,9 +8,10 @@ if ( ! class_exists( 'WP_List_Table' ) )
 class wp_site_prober_List_Table extends WP_List_Table {
 
     protected $data_types = array();
+    protected $table_name = '';        
 
     public function __construct( $args = array() ) {
-        //$this->total_items = 10;
+        global $wpdb;
 
 		parent::__construct(
 			array(
@@ -18,6 +19,8 @@ class wp_site_prober_List_Table extends WP_List_Table {
 				'plural'    => esc_html__( 'activities', 'wp-site-prober' ),
 			)
 		);
+
+        $this->table_name = $wpdb->wpsp_activity;        
     }
 
     private function get_filtered_link( $name = '', $value = '' ) {
@@ -61,7 +64,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		return $msg;
 	}
     public function column_user_id( $item ) {
-        return $this->user_ino( $item['user_id'] ); 
+        return $this->user_info( $item['user_id'] ); 
 	}
 
     public function column_action( $item ) {
@@ -84,10 +87,10 @@ class wp_site_prober_List_Table extends WP_List_Table {
         $columns = array(
             'created_at'  => __( 'Time', 'wp-site-prober' ),
             'user_id'     => __( 'User Info', 'wp-site-prober' ),
+            'ip'          => __( 'IP', 'wp-site-prober' ),
             'action'      => __( 'Action', 'wp-site-prober' ),
             'object_type' => __( 'Object', 'wp-site-prober' ),
             'description' => __( 'Description', 'wp-site-prober' ),
-            'ip'          => __( 'IP', 'wp-site-prober' ),
         );
 
 		return $columns;
@@ -106,7 +109,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		);
 	}
     
-    public function extra_tablenav_footer() {
+    public function extra_tablenav_header() {
 		/**
 		 * Filter list of record actions
 		 *
@@ -120,16 +123,32 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		<?php
 	}
 
+    public function extra_tablenav_footer() {
+		/**
+		 * Filter list of record actions
+		 *
+		 * @return array Array items should represent action_id => 'Action Title'
+		 */
+	    ?>
+            <form id="wpsp-form-delete" method="post" action="">
+                <input type="hidden" id="clearLogs" name="clearLogs" value="Yes">
+                <div class="alignleft actions">
+                    <?php submit_button( __( 'Clear Logs', 'wp-site-prober' ), '', 'clear_action', false ); ?>
+                </div>
+			</form>
+		<?php
+	}
+
 	public function extra_tablenav( $which ) {
 		global $wpdb;
 
 		if ( 'bottom' === $which ) {
-			//$this->extra_tablenav_footer();
+			$this->extra_tablenav_footer();
             return;
 		}
 
 		if ( 'top' === $which ) {
-            $this->extra_tablenav_footer();
+            $this->extra_tablenav_header();
         }
 
         if ( 'top' !== $which ) {
@@ -242,51 +261,52 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		?>
 		<div class="tablenav <?php echo esc_attr( $which ); ?>">
 			<?php
-			$this->extra_tablenav( $which );
-			$this->pagination( $which );
+			    $this->extra_tablenav( $which );
+			    $this->pagination( $which );
 			?>
 			<br class="clear" />
 		</div>
 		<?php
 	}
+
+    public function delete_all_items() {
+		global $wpdb;
+        $table = $this->table_name;
+		$wpdb->query( "TRUNCATE {$table}" );
+	}
     public function prepare_items() {
 		global $wpdb;
 
-        $items_per_page = 10;
-
-        $this->_column_headers = 
-            array( $this->get_columns(), 
-                   $this->get_hidden_columns( ), 
-                   $this->get_sortable_columns() );
-
-        $table = $wpdb->wpsp_activity;
+        $items_per_page = 20;        
+        $table = $this->table_name;
         
+        $clear  = isset( $_POST['clearLogs'] ) ? sanitize_text_field( wp_unslash( $_POST['clearLogs'] ) ) : '';
+		if ( $clear ){
+			//error_log(  'clearLogs');
+			$this->delete_all_items();
+		}
+        
+        $search = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
         $where = ' WHERE 1 = 1';
 
-        
 		if ( ! empty( $_REQUEST['typeshow'] ) ) {
 			$where .= $wpdb->prepare( ' AND `object_type` = %s', sanitize_text_field( $_REQUEST['typeshow'] ) );
 		}
 
-        
-		if ( isset( $_REQUEST['usershow'] ) && '' !== $_REQUEST['usershow'] ) {
+        if ( isset( $_REQUEST['usershow'] ) && '' !== $_REQUEST['usershow'] ) {
 			$where .= $wpdb->prepare( ' AND `user_id` = %d', sanitize_text_field( $_REQUEST['usershow'] ) );
 		}
 
-        //$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
-        $search = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
-		
 		if ( $search ) {
 			$like = '%' . $wpdb->esc_like( $search ) . '%';
-			//$where = $wpdb->prepare( " WHERE action LIKE %s OR description LIKE %s OR ip LIKE %s ", $like, $like, $like );
             $where .= $wpdb->prepare( ' AND (`action` LIKE %s OR `description` LIKE %s OR `ip` LIKE %s)', $like, $like, $like );
 		}
-
-        $offset = ( $this->get_pagenum() - 1 ) * $items_per_page;
-        //Since pagiation gets LIMIT $items_per_page=20 from DB table
-        //$total_items must get whole table count directly
-        //$total_items = count( $this->items ); gets only $items_per_page
+      
+        //Since pagiation gets LIMIT $items_per_page=20 from DB table.
+        //$total_items must get whole table count directly.
+        //$total_items = count( $this->items ); gets only $items_per_page.
         $total_items = $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
+        $offset = ( $this->get_pagenum() - 1 ) * $items_per_page;
         
         $this->items = $wpdb->get_results( 
             $wpdb->prepare(
@@ -295,15 +315,17 @@ class wp_site_prober_List_Table extends WP_List_Table {
                 $offset,
                 $items_per_page
             ), ARRAY_A
-        );
+        );        
         
-        
+        $this->_column_headers = 
+            array( $this->get_columns(), 
+                   $this->get_hidden_columns( ), 
+                   $this->get_sortable_columns() );
+
         $this->set_pagination_args( array(
 			'total_items' => $total_items,
 			'per_page' => $items_per_page,
 			'total_pages' => ceil( $total_items / $items_per_page ),
-		) );
-        
+		) );   
     }
-
 }

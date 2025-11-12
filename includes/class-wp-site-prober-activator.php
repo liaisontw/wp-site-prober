@@ -22,7 +22,6 @@
  */
 class wp_site_prober_Activator {
 
-	//public $table_name;
 	/**
 	 * Short Description. (use period)
 	 *
@@ -44,9 +43,7 @@ class wp_site_prober_Activator {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 		// set up DB name
-		//$wpdb->wpsp_activity = $wpdb->prefix . 'site_prober';
 		$table_name = $wpdb->wpsp_activity;
-		//$table_name = $wpdb->prefix . 'site_prober';
 		$charset_collate = $wpdb->get_charset_collate();
 
 		$sql = "CREATE TABLE {$table_name} (
