@@ -118,7 +118,14 @@ class wp_site_prober_List_Table extends WP_List_Table {
 	    ?>
 			<form method="get">
 				<input type="hidden" name="page" value="wp-site-prober" />
-				<a class="button" href="<?php echo esc_url( admin_url( 'admin-post.php?action=WP_Site_Prober_export_csv' ) ); ?>"><?php esc_html_e( 'Export CSV', 'wp-site-prober' ); ?></a>
+				<a class="button" href="
+					<?php 
+						echo esc_url( admin_url( 'admin-post.php?action=WP_Site_Prober_export_csv' ) ); 
+					?>">
+					<?php 
+						esc_html_e( 'Export CSV', 'wp-site-prober' ); 
+					?>
+				</a>
 			</form>
 		<?php
 	}
@@ -147,12 +154,12 @@ class wp_site_prober_List_Table extends WP_List_Table {
             return;
 		}
 
-		if ( 'top' === $which ) {
-            $this->extra_tablenav_header();
-        }
-
-        if ( 'top' !== $which ) {
+		if ( 'top' !== $which ) {
 			return;
+        }
+        
+        if ( 'top' === $which ) {
+            $this->extra_tablenav_header();
         }
 
 		echo '<div class="alignleft actions">';

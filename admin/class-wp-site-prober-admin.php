@@ -96,7 +96,7 @@ class wp_site_prober_Admin {
 			'manage_options',
 			'wp-site-prober',
 			array(&$this, 'render_page_list_table'),
-			'dashicons-list-view',
+			'dashicons-video-alt2',
 			80
 		);
 	}	

@@ -8,13 +8,36 @@ Stable tag: 1.0.0
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
-WP Site Prober plugin replaces the ellipsis (...) with a 
-custom text string with selected padding. 
-Not compatible with all themes.
-
+WP Site Prober plugin helps you log changes 
+and actions on your WordPress site.
+Securing your Wordpress website
 
 == Description ==
-WP Site Prober plugin not compatible with all themes.
+<strong>A Lightweighted and Easy hands-on plugin to secure your Wordpress website.</strong><br />
+
+Wonder when did your WordPress website change and who did this?
+Want to track your WordPress website change history? 
+Find out when and who did what on your WordPress website with WP Site Prober plugin. 
+
+* Who logged in, who logged out and if someone tried to log in but failed.
+* When a post was published, and who published it
+* If a plugin/theme was activated/deactivated
+
+<strong>Export to CSV</strong> - Export your Wordpress website change history to CSV. 
+
+* <strong>Posts</strong> - Created, updated, deleted
+* <strong>Categories</strong> - Created, updated, deleted
+* <strong>Taxonomies</strong> - Created, updated, deleted
+* <strong>Comments</strong> - Created, approved, unapproved, trashed, untrashed, spammed, unspammed, deleted
+* <strong>Users</strong> - Login, logout, login failed, update profile, registered, deleted
+* <strong>Plugins</strong> - Installed, updated, activated, deactivated, changed
+* <strong>Themes</strong> - Installed, updated, deleted, activated, changed (Editor and Customizer)
+
+<h3>Data Storage Isolation</h3>
+
+In order to keep your website database clean and to be easire to backup, 
+all logs data are stored in a isolated custom table within your WordPress database.
+
 
 
 == Build Status ==
@@ -51,11 +74,10 @@ For manual installation via FTP:
 
 1. Dash-Board: Settings-wp-site-prober.
 2. WP Site Prober_Setting_Panel
-3. Before-WP Site Prober.
-4. After-WP Site Prober.
 
 == Changelog ==
 
+[1.0.0] First released.
 
 == Upgrade Notice ==
 

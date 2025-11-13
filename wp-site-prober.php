@@ -82,21 +82,3 @@ function run_wp_site_prober() {
 }
 run_wp_site_prober();
 
-/*
-function wp_site_prober() {
-	static $instance = null;
-	if ( null === $instance ) {
-		$instance = new WP_Site_Prober();
-	}
-	return $instance;
-}
-
-// bootstrap
-add_action( 'plugins_loaded', 'wp_site_prober' );
-
-// helper global func
-function wp_site_prober_log( $action, $object_type = '', $object_id = null, $description = '' ) {
-	$logger = WP_Site_Prober();
-	$logger->log( $action, $object_type, $object_id, $description );
-}
-*/
