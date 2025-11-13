@@ -72,7 +72,7 @@ For manual installation via FTP:
 
 == Screenshots ==  
 
-1. Dash-Board: Settings-wp-site-prober.
+1. Dash-Board: Settings-wpsp-site-prober.
 2. Site Prober_Setting_Panel
 
 == Changelog ==

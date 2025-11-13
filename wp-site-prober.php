@@ -10,10 +10,10 @@
  *
  * @link              https://github.com/liaisontw/wp-site-prober
  * @since             1.0.0
- * @package           wp-site-prober
+ * @package           wpsp-site-prober
  *
  * @wordpress-plugin
- * Plugin Name:       Site Prober
+ * Plugin Name:       WPSP Site Prober
  * Plugin URI:        https://github.com/liaisontw/wp-site-prober
  * Description:       Simple activity / audit logger for WordPress. Creates activity table, hooks common events, admin UI and CSV export.
  * Version:           1.0.0
@@ -21,7 +21,7 @@
  * Author URI:        https://github.com/liaisontw/
  * License: 		  GPLv3 or later  
  * License URI: 	  https://www.gnu.org/licenses/gpl-3.0.html  
- * Text Domain:       wp-site-prober
+ * Text Domain:       wpsp-site-prober
  * Domain Path:       /languages
  */
 

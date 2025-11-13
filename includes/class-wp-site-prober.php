@@ -57,7 +57,7 @@ class WP_Site_Prober {
 		} else {
 			$this->version = '1.0.0';
 		}
-		$this->plugin_name = 'wp-site-prober';
+		$this->plugin_name = 'wpsp-site-prober';
 
 		$this->load_dependencies();
 		//$this->set_locale();

@@ -25,11 +25,13 @@ class wp_site_prober_Admin {
 
 
 	protected $logger;
+	protected $table;
 	protected $wpsp_list_table = null;
 	public function __construct( $logger, $plugin_name, $version ) {
 		$this->logger = $logger;
 		$this->plugin_name = $plugin_name;
         $this->version = $version;
+		$this->table = $this->logger->get_table_name();
         add_action('admin_menu', array($this, 'admin_menu'));
 
 		// handle csv export
@@ -94,7 +96,7 @@ class wp_site_prober_Admin {
 			'Site Prober',
 			'Site Prober',
 			'manage_options',
-			'wp-site-prober',
+			'wpsp-site-prober',
 			array(&$this, 'render_page_list_table'),
 			'dashicons-video-alt2',
 			80
@@ -127,7 +129,7 @@ class wp_site_prober_Admin {
 		$this->get_list_table()->prepare_items();
 	?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Site Prober', 'wp-site-prober' ); ?></h1>
+			<h1><?php esc_html_e( 'Site Prober', 'wpsp-site-prober' ); ?></h1>
 
 			<form id="activity-filter" method="get">
 				<input type="hidden" name="page" value="<?php echo esc_attr( $_REQUEST['page'] ); ?>" />
@@ -144,16 +146,33 @@ class wp_site_prober_Admin {
 	/**
 	 * Export current query (no filters) as CSV
 	 */
-	public function handle_export_csv() {
+	/*
+	public function handle_export_csv_backup() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'Permission denied', 'wp-site-prober' ) );
+			return;
 		}
 		global $wpdb;
-		$table = $this->logger->get_table_name();
-		$rows = $wpdb->get_results( "SELECT * FROM {$table} ORDER BY created_at DESC", ARRAY_A );
+		$this->table = $this->logger->get_table_name();
+		$cache_key   = 'site_prober_logs_page_' . $page;
+		$cache_group = 'wp-site-prober';
+
+		// 嘗試從快取抓資料
+		$results = wp_cache_get( $cache_key, $cache_group );
+
+		if ( false === $results ) {
+			// Safe direct database access (custom table, prepared query)
+			$rows = $wpdb->get_results( 
+				$wpdb->prepare( "SELECT * FROM {$this->table} ORDER BY created_at DESC" ),	
+				ARRAY_A
+			);
+
+			wp_cache_set( $cache_key, $results, $cache_group, 5 * MINUTE_IN_SECONDS );
+		}
+
+
 
 		header( 'Content-Type: text/csv; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename=activity-log-' . date( 'Y-m-d' ) . '.csv' );
+		header( 'Content-Disposition: attachment; filename=activity-log-' . gmdate( 'Y-m-d' ) . '.csv' );
 
 		$out = fopen( 'php://output', 'w' );
 		fputcsv( $out, [ 'id', 'created_at', 'user_id', 'action', 'object_type', 'description', 'ip' ] );
@@ -172,4 +191,113 @@ class wp_site_prober_Admin {
 		fclose( $out );
 		exit;
 	}
+		*/
+
+	function handle_export_csv( $rows ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		global $wpdb;
+		$this->table = $this->logger->get_table_name();
+		$cache_key   = 'site_prober_logs_page_' . $page;
+		$cache_group = 'wp-site-prober';
+
+		// 嘗試從快取抓資料
+		$results = wp_cache_get( $cache_key, $cache_group );
+
+		if ( false === $results ) {
+			// Safe direct database access (custom table, prepared query)
+			$rows = $wpdb->get_results( 
+				$wpdb->prepare( "SELECT * FROM {$this->table} ORDER BY created_at DESC" ),	
+				ARRAY_A
+			);
+
+			wp_cache_set( $cache_key, $results, $cache_group, 5 * MINUTE_IN_SECONDS );
+		}
+
+		// 初始化 WP_Filesystem
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		global $wp_filesystem;
+		WP_Filesystem();
+
+		// 暫存檔路徑
+		$upload_dir = wp_upload_dir();
+		$tmp_file   = trailingslashit( $upload_dir['basedir'] ) . 'wp-site-prober-export.csv';
+
+		// 建立 CSV 內容
+		$csv_lines = [];
+		$csv_lines[] = [ 'id', 'created_at', 'user_id', 'ip', 'action', 'object_type', 'description' ];
+
+		foreach ( $rows as $r ) {
+			$csv_lines[] = [
+				$r['id'],
+				$r['created_at'],
+				$this->user_info_export( $r['user_id'] ),
+				$r['ip'],
+				$r['action'],
+				$r['object_type'],
+				$r['description'],
+			];
+		}
+
+		
+
+		// 將陣列轉為 CSV 格式字串
+		$csv_content = '';
+		foreach ( $csv_lines as $line ) {
+			$csv_content .= $this->array_to_csv_line( $line );
+		}
+
+		$wp_filesystem->put_contents( $tmp_file, $csv_content, FS_CHMOD_FILE );
+
+		header( 'Content-Type: text/csv; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename=wp-site-prober-export-' . gmdate( 'Y-m-d' ) . '.csv' );
+		header( 'Pragma: no-cache' );
+		header( 'Expires: 0' );
+
+		// 直接輸出檔案
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		//readfile( $tmp_file );
+		//wp_kses_post()
+		// 用 WP_Filesystem 安全讀出內容
+		echo wp_kses_post( $wp_filesystem->get_contents( $tmp_file ) );
+
+		$wp_filesystem->delete( $tmp_file );
+		exit;
+		
+
+		/*
+		// 寫入檔案（使用 WP_Filesystem）
+		$wp_filesystem->put_contents( $tmp_file, $csv_content, FS_CHMOD_FILE );
+
+		// 輸出下載
+		header( 'Content-Type: text/csv; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename=wp-site-prober-export-' . gmdate( 'Y-m-d' ) . '.csv' );
+		header( 'Pragma: no-cache' );
+		header( 'Expires: 0' );
+
+		// 用 WP_Filesystem 安全讀出內容
+		echo $wp_filesystem->get_contents( $tmp_file );
+
+		// 清除暫存檔
+		$wp_filesystem->delete( $tmp_file );
+		exit;
+		*/
+	}
+
+	/**
+	 * 將陣列轉成 CSV 一行（處理引號、逗號等）
+	 */
+	private function array_to_csv_line( $fields, $delimiter = ',', $enclosure = '"' ) {
+		$escaped = [];
+		foreach ( $fields as $field ) {
+			$escaped[] = $enclosure . str_replace( $enclosure, $enclosure . $enclosure, $field ) . $enclosure;
+		}
+		return implode( $delimiter, $escaped ) . "\n";
+	}
 }
+
+

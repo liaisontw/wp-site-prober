@@ -15,8 +15,8 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
 		parent::__construct(
 			array(
-				'singular'  => esc_html__( 'activity', 'wp-site-prober' ),
-				'plural'    => esc_html__( 'activities', 'wp-site-prober' ),
+				'singular'  => esc_html__( 'activity', 'wpsp-site-prober' ),
+				'plural'    => esc_html__( 'activities', 'wpsp-site-prober' ),
 			)
 		);
 
@@ -24,7 +24,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
     }
 
     private function get_filtered_link( $name = '', $value = '' ) {
-		$base_page_url = menu_page_url( 'wp-site-prober', false );
+		$base_page_url = menu_page_url( 'wpsp-site-prober', false );
 
 		if ( empty( $name ) ) {
 			return $base_page_url;
@@ -51,13 +51,13 @@ class wp_site_prober_List_Table extends WP_List_Table {
 					$this->get_filtered_link( 'usershow', $user->ID ),
 					get_avatar( $user->ID, 40 ),
 					$user->display_name,
-					isset( $user->roles[0] ) && isset( $wp_roles->role_names[ $user->roles[0] ] ) ? $wp_roles->role_names[ $user->roles[0] ] : __( 'Unknown', 'wp-site-prober' )
+					isset( $user->roles[0] ) && isset( $wp_roles->role_names[ $user->roles[0] ] ) ? $wp_roles->role_names[ $user->roles[0] ] : __( 'Unknown', 'wpsp-site-prober' )
 				);		
 			}
 		} else {
 			$msg =  sprintf(
 				'<span class="wpsp-author-name">%s</span>',
-				__( 'N/A', 'wp-site-prober' )
+				__( 'N/A', 'wpsp-site-prober' )
 			);
 		}
 		
@@ -85,12 +85,12 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
     public function get_columns() {
         $columns = array(
-            'created_at'  => __( 'Time', 'wp-site-prober' ),
-            'user_id'     => __( 'User Info', 'wp-site-prober' ),
-            'ip'          => __( 'IP', 'wp-site-prober' ),
-            'action'      => __( 'Action', 'wp-site-prober' ),
-            'object_type' => __( 'Object', 'wp-site-prober' ),
-            'description' => __( 'Description', 'wp-site-prober' ),
+            'created_at'  => __( 'Time', 'wpsp-site-prober' ),
+            'user_id'     => __( 'User Info', 'wpsp-site-prober' ),
+            'ip'          => __( 'IP', 'wpsp-site-prober' ),
+            'action'      => __( 'Action', 'wpsp-site-prober' ),
+            'object_type' => __( 'Object', 'wpsp-site-prober' ),
+            'description' => __( 'Description', 'wpsp-site-prober' ),
         );
 
 		return $columns;
@@ -117,13 +117,13 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		 */
 	    ?>
 			<form method="get">
-				<input type="hidden" name="page" value="wp-site-prober" />
+				<input type="hidden" name="page" value="wpsp-site-prober" />
 				<a class="button" href="
 					<?php 
 						echo esc_url( admin_url( 'admin-post.php?action=WP_Site_Prober_export_csv' ) ); 
 					?>">
 					<?php 
-						esc_html_e( 'Export CSV', 'wp-site-prober' ); 
+						esc_html_e( 'Export CSV', 'wpsp-site-prober' ); 
 					?>
 				</a>
 			</form>
@@ -140,7 +140,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
             <form id="wpsp-form-delete" method="post" action="">
                 <input type="hidden" id="clearLogs" name="clearLogs" value="Yes">
                 <div class="alignleft actions">
-                    <?php submit_button( __( 'Clear Logs', 'wp-site-prober' ), '', 'clear_action', false ); ?>
+                    <?php submit_button( __( 'Clear Logs', 'wpsp-site-prober' ), '', 'clear_action', false ); ?>
                 </div>
 			</form>
 		<?php
@@ -183,7 +183,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
 		// Make sure we get items for filter.
 		if ( $users || $this->data_types ) {
-			submit_button( __( 'Filter', 'wp-site-prober' ), 'button', 'wpsp-filter', false, array() );
+			submit_button( __( 'Filter', 'wpsp-site-prober' ), 'button', 'wpsp-filter', false, array() );
 		}
 
 		if ( $users ) {
@@ -193,7 +193,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 			$output = array();
 			foreach ( $users as $_user ) {
 				if ( 0 === (int) $_user->user_id ) {
-					$output[0] = __( 'N/A', 'wp-site-prober' );
+					$output[0] = __( 'N/A', 'wpsp-site-prober' );
 					continue;
 				}
 
@@ -203,12 +203,17 @@ class wp_site_prober_List_Table extends WP_List_Table {
 			}
 
 			if ( ! empty( $output ) ) {
-				echo '<select name="usershow" id="hs-filter-usershow">';
-				printf( '<option value="">%s</option>', __( 'All Users', 'wp-site-prober' ) );
-				foreach ( $output as $key => $value ) {
-					printf( '<option value="%s"%s>%s</option>', $key, selected( $_REQUEST['usershow'], $key, false ), $value );
-				}
-				echo '</select>';
+			?>
+				<select name="usershow" id="hs-filter-usershow">'
+				<option value="">All Users</option>
+				<?php foreach ( $output as $key => $value ) { ?>
+					<option value="<?php echo esc_html($key); ?>" 
+					  <?php echo esc_html(selected( $_REQUEST['usershow'], $key, false )); ?>>
+					  <?php echo esc_html($key); ?>
+					</option>
+				<?php } ?>
+				</select>
+			<?php
 			}
 		}
 
@@ -223,14 +228,21 @@ class wp_site_prober_List_Table extends WP_List_Table {
 					'<option value="%s"%s>%s</option>',
 					$object_type,
 					selected( $_REQUEST['typeshow'], $object_type, false ),
-					__( $object_type, 'wp-site-prober' )
+					$object_type
 				);
 			}
 
-			echo '<select name="typeshow" id="hs-filter-typeshow">';
-			printf( '<option value="">%s</option>', __( 'All Objects', 'wp-site-prober' ) );
-			echo implode( '', $output );
-			echo '</select>';
+			?>
+				<select name="typeshow" id="hs-filter-typeshow">
+				<option value="">All Objects</option>
+				<?php echo esc_html(implode( '', $output )); ?>
+				</select>
+			<?php
+			// echo '<select name="typeshow" id="hs-filter-typeshow">';
+			// printf( '<option value="">%s</option>', __( 'All Objects', 'wpsp-site-prober' ) );
+			// echo implode( '', $output );
+			// echo '</select>';
+
 		}
 
 		$filters = array(
@@ -240,7 +252,13 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
 		foreach ( $filters as $filter ) {
 			if ( ! empty( $_REQUEST[ $filter ] ) ) {
-				echo '<a href="' . $this->get_filtered_link() . '" id="wpsp-reset-filter"><span class="dashicons dashicons-dismiss"></span>' . __( 'Reset Filters', 'wp-site-prober' ) . '</a>';
+			?>
+				<a href="<?php echo esc_html( $this->get_filtered_link() ); ?>" id="wpsp-reset-filter">
+					<span class="dashicons dashicons-dismiss"></span> . 
+					<?php echo esc_html( __( 'Reset Filters', 'wpsp-site-prober' ) ); ?>
+				</a>
+			<?php
+
 				break;
 			}
 		}
@@ -254,8 +272,8 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		$input_id = $input_id . '-search-input';
 		?>
 		<p class="search-box">
-            <label class="screen-reader-text" for="<?php echo $input_id ?>"><?php echo $text; ?>:</label>
-			<input type="search" id="<?php echo $input_id ?>" name="s" value="<?php echo esc_attr( $search_data ); ?>" placeholder="<?php esc_attr_e( 'Search actions, descriptions, IP', 'wp-site-prober' ); ?>"/>
+            <label class="screen-reader-text" for="<?php echo esc_attr($input_id); ?>"><?php echo esc_attr($text); ?>:</label>
+			<input type="search" id="<?php echo esc_attr($input_id); ?>" name="s" value="<?php echo esc_attr( $search_data ); ?>" placeholder="<?php esc_attr_e( 'Search actions, descriptions, IP', 'wpsp-site-prober' ); ?>"/>
 			<?php submit_button( $text, 'button', false, false, array('id' => 'search-submit') ); ?>
 		</p>
 	<?php
@@ -263,7 +281,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
 	public function display_tablenav( $which ) {
 		if ( 'top' == $which ) {
-			$this->search_box( __( 'Search', 'wp-site-prober' ), 'wpsp-search' );
+			$this->search_box( __( 'Search', 'wpsp-site-prober' ), 'wpsp-search' );
 		}
 		?>
 		<div class="tablenav <?php echo esc_attr( $which ); ?>">
