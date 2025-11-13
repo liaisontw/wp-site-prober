@@ -13,7 +13,7 @@
  * @package           wp-site-prober
  *
  * @wordpress-plugin
- * Plugin Name:       WP Site Prober
+ * Plugin Name:       Site Prober
  * Plugin URI:        https://github.com/liaisontw/wp-site-prober
  * Description:       Simple activity / audit logger for WordPress. Creates activity table, hooks common events, admin UI and CSV export.
  * Version:           1.0.0

@@ -1,4 +1,4 @@
-=== WP Site Prober ===
+=== Site Prober ===
 Contributors: Liaison  
 Donate link:   
 Tags: Site Prober
@@ -8,7 +8,7 @@ Stable tag: 1.0.0
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
-WP Site Prober plugin helps you log changes 
+Site Prober plugin helps you log changes 
 and actions on your WordPress site.
 Securing your Wordpress website
 
@@ -17,7 +17,7 @@ Securing your Wordpress website
 
 Wonder when did your WordPress website change and who did this?
 Want to track your WordPress website change history? 
-Find out when and who did what on your WordPress website with WP Site Prober plugin. 
+Find out when and who did what on your WordPress website with Site Prober plugin. 
 
 * Who logged in, who logged out and if someone tried to log in but failed.
 * When a post was published, and who published it
@@ -51,18 +51,18 @@ all logs data are stored in a isolated custom table within your WordPress databa
 
 
 == Development ==
-[WP Site Prober](https://github.com/liaisontw/wp-site-prober)  
+[Site Prober](https://github.com/liaisontw/wp-site-prober)  
 
 
 == Installation ==  
 
 For an automatic installation through WordPress:
 1. Select Add New from the WordPress Plugins menu in the admin area.
-2. Search for 'WP Site Prober'.
+2. Search for 'Site Prober'.
 3. Click Install Now, then Activate Plugin.
 
 For manual installation via FTP:
-1. Upload the 'WP Site Prober' folder to the '/wp-content/plugins/' directory.
+1. Upload the 'Site Prober' folder to the '/wp-content/plugins/' directory.
 2. Activate the plugin from the 'Plugins' screen or 'Installed Plugins' menu in WordPress Dashboard.
 
 
@@ -73,7 +73,7 @@ For manual installation via FTP:
 == Screenshots ==  
 
 1. Dash-Board: Settings-wp-site-prober.
-2. WP Site Prober_Setting_Panel
+2. Site Prober_Setting_Panel
 
 == Changelog ==
 

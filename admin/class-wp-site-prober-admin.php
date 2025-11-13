@@ -91,8 +91,8 @@ class wp_site_prober_Admin {
 
 	public function admin_menu() {
 		add_menu_page(
-			'WP Site Prober',
-			'WP Site Prober',
+			'Site Prober',
+			'Site Prober',
 			'manage_options',
 			'wp-site-prober',
 			array(&$this, 'render_page_list_table'),
@@ -127,7 +127,7 @@ class wp_site_prober_Admin {
 		$this->get_list_table()->prepare_items();
 	?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'WP Site Prober', 'wp-site-prober' ); ?></h1>
+			<h1><?php esc_html_e( 'Site Prober', 'wp-site-prober' ); ?></h1>
 
 			<form id="activity-filter" method="get">
 				<input type="hidden" name="page" value="<?php echo esc_attr( $_REQUEST['page'] ); ?>" />
