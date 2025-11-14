@@ -1,83 +1,75 @@
-=== Site Prober ===
+=== WPSP Site Prober ===
 Contributors: Liaison  
-Donate link:   
-Tags: Site Prober
+Donate link:  
+Tags: site monitoring, activity log, security, audit log  
 Requires at least: 6.8  
-Tested up to: 6.8 
-Stable tag: 1.0.0
+Tested up to: 6.8  
+Stable tag: 1.0.0  
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
-Site Prober plugin helps you log changes 
-and actions on your WordPress site.
-Securing your Wordpress website
+WPSP Site Prober helps you log and track key changes and user actions on your WordPress website — giving you better visibility and security.
 
 == Description ==
-<strong>A Lightweighted and Easy hands-on plugin to secure your Wordpress website.</strong><br />
 
-Wonder when did your WordPress website change and who did this?
-Want to track your WordPress website change history? 
-Find out when and who did what on your WordPress website with Site Prober plugin. 
+<strong>A lightweight and easy-to-use plugin to secure and monitor your WordPress website.</strong><br>
 
-* Who logged in, who logged out and if someone tried to log in but failed.
-* When a post was published, and who published it
-* If a plugin/theme was activated/deactivated
+Have you ever wondered when your website changed — and who did it?  
+WPSP Site Prober makes it easy to track your WordPress site's change history and user activities.
 
-<strong>Export to CSV</strong> - Export your Wordpress website change history to CSV. 
+With WPSP Site Prober, you can easily monitor:
 
-* <strong>Posts</strong> - Created, updated, deleted
-* <strong>Categories</strong> - Created, updated, deleted
-* <strong>Taxonomies</strong> - Created, updated, deleted
-* <strong>Comments</strong> - Created, approved, unapproved, trashed, untrashed, spammed, unspammed, deleted
-* <strong>Users</strong> - Login, logout, login failed, update profile, registered, deleted
-* <strong>Plugins</strong> - Installed, updated, activated, deactivated, changed
-* <strong>Themes</strong> - Installed, updated, deleted, activated, changed (Editor and Customizer)
+* Who logged in, logged out, or attempted (and failed) to log in.  
+* When a post was published or updated — and by whom.  
+* When a plugin or theme was activated, deactivated, or modified.  
+
+<strong>Export to CSV</strong> — Quickly export your website’s activity log for auditing or backup purposes.
+
+The plugin tracks:
+
+* <strong>Posts</strong> – Created, updated, deleted  
+* <strong>Categories</strong> – Created, updated, deleted  
+* <strong>Taxonomies</strong> – Created, updated, deleted  
+* <strong>Comments</strong> – Created, approved, unapproved, trashed, untrashed, spammed, unspammed, deleted  
+* <strong>Users</strong> – Login, logout, failed login, profile updated, registered, deleted  
+* <strong>Plugins</strong> – Installed, updated, activated, deactivated, modified  
+* <strong>Themes</strong> – Installed, updated, deleted, activated, modified (via Editor or Customizer)
 
 <h3>Data Storage Isolation</h3>
 
-In order to keep your website database clean and to be easire to backup, 
-all logs data are stored in a isolated custom table within your WordPress database.
+To keep your WordPress database clean and easy to back up,  
+all log data is stored in a dedicated custom table, fully isolated from your site’s core content.
 
+== Installation ==
 
+= Automatic Installation =
+1. Go to **Plugins → Add New** in your WordPress admin dashboard.  
+2. Search for **"Site Prober"**.  
+3. Click **Install Now**, then **Activate**.
 
-== Build Status ==
+= Manual Installation =
+1. Upload the **wpsp-site-prober** folder to the `/wp-content/plugins/` directory.  
+2. Activate the plugin through the **Plugins** screen in your WordPress dashboard.
 
-[2025/11/3] Tested:
-1. wp_site_prober table delete and create when plugin activated.
-2. Action logger:
-'wp_login', 'wp_logout', 'wp_login_failed', 'save_post', 'update_post',
-'switch_theme', 'activated_plugin', 'deactivated_plugin', 'profile_update'
-3. Search actions, description
+== Frequently Asked Questions ==
 
+= Where are the logs stored? =  
+Logs are saved in a dedicated custom database table within your WordPress installation, not in the standard posts or options tables.
 
-== Development ==
-[Site Prober](https://github.com/liaisontw/wp-site-prober)  
+= Can I export the logs? =  
+Yes. You can export your site’s activity log to a CSV file from the plugin’s settings page.
 
+== Screenshots ==
 
-== Installation ==  
-
-For an automatic installation through WordPress:
-1. Select Add New from the WordPress Plugins menu in the admin area.
-2. Search for 'Site Prober'.
-3. Click Install Now, then Activate Plugin.
-
-For manual installation via FTP:
-1. Upload the 'Site Prober' folder to the '/wp-content/plugins/' directory.
-2. Activate the plugin from the 'Plugins' screen or 'Installed Plugins' menu in WordPress Dashboard.
-
-
-== Frequently Asked Questions ==  
-
-
-
-== Screenshots ==  
-
-1. Dash-Board: Settings-wpsp-site-prober.
-2. Site Prober_Setting_Panel
+1. Dashboard: WPSP Site Prober Settings panel.  
+2. Example view of logged activities.  
 
 == Changelog ==
 
-[1.0.0] First released.
+= 1.0.0 =
+* Initial release.
 
 == Upgrade Notice ==
 
+= 1.0.0 =
+First stable release.

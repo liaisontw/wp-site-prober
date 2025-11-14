@@ -118,13 +118,16 @@ class wp_site_prober_List_Table extends WP_List_Table {
 	    ?>
 			<form method="get">
 				<input type="hidden" name="page" value="wpsp-site-prober" />
-				<a class="button" href="
-					<?php 
-						echo esc_url( admin_url( 'admin-post.php?action=WP_Site_Prober_export_csv' ) ); 
-					?>">
-					<?php 
-						esc_html_e( 'Export CSV', 'wpsp-site-prober' ); 
-					?>
+				<?php 
+					// 產生帶 nonce 的 URL
+					$export_url = wp_nonce_url(
+						admin_url( 'admin-post.php?action=WP_Site_Prober_export_csv' ),
+						'wpsp_list_table_action',
+						'wpsp_nonce'
+					);
+				?>
+				<a class="button" href="<?php echo esc_url( $export_url ); ?>">
+					<?php esc_html_e( 'Export CSV', 'wpsp-site-prober' ); ?>
 				</a>
 			</form>
 		<?php
@@ -139,6 +142,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 	    ?>
             <form id="wpsp-form-delete" method="post" action="">
                 <input type="hidden" id="clearLogs" name="clearLogs" value="Yes">
+				<?php wp_nonce_field( 'wpsp_list_table_action', 'wpsp_nonce' ); ?>
                 <div class="alignleft actions">
                     <?php submit_button( __( 'Clear Logs', 'wpsp-site-prober' ), '', 'clear_action', false ); ?>
                 </div>
@@ -164,22 +168,56 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
 		echo '<div class="alignleft actions">';
 
-		$users = $wpdb->get_results(
-			'SELECT DISTINCT `user_id` FROM `' . $wpdb->wpsp_activity . '`
-				WHERE 1 = 1
-				GROUP BY `user_id`
-				ORDER BY `user_id`
-				LIMIT 100
-			;'
-		);
+		//$table = sanitize_key( $this->table_name );
+		$cache_key   = 'site_prober_logs_page_' . $page;
+		$cache_group = 'wp-site-prober';
 
-		$this->data_types = $wpdb->get_col(
-			'SELECT DISTINCT `object_type` FROM `' . $wpdb->wpsp_activity . '`
-				WHERE 1 = 1
-				GROUP BY `object_type`
-				ORDER BY `object_type`
-			;'
-		);
+		// 嘗試從快取抓資料
+		$results = wp_cache_get( $cache_key, $cache_group );
+
+		if ( false === $results ) {
+			// Safe direct database access (custom table, prepared query)
+			// $users = $wpdb->get_results(
+			// 	'SELECT DISTINCT `user_id` FROM `' . $table . '`
+			// 		WHERE 1 = 1
+			// 		GROUP BY `user_id`
+			// 		ORDER BY `user_id`
+			// 		LIMIT 100
+			// 	;'
+			// );
+			$table = sanitize_key( $this->table_name );
+
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is sanitized above.
+			$users = $wpdb->get_results(
+				"SELECT DISTINCT user_id 
+				FROM `{$table}`
+				GROUP BY user_id
+				ORDER BY user_id
+				LIMIT 100;"
+			);
+
+			// $this->data_types = $wpdb->get_col(
+			// 	'SELECT DISTINCT `object_type` FROM `' . $table . '`
+			// 		WHERE 1 = 1
+			// 		GROUP BY `object_type`
+			// 		ORDER BY `object_type`
+			// 	;'
+			// );
+
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is sanitized above.
+			$this->data_types = $wpdb->get_col(
+				"SELECT DISTINCT object_type 
+				FROM `{$table}`
+				GROUP BY object_type
+				ORDER BY object_type
+				;"
+			);
+
+			wp_cache_set( $cache_key, $results, $cache_group, 5 * MINUTE_IN_SECONDS );
+		}
+
+
+		
 
 		// Make sure we get items for filter.
 		if ( $users || $this->data_types ) {
@@ -202,19 +240,35 @@ class wp_site_prober_List_Table extends WP_List_Table {
 					$output[ $user->ID ] = $user->user_nicename;
 			}
 
+			// if ( ! empty( $output ) ) {
+			// 	echo '<select name="usershow" id="hs-filter-usershow">';
+			// 	printf( '<option value="">%s</option>', __( 'All Users', 'aryo-activity-log' ) );
+			// 	foreach ( $output as $key => $value ) {
+			// 		printf( '<option value="%s"%s>%s</option>', $key, selected( $_REQUEST['usershow'], $key, false ), $value );
+			// 	}
+			// 	echo '</select>';
+			// }
+
 			if ( ! empty( $output ) ) {
+				foreach ( $output as $key => $value ) {
+					$selected_value = selected( $_REQUEST['usershow'], $key, false );
+					$name_output[] = sprintf(
+						'<option value="%s"%s>%s</option>',
+						esc_attr( $key ), // escape attribute
+						selected( $selected_value, $key, false ),
+						esc_html( $value )  // escape display text
+					);
+				}
+			}
 			?>
-				<select name="usershow" id="hs-filter-usershow">'
-				<option value="">All Users</option>
-				<?php foreach ( $output as $key => $value ) { ?>
-					<option value="<?php echo esc_html($key); ?>" 
-					  <?php echo esc_html(selected( $_REQUEST['usershow'], $key, false )); ?>>
-					  <?php echo esc_html($key); ?>
-					</option>
-				<?php } ?>
+				<select name="usershow" id="hs-filter-usershow">
+				<option value=""><?php echo esc_html( 'All Users' ); ?></option>
+				<?php 
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Fully escaped when building each option
+					echo implode( '', $name_output );
+				?>
 				</select>
 			<?php
-			}
 		}
 
 		if ( $this->data_types ) {
@@ -222,26 +276,35 @@ class wp_site_prober_List_Table extends WP_List_Table {
 				$_REQUEST['typeshow'] = '';
 			}
 
+			// echo '<select name="typeshow" id="hs-filter-typeshow">';
+			// printf( '<option value="">%s</option>', __( 'All Objects', 'wpsp-site-prober' ) );
+			// echo implode( '', $output );
+			// echo '</select>';
 			$output = array();
+
+			$selected_value = isset( $_REQUEST['typeshow'] )
+				? sanitize_text_field( wp_unslash( $_REQUEST['typeshow'] ) )
+				: '';
+
 			foreach ( $this->data_types as $object_type ) {
+
 				$output[] = sprintf(
 					'<option value="%s"%s>%s</option>',
-					$object_type,
-					selected( $_REQUEST['typeshow'], $object_type, false ),
-					$object_type
+					esc_attr( $object_type ), // escape attribute
+					selected( $selected_value, $object_type, false ),
+					esc_html( $object_type )  // escape display text
 				);
 			}
 
 			?>
 				<select name="typeshow" id="hs-filter-typeshow">
-				<option value="">All Objects</option>
-				<?php echo esc_html(implode( '', $output )); ?>
+					<option value=""><?php echo esc_html( 'All Objects' ); ?></option>
+					<?php 
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Fully escaped when building each option
+					echo implode( '', $output );
+					?>
 				</select>
 			<?php
-			// echo '<select name="typeshow" id="hs-filter-typeshow">';
-			// printf( '<option value="">%s</option>', __( 'All Objects', 'wpsp-site-prober' ) );
-			// echo implode( '', $output );
-			// echo '</select>';
 
 		}
 
@@ -267,7 +330,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 	}
 
     public function search_box( $text, $input_id ) {
-		$search_data = isset( $_REQUEST['s'] ) ? sanitize_text_field( $_REQUEST['s'] ) : '';
+		$search_data = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash($_REQUEST['s'] ) ) : '';
 
 		$input_id = $input_id . '-search-input';
 		?>
@@ -296,8 +359,9 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
     public function delete_all_items() {
 		global $wpdb;
-        $table = $this->table_name;
-		$wpdb->query( "TRUNCATE {$table}" );
+		$table = sanitize_key( $this->table_name );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name sanitized above.
+		$wpdb->query( "TRUNCATE TABLE {$table}" );
 	}
     public function prepare_items() {
 		global $wpdb;
@@ -308,6 +372,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
         $clear  = isset( $_POST['clearLogs'] ) ? sanitize_text_field( wp_unslash( $_POST['clearLogs'] ) ) : '';
 		if ( $clear ){
 			//error_log(  'clearLogs');
+			check_admin_referer( 'wpsp_list_table_action', 'wpsp_nonce' );
 			$this->delete_all_items();
 		}
         
@@ -315,11 +380,11 @@ class wp_site_prober_List_Table extends WP_List_Table {
         $where = ' WHERE 1 = 1';
 
 		if ( ! empty( $_REQUEST['typeshow'] ) ) {
-			$where .= $wpdb->prepare( ' AND `object_type` = %s', sanitize_text_field( $_REQUEST['typeshow'] ) );
+			$where .= $wpdb->prepare( ' AND `object_type` = %s', sanitize_text_field( wp_unslash( $_REQUEST['typeshow'] ) ) );
 		}
 
         if ( isset( $_REQUEST['usershow'] ) && '' !== $_REQUEST['usershow'] ) {
-			$where .= $wpdb->prepare( ' AND `user_id` = %d', sanitize_text_field( $_REQUEST['usershow'] ) );
+			$where .= $wpdb->prepare( ' AND `user_id` = %d', sanitize_text_field( wp_unslash( $_REQUEST['usershow'] ) ) );
 		}
 
 		if ( $search ) {
