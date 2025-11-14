@@ -177,14 +177,6 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
 		if ( false === $results ) {
 			// Safe direct database access (custom table, prepared query)
-			// $users = $wpdb->get_results(
-			// 	'SELECT DISTINCT `user_id` FROM `' . $table . '`
-			// 		WHERE 1 = 1
-			// 		GROUP BY `user_id`
-			// 		ORDER BY `user_id`
-			// 		LIMIT 100
-			// 	;'
-			// );
 			$table = sanitize_key( $this->table_name );
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is sanitized above.
@@ -195,14 +187,6 @@ class wp_site_prober_List_Table extends WP_List_Table {
 				ORDER BY user_id
 				LIMIT 100;"
 			);
-
-			// $this->data_types = $wpdb->get_col(
-			// 	'SELECT DISTINCT `object_type` FROM `' . $table . '`
-			// 		WHERE 1 = 1
-			// 		GROUP BY `object_type`
-			// 		ORDER BY `object_type`
-			// 	;'
-			// );
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is sanitized above.
 			$this->data_types = $wpdb->get_col(
@@ -215,9 +199,6 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
 			wp_cache_set( $cache_key, $results, $cache_group, 5 * MINUTE_IN_SECONDS );
 		}
-
-
-		
 
 		// Make sure we get items for filter.
 		if ( $users || $this->data_types ) {
@@ -249,9 +230,13 @@ class wp_site_prober_List_Table extends WP_List_Table {
 			// 	echo '</select>';
 			// }
 
+			$selected_value = isset( $_REQUEST['usershow'] )
+				? sanitize_text_field( wp_unslash( $_REQUEST['usershow'] ) )
+				: '';
+
+			$name_output = array();
 			if ( ! empty( $output ) ) {
 				foreach ( $output as $key => $value ) {
-					$selected_value = selected( $_REQUEST['usershow'], $key, false );
 					$name_output[] = sprintf(
 						'<option value="%s"%s>%s</option>',
 						esc_attr( $key ), // escape attribute
@@ -367,7 +352,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		global $wpdb;
 
         $items_per_page = 20;        
-        $table = $this->table_name;
+        //$table = $this->table_name;
         
         $clear  = isset( $_POST['clearLogs'] ) ? sanitize_text_field( wp_unslash( $_POST['clearLogs'] ) ) : '';
 		if ( $clear ){
@@ -377,14 +362,19 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		}
         
         $search = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
+		        $offset = ( $this->get_pagenum() - 1 ) * $items_per_page;
         $where = ' WHERE 1 = 1';
 
 		if ( ! empty( $_REQUEST['typeshow'] ) ) {
-			$where .= $wpdb->prepare( ' AND `object_type` = %s', sanitize_text_field( wp_unslash( $_REQUEST['typeshow'] ) ) );
+			$where .= $wpdb->prepare( ' AND `object_type` = %s', 
+			sanitize_text_field( wp_unslash( $_REQUEST['typeshow'] ) ) );
 		}
 
         if ( isset( $_REQUEST['usershow'] ) && '' !== $_REQUEST['usershow'] ) {
-			$where .= $wpdb->prepare( ' AND `user_id` = %d', sanitize_text_field( wp_unslash( $_REQUEST['usershow'] ) ) );
+			$where .= $wpdb->prepare( 
+				' AND `user_id` = %d', 
+				(int) $_REQUEST['usershow'] 
+			);
 		}
 
 		if ( $search ) {
@@ -392,20 +382,35 @@ class wp_site_prober_List_Table extends WP_List_Table {
             $where .= $wpdb->prepare( ' AND (`action` LIKE %s OR `description` LIKE %s OR `ip` LIKE %s)', $like, $like, $like );
 		}
       
-        //Since pagiation gets LIMIT $items_per_page=20 from DB table.
-        //$total_items must get whole table count directly.
-        //$total_items = count( $this->items ); gets only $items_per_page.
-        $total_items = $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
-        $offset = ( $this->get_pagenum() - 1 ) * $items_per_page;
-        
-        $this->items = $wpdb->get_results( 
-            $wpdb->prepare(
-                "SELECT * FROM {$table} {$where} 
-                ORDER BY created_at DESC LIMIT %d, %d",
-                $offset,
-                $items_per_page
-            ), ARRAY_A
-        );        
+
+		$cache_key   = 'site_prober_logs_page_' . $page;
+		$cache_group = 'wp-site-prober';
+
+		// 嘗試從快取抓資料
+		$results = wp_cache_get( $cache_key, $cache_group );
+
+		if ( false === $results ) {
+			// Safe direct database access (custom table, prepared query)
+			$table = sanitize_key( $this->table_name );
+
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is sanitized above.
+			//Since pagiation gets LIMIT $items_per_page=20 from DB table.
+			//$total_items must get whole table count directly.
+			//$total_items = count( $this->items ); gets only $items_per_page.
+			$total_items = $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
+
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is sanitized above.
+			$this->items = $wpdb->get_results( 
+				$wpdb->prepare(
+					"SELECT * FROM {$table} {$where} 
+					ORDER BY created_at DESC LIMIT %d, %d",
+					$offset,
+					$items_per_page
+				), ARRAY_A
+			);
+			
+			wp_cache_set( $cache_key, $results, $cache_group, 5 * MINUTE_IN_SECONDS );
+		}            
         
         $this->_column_headers = 
             array( $this->get_columns(), 
