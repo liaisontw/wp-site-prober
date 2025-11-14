@@ -41,7 +41,7 @@ define( 'WP_SITE_PROBER_VERSION', '1.0.0' );
  * The code that runs during plugin activation.
  * This action is documented in includes/class-wp-site-prober-activator.php
  */
-function activate_wp_site_prober() {
+function wpsp_activate_wp_site_prober() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-site-prober-activator.php';
 	wp_site_prober_Activator::activate();
 }
@@ -50,13 +50,13 @@ function activate_wp_site_prober() {
  * The code that runs during plugin deactivation.
  * This action is documented in includes/class-wp-site-prober-deactivator.php
  */
-function deactivate_wp_site_prober() {
+function wpsp_deactivate_wp_site_prober() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-site-prober-deactivator.php';
 	wp_site_prober_Deactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'activate_wp_site_prober' );
-register_deactivation_hook( __FILE__, 'deactivate_wp_site_prober' );
+register_activation_hook( __FILE__, 'wpsp_activate_wp_site_prober' );
+register_deactivation_hook( __FILE__, 'wpsp_deactivate_wp_site_prober' );
 
 
 /**
@@ -74,11 +74,11 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-wp-site-prober.php';
  *
  * @since    1.0.0
  */
-function run_wp_site_prober() {
+function wpsp_run_wp_site_prober() {
 
 	$plugin = new WP_Site_Prober();
 	$plugin->run();
 
 }
-run_wp_site_prober();
+wpsp_run_wp_site_prober();
 

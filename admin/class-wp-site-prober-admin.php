@@ -127,7 +127,8 @@ class wp_site_prober_Admin {
 	}
 
 	protected function redirect_back() {
-		wp_redirect( menu_page_url( 'wpsp-site-prober', false ) );
+		//wp_redirect( menu_page_url( 'wpsp-site-prober', false ) );
+		wp_safe_redirect( menu_page_url( 'wpsp-site-prober', false ) );
 		exit;
 	}
 	public function render_page_list_table() {

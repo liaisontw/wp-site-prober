@@ -399,7 +399,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 			//$total_items = count( $this->items ); gets only $items_per_page.
 			$total_items = $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
 
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is sanitized above.
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name sanitized and validated above.
 			$this->items = $wpdb->get_results( 
 				$wpdb->prepare(
 					"SELECT * FROM {$table} {$where} 
