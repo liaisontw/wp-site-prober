@@ -1,13 +1,8 @@
 FILE: admin/class-wp-site-prober-admin.php
 Line	Column	Type	Code	Message	Edit Link
-130	9	WARNING	WordPress.Security.SafeRedirect.wp_redirect_wp_redirect	wp_redirect() found. Using wp_safe_redirect(), along with the "allowed_redirect_hosts" filter if needed, can help avoid any chances of malicious redirects within code. It is also important to remember to call exit() after a redirect so that no other unwanted code is executed.
-Learn more (opens in a new tab)	View in code editor (opens in a new tab)
-
-FILE: admin/class-wp-site-prober-admin.php
-Line	Column	Type	Code	Message	Edit Link
-138	15	WARNING	WordPress.Security.NonceVerification.Recommended	Processing form data without nonce verification.	View in code editor (opens in a new tab)
-138	57	WARNING	WordPress.Security.NonceVerification.Recommended	Processing form data without nonce verification.	View in code editor (opens in a new tab)
-177	32	WARNING	WordPress.DB.PreparedSQL.InterpolatedNotPrepared	Use placeholders and $wpdb->prepare(); found interpolated variable {$table} at "SELECT * FROM {$table} ORDER BY created_at DESC"	View in code editor (opens in a new tab)
+139	15	WARNING	WordPress.Security.NonceVerification.Recommended	Processing form data without nonce verification.	View in code editor (opens in a new tab)
+139	57	WARNING	WordPress.Security.NonceVerification.Recommended	Processing form data without nonce verification.	View in code editor (opens in a new tab)
+178	32	WARNING	WordPress.DB.PreparedSQL.InterpolatedNotPrepared	Use placeholders and $wpdb->prepare(); found interpolated variable {$table} at "SELECT * FROM {$table} ORDER BY created_at DESC"	View in code editor (opens in a new tab)
 
 FILE: includes/class-wp-site-prober-list-table.php
 Line	Column	Type	Code	Message	Edit Link
@@ -28,7 +23,7 @@ Line	Column	Type	Code	Message	Edit Link
 
 FILE: admin/class-wp-site-prober-admin.php
 Line	Column	Type	Code	Message	Edit Link
-177	21	WARNING	WordPress.DB.DirectDatabaseQuery.DirectQuery	Use of a direct database call is discouraged.	View in code editor (opens in a new tab)
+178	21	WARNING	WordPress.DB.DirectDatabaseQuery.DirectQuery	Use of a direct database call is discouraged.	View in code editor (opens in a new tab)
 
 FILE: includes/class-wp-site-prober-actions.php
 Line	Column	Type	Code	Message	Edit Link
@@ -50,15 +45,9 @@ Line	Column	Type	Code	Message	Edit Link
 0	0	WARNING	trademarked_term	The plugin name includes a restricted term. Your plugin name - "WPSP Site Prober" - contains the restricted term "wp" which can be used , as long as you don't change it to the full name. For example: You can use WP but not WordPress.	View in code editor (opens in a new tab)
 0	0	WARNING	trademarked_term	The plugin slug includes a restricted term. Your plugin slug - "wpsp-site-prober" - contains the restricted term "wp" which can be used within the plugin slug, as long as you don't use the full name in the plugin name. For example: You can use WP but not WordPress.	View in code editor (opens in a new tab)
 
-FILE: wp-site-prober.php
-Line	Column	Type	Code	Message	Edit Link
-44	1	ERROR	WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound	Functions declared in the global namespace by a theme/plugin should start with the theme/plugin prefix. Found: "activate_wp_site_prober".	View in code editor (opens in a new tab)
-53	1	ERROR	WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound	Functions declared in the global namespace by a theme/plugin should start with the theme/plugin prefix. Found: "deactivate_wp_site_prober".	View in code editor (opens in a new tab)
-77	1	ERROR	WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound	Functions declared in the global namespace by a theme/plugin should start with the theme/plugin prefix. Found: "run_wp_site_prober".	View in code editor (opens in a new tab)
-
 FILE: admin/class-wp-site-prober-admin.php
 Line	Column	Type	Code	Message	Edit Link
-177	19	WARNING	PluginCheck.Security.DirectDB.UnescapedDBParameter	Unescaped parameter $table used in $wpdb->get_results("SELECT * FROM {$table} ORDER BY created_at DESC")\n$table assigned unsafely at line 168:\n $table = sanitize_key( $this->table )\nNote: sanitize_key() is not a safe escaping function.	View in code editor (opens in a new tab)
+178	19	WARNING	PluginCheck.Security.DirectDB.UnescapedDBParameter	Unescaped parameter $table used in $wpdb->get_results("SELECT * FROM {$table} ORDER BY created_at DESC")\n$table assigned unsafely at line 169:\n $table = sanitize_key( $this->table )\nNote: sanitize_key() is not a safe escaping function.	View in code editor (opens in a new tab)
 
 FILE: includes/class-wp-site-prober-list-table.php
 Line	Column	Type	Code	Message	Edit Link

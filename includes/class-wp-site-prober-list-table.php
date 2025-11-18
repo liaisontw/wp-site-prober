@@ -169,7 +169,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		echo '<div class="alignleft actions">';
 
 		//$table = sanitize_key( $this->table_name );
-		$cache_key   = 'site_prober_logs_page_' . $page;
+		$cache_key   = 'site_prober_logs_page_';
 		$cache_group = 'wp-site-prober';
 
 		// 嘗試從快取抓資料
@@ -383,7 +383,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		}
       
 
-		$cache_key   = 'site_prober_logs_page_' . $page;
+		$cache_key   = 'site_prober_logs_page_';
 		$cache_group = 'wp-site-prober';
 
 		// 嘗試從快取抓資料

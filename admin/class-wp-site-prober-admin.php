@@ -97,11 +97,16 @@ class wp_site_prober_Admin {
 			'Site Prober',
 			'manage_options',
 			'wpsp-site-prober',
-			array(&$this, 'render_page_list_table'),
+			//array($this, 'render_page_list_table'),
+			array($this, 'render_page_tabs'),
 			'dashicons-video-alt2',
 			80
 		);
 	}	
+
+	public function render_page_tabs() {
+		require_once( trailingslashit( dirname( __FILE__ ) ) . 'partials/wp-site-prober-admin-display.php' );
+	}
 
 	public function user_info_export( $user_id ) {
 		$msg = '';
@@ -143,7 +148,11 @@ class wp_site_prober_Admin {
 		$this->get_list_table()->prepare_items();
 	?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Site Prober', 'wpsp-site-prober' ); ?></h1>
+			<h1>
+				<?php 
+					esc_html_e( 'Actions', 'wpsp-site-prober' ); 
+				?>
+			</h1>
 			
 			<form id="activity-filter" method="get">
 				<input type="hidden" name="page" value="Yes" />
@@ -167,7 +176,7 @@ class wp_site_prober_Admin {
 		global $wpdb;
 		$this->table = $this->logger->get_table_name();
 		$table = sanitize_key( $this->table );
-		$cache_key   = 'site_prober_logs_page_' . $page;
+		$cache_key   = 'site_prober_logs_page_';
 		$cache_group = 'wp-site-prober';
 
 		// 嘗試從快取抓資料
