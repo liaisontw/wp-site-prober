@@ -62,4 +62,27 @@ class wp_site_prober_Activator {
 		dbDelta( $sql );
 	}
 
+	protected static function _create_tables_custom_log() {
+		global $wpdb;
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+		// set up DB name
+		$table_name = $wpdb->wpsp_custom_log;
+		$charset_collate = $wpdb->get_charset_collate();
+
+		$sql = "CREATE TABLE {$table_name} (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			log_id bigint(20) DEFAULT NULL,
+			plugin_name varchar(191) NOT NULL,
+			message text DEFAULT NULL,
+			severity bigint(20) DEFAULT NULL,
+			session_type varchar(45) DEFAULT NULL,
+			session_id bigint(20) DEFAULT NULL,
+			created_at datetime DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (id)
+		) $charset_collate;";
+
+		dbDelta( $sql );
+	}
+
 }

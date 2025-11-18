@@ -41,6 +41,7 @@ class WP_Site_Prober {
 	protected $version;
 
 	protected $table_name;
+	protected $table_name_custom_log;
 	public $dir;
 	/**
 	 * Define the core functionality of the plugin.
@@ -66,7 +67,9 @@ class WP_Site_Prober {
 
 		global $wpdb;
 		$wpdb->wpsp_activity = $wpdb->prefix . 'site_prober';
+		$wpdb->wpsp_custom_log = $wpdb->prefix . 'site_prober_custom_log';	
 		$this->table_name = $wpdb->wpsp_activity;
+		$this->table_name_custom_log = $wpdb->wpsp_custom_log;
 		$this->dir = plugin_basename( __FILE__ );
 
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wp-site-prober-actions.php';
