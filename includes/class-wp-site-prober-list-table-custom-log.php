@@ -5,9 +5,9 @@ if ( ! class_exists( 'WP_List_Table' ) )
 	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 
 
-class wp_site_prober_List_Table extends WP_List_Table {
+class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 
-    protected $data_types = array();
+    protected $log_severity = array();
     protected $table_name = '';        
 
     public function __construct( $args = array() ) {
@@ -15,12 +15,12 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
 		parent::__construct(
 			array(
-				'singular'  => esc_html__( 'activity', 'wpsp-site-prober' ),
-				'plural'    => esc_html__( 'activities', 'wpsp-site-prober' ),
+				'singular'  => esc_html__( 'custom_log', 'wpsp-site-prober' ),
+				'plural'    => esc_html__( 'custom_logs', 'wpsp-site-prober' ),
 			)
 		);
 
-        $this->table_name = $wpdb->wpsp_activity;        
+        $this->table_name = $wpdb->wpsp_custom_log;     
     }
 
     private function get_filtered_link( $name = '', $value = '' ) {
@@ -33,64 +33,33 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		return add_query_arg( $name, $value, $base_page_url );
 	}
 
+    public function column_log_id( $item ) {
+        return esc_html( $item['log_id'] ); 
+	}
+
+    public function column_message( $item ) {
+        return esc_html( $item['message'] );
+    }
+
+    public function column_plugin( $item ) {
+        return esc_html( $item['plugin_name'] );
+    }
+
+    public function column_severity( $item ) {
+		return esc_html( $item['severity'] );
+	}
 
     public function column_created_at( $item ) {
-		return esc_html( $item['created_at'] );
-	}
-
-    public function user_info( $user_id ) {
-		global $wp_roles;
-
-		$msg = '';
-		
-		if ( ! empty( $user_id ) && 0 !== (int) $user_id ) {
-			$user = get_user_by( 'id', $user_id );
-			if ( $user instanceof WP_User && 0 !== $user->ID ) {
-				$msg = sprintf(
-					'<a href="%s">%s <span class="wpsp-author-name">%s</span></a><br /><small>%s</small>',
-					$this->get_filtered_link( 'usershow', $user->ID ),
-					get_avatar( $user->ID, 40 ),
-					$user->display_name,
-					isset( $user->roles[0] ) && isset( $wp_roles->role_names[ $user->roles[0] ] ) ? $wp_roles->role_names[ $user->roles[0] ] : __( 'Unknown', 'wpsp-site-prober' )
-				);		
-			}
-		} else {
-			$msg =  sprintf(
-				'<span class="wpsp-author-name">%s</span>',
-				__( 'N/A', 'wpsp-site-prober' )
-			);
-		}
-		
-		return $msg;
-	}
-    public function column_user_id( $item ) {
-        return $this->user_info( $item['user_id'] ); 
-	}
-
-    public function column_action( $item ) {
-		return esc_html( $item['action'] );
-	}
-
-    public function column_object_type( $item ) {
-		return esc_html( $item['object_type'] );
-	}
-
-    public function column_description( $item ) {
-		return esc_html( $item['description'] );
-	}
-
-    public function column_ip( $item ) {
-		return esc_html( $item['ip'] );
-	}
+        return esc_html( $item['created_at'] );
+    }
 
     public function get_columns() {
         $columns = array(
+            'log_id'      => __( 'Log Id', 'wpsp-site-prober' ),
+            'message'     => __( 'Message', 'wpsp-site-prober' ),
+            'plugin'      => __( 'Plugin', 'wpsp-site-prober' ),
+            'severity'    => __( 'Severity', 'wpsp-site-prober' ),
             'created_at'  => __( 'Time', 'wpsp-site-prober' ),
-            'user_id'     => __( 'User Info', 'wpsp-site-prober' ),
-            'ip'          => __( 'IP', 'wpsp-site-prober' ),
-            'action'      => __( 'Action', 'wpsp-site-prober' ),
-            'object_type' => __( 'Object', 'wpsp-site-prober' ),
-            'description' => __( 'Description', 'wpsp-site-prober' ),
         );
 
 		return $columns;
@@ -103,9 +72,10 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
 	public function get_sortable_columns() {
 		return array(
-			'created_at' => array( 'created_at', false ),
-			'user_id'    => array( 'user_id', false ),
-			'ip'         => array( 'ip', false ),
+			'log_id'     => array( 'log_id', false ),
+			'plugin'     => array( 'plugin', false ),
+            'severity'   => array( 'severity', false ),
+            'created_at' => array( 'created_at', false ),
 		);
 	}
     
@@ -117,17 +87,17 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		 */
 	    ?>
 			<form method="get">
-				<input type="hidden" name="page" value="wpsp-site-prober" />
+				<input type="hidden" name="page" value="wpsp-site-prober-custom-log" />
 				<?php 
 					// 產生帶 nonce 的 URL
 					$export_url = wp_nonce_url(
-						admin_url( 'admin-post.php?action=WP_Site_Prober_export_csv' ),
-						'wpsp_list_table_action',
+						admin_url( 'admin-post.php?action=WP_Site_Prober_export_csv_custom_log' ),
+						'wpsp_list_table_action_custom_log',
 						'wpsp_nonce'
 					);
 				?>
 				<a class="button" href="<?php echo esc_url( $export_url ); ?>">
-					<?php esc_html_e( 'Export CSV', 'wpsp-site-prober' ); ?>
+					<?php esc_html_e( 'Export CSV (Custom Log)', 'wpsp-site-prober' ); ?>
 				</a>
 			</form>
 		<?php
@@ -142,9 +112,9 @@ class wp_site_prober_List_Table extends WP_List_Table {
 	    ?>
             <form id="wpsp-form-delete" method="post" action="">
                 <input type="hidden" id="clearLogs" name="clearLogs" value="Yes">
-				<?php wp_nonce_field( 'wpsp_list_table_action', 'wpsp_nonce' ); ?>
+				<?php wp_nonce_field( 'wpsp_list_table_action_custom_log', 'wpsp_nonce' ); ?>
                 <div class="alignleft actions">
-                    <?php submit_button( __( 'Clear Logs', 'wpsp-site-prober' ), '', 'clear_action', false ); ?>
+                    <?php submit_button( __( 'Clear Custom Logs', 'wpsp-site-prober' ), '', 'clear_action', false ); ?>
                 </div>
 			</form>
 		<?php
@@ -169,7 +139,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		echo '<div class="alignleft actions">';
 
 		//$table = sanitize_key( $this->table_name );
-		$cache_key   = 'site_prober_logs_page_';
+		$cache_key   = 'site_prober_logs_page_custom_log';
 		$cache_group = 'wp-site-prober';
 
 		// 嘗試從快取抓資料
@@ -180,58 +150,43 @@ class wp_site_prober_List_Table extends WP_List_Table {
 			$table = sanitize_key( $this->table_name );
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is sanitized above.
-			$users = $wpdb->get_results(
-				"SELECT DISTINCT user_id 
+			$plugins = $wpdb->get_results(
+				"SELECT DISTINCT plugin_name 
 				FROM `{$table}`
-				GROUP BY user_id
-				ORDER BY user_id
+				GROUP BY plugin_name
+				ORDER BY plugin_name DESC
 				LIMIT 200;"
 			);
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is sanitized above.
-			$this->data_types = $wpdb->get_col(
-				"SELECT DISTINCT object_type 
+			$this->log_severity = $wpdb->get_col(
+				"SELECT DISTINCT severity 
 				FROM `{$table}`
-				GROUP BY object_type
-				ORDER BY object_type
-				;"
+				GROUP BY severity
+				ORDER BY severity DESC
+                LIMIT 200;"
 			);
 
 			wp_cache_set( $cache_key, $results, $cache_group, 5 * MINUTE_IN_SECONDS );
 		}
 
 		// Make sure we get items for filter.
-		if ( $users || $this->data_types ) {
+		if ( $plugins || $this->log_severity ) {
 			submit_button( __( 'Filter', 'wpsp-site-prober' ), 'button', 'wpsp-filter', false, array() );
 		}
 
-		if ( $users ) {
-			if ( ! isset( $_REQUEST['usershow'] ) )
-				$_REQUEST['usershow'] = '';
+		if ( $plugins ) {
+			if ( ! isset( $_REQUEST['pluginshow'] ) )
+				$_REQUEST['pluginshow'] = '';
 
 			$output = array();
-			foreach ( $users as $_user ) {
-				if ( 0 === (int) $_user->user_id ) {
-					$output[0] = __( 'N/A', 'wpsp-site-prober' );
-					continue;
-				}
-
-				$user = get_user_by( 'id', $_user->user_id );
-				if ( $user )
+			foreach ( $plugins as $_plugin ) {
+				if ( $_plugin->plugin_name )
 					$output[ $user->ID ] = $user->user_nicename;
 			}
 
-			// if ( ! empty( $output ) ) {
-			// 	echo '<select name="usershow" id="hs-filter-usershow">';
-			// 	printf( '<option value="">%s</option>', __( 'All Users', 'aryo-activity-log' ) );
-			// 	foreach ( $output as $key => $value ) {
-			// 		printf( '<option value="%s"%s>%s</option>', $key, selected( $_REQUEST['usershow'], $key, false ), $value );
-			// 	}
-			// 	echo '</select>';
-			// }
-
-			$selected_value = isset( $_REQUEST['usershow'] )
-				? sanitize_text_field( wp_unslash( $_REQUEST['usershow'] ) )
+			$selected_value = isset( $_REQUEST['pluginshow'] )
+				? sanitize_text_field( wp_unslash( $_REQUEST['pluginshow'] ) )
 				: '';
 
 			$name_output = array();
@@ -246,8 +201,8 @@ class wp_site_prober_List_Table extends WP_List_Table {
 				}
 			}
 			?>
-				<select name="usershow" id="hs-filter-usershow">
-				<option value=""><?php echo esc_html( 'All Users' ); ?></option>
+				<select name="pluginshow" id="hs-filter-pluginshow">
+				<option value=""><?php echo esc_html( 'All Plugins', 'wpsp-site-prober' ); ?></option>
 				<?php 
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Fully escaped when building each option
 					echo implode( '', $name_output );
@@ -256,34 +211,28 @@ class wp_site_prober_List_Table extends WP_List_Table {
 			<?php
 		}
 
-		if ( $this->data_types ) {
-			if ( ! isset( $_REQUEST['typeshow'] ) ) {
-				$_REQUEST['typeshow'] = '';
+		if ( $this->log_severity ) {
+			if ( ! isset( $_REQUEST['severityshow'] ) ) {
+				$_REQUEST['severityshow'] = '';
 			}
 
-			// echo '<select name="typeshow" id="hs-filter-typeshow">';
-			// printf( '<option value="">%s</option>', __( 'All Objects', 'wpsp-site-prober' ) );
-			// echo implode( '', $output );
-			// echo '</select>';
 			$output = array();
-
-			$selected_value = isset( $_REQUEST['typeshow'] )
-				? sanitize_text_field( wp_unslash( $_REQUEST['typeshow'] ) )
+			$selected_value = isset( $_REQUEST['severityshow'] )
+				? sanitize_text_field( wp_unslash( $_REQUEST['severityshow'] ) )
 				: '';
 
-			foreach ( $this->data_types as $object_type ) {
-
+			foreach ( $this->log_severity as $severity ) {
 				$output[] = sprintf(
 					'<option value="%s"%s>%s</option>',
-					esc_attr( $object_type ), // escape attribute
-					selected( $selected_value, $object_type, false ),
-					esc_html( $object_type )  // escape display text
+					esc_attr( $severity ), // escape attribute
+					selected( $selected_value, $severity, false ),
+					esc_html( $severity )  // escape display text
 				);
 			}
 
 			?>
-				<select name="typeshow" id="hs-filter-typeshow">
-					<option value=""><?php echo esc_html( 'All Objects' ); ?></option>
+				<select name="severityshow" id="hs-filter-severityshow">
+					<option value=""><?php echo esc_html( 'All Severity', 'wpsp-site-prober' ); ?></option>
 					<?php 
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Fully escaped when building each option
 					echo implode( '', $output );
@@ -294,8 +243,8 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		}
 
 		$filters = array(
-			'usershow',
-            'typeshow',
+			'pluginshow',
+            'severityshow',
 		);
 
 		foreach ( $filters as $filter ) {
@@ -315,13 +264,13 @@ class wp_site_prober_List_Table extends WP_List_Table {
 	}
 
     public function search_box( $text, $input_id ) {
-		$search_data = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash($_REQUEST['s'] ) ) : '';
+		$search_data = isset( $_REQUEST['s_custom_log'] ) ? sanitize_text_field( wp_unslash($_REQUEST['s_custom_log'] ) ) : '';
 
-		$input_id = $input_id . '-search-input';
+		$input_id = $input_id . '-search-input-custom-log';
 		?>
 		<p class="search-box">
             <label class="screen-reader-text" for="<?php echo esc_attr($input_id); ?>"><?php echo esc_attr($text); ?>:</label>
-			<input type="search" id="<?php echo esc_attr($input_id); ?>" name="s" value="<?php echo esc_attr( $search_data ); ?>" placeholder="<?php esc_attr_e( 'Search actions, descriptions, IP', 'wpsp-site-prober' ); ?>"/>
+			<input type="search" id="<?php echo esc_attr($input_id); ?>" name="s_custom_log" value="<?php echo esc_attr( $search_data ); ?>" placeholder="<?php esc_attr_e( 'Search plugins, messages', 'wpsp-site-prober' ); ?>"/>
 			<?php submit_button( $text, 'button', false, false, array('id' => 'search-submit') ); ?>
 		</p>
 	<?php
@@ -342,7 +291,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		<?php
 	}
 
-    public function delete_all_items() {
+    public function delete_all_items_custom_log() {
 		global $wpdb;
 		$table = sanitize_key( $this->table_name );
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name sanitized above.
@@ -352,38 +301,37 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		global $wpdb;
 
         $items_per_page = 20;        
-        //$table = $this->table_name;
         
-        $clear  = isset( $_POST['clearLogs'] ) ? sanitize_text_field( wp_unslash( $_POST['clearLogs'] ) ) : '';
+        $clear  = isset( $_POST['clearLogsCustomLog'] ) ? sanitize_text_field( wp_unslash( $_POST['clearLogsCustomLog'] ) ) : '';
 		if ( $clear ){
 			//error_log(  'clearLogs');
-			check_admin_referer( 'wpsp_list_table_action', 'wpsp_nonce' );
-			$this->delete_all_items();
+			check_admin_referer( 'wpsp_list_table_action_custom_log', 'wpsp_nonce' );
+			$this->delete_all_items_custom_log();
 		}
         
-        $search = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
-		        $offset = ( $this->get_pagenum() - 1 ) * $items_per_page;
+        $search = isset( $_REQUEST['s_custom_log'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s_custom_log'] ) ) : '';
+		$offset = ( $this->get_pagenum() - 1 ) * $items_per_page;
         $where = ' WHERE 1 = 1';
 
-		if ( ! empty( $_REQUEST['typeshow'] ) ) {
-			$where .= $wpdb->prepare( ' AND `object_type` = %s', 
-			sanitize_text_field( wp_unslash( $_REQUEST['typeshow'] ) ) );
+		if ( ! empty( $_REQUEST['severityshow'] ) ) {
+			$where .= $wpdb->prepare( ' AND `severity` = %d', 
+			sanitize_text_field( wp_unslash( $_REQUEST['severityshow'] ) ) );
 		}
 
-        if ( isset( $_REQUEST['usershow'] ) && '' !== $_REQUEST['usershow'] ) {
+        if ( isset( $_REQUEST['pluginshow'] ) && '' !== $_REQUEST['pluginshow'] ) {
 			$where .= $wpdb->prepare( 
-				' AND `user_id` = %d', 
-				(int) $_REQUEST['usershow'] 
+				' AND `plugin_name` = %s', 
+				(int) $_REQUEST['pluginshow'] 
 			);
 		}
 
 		if ( $search ) {
 			$like = '%' . $wpdb->esc_like( $search ) . '%';
-            $where .= $wpdb->prepare( ' AND (`action` LIKE %s OR `description` LIKE %s OR `ip` LIKE %s)', $like, $like, $like );
+            $where .= $wpdb->prepare( ' AND (`plugin_name` LIKE %s OR `message` LIKE %s )', $like, $like);
 		}
       
 
-		$cache_key   = 'site_prober_logs_page_';
+		$cache_key   = 'site_prober_logs_page_custom_log';
 		$cache_group = 'wp-site-prober';
 
 		// 嘗試從快取抓資料
@@ -403,7 +351,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 			$this->items = $wpdb->get_results( 
 				$wpdb->prepare(
 					"SELECT * FROM {$table} {$where} 
-					ORDER BY created_at DESC LIMIT %d, %d",
+					ORDER BY log_id DESC LIMIT %d, %d",
 					$offset,
 					$items_per_page
 				), ARRAY_A

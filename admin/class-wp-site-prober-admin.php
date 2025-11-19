@@ -27,11 +27,16 @@ class wp_site_prober_Admin {
 	protected $logger;
 	protected $table;
 	protected $wpsp_list_table = null;
+
+	//protected $logger_custom_log;
+	protected $table_custom_log;
+	protected $wpsp_custom_log = null;
 	public function __construct( $logger, $plugin_name, $version ) {
 		$this->logger = $logger;
 		$this->plugin_name = $plugin_name;
         $this->version = $version;
 		$this->table = $this->logger->get_table_name();
+		$this->table_custom_log = $this->logger->get_table_name_custom_log();
         add_action('admin_menu', array($this, 'admin_menu'));
 
 		// handle csv export
@@ -97,7 +102,6 @@ class wp_site_prober_Admin {
 			'Site Prober',
 			'manage_options',
 			'wpsp-site-prober',
-			//array($this, 'render_page_list_table'),
 			array($this, 'render_page_tabs'),
 			'dashicons-video-alt2',
 			80
@@ -131,8 +135,15 @@ class wp_site_prober_Admin {
 		return $this->wpsp_list_table;
 	}
 
+	public function get_list_table_custom_log() {
+		if ( is_null( $this->wpsp_custom_log ) ) {
+			$this->wpsp_custom_log = new wp_site_prober_List_Table_Custom_Log( );
+		}
+
+		return $this->wpsp_custom_log;
+	}
+
 	protected function redirect_back() {
-		//wp_redirect( menu_page_url( 'wpsp-site-prober', false ) );
 		wp_safe_redirect( menu_page_url( 'wpsp-site-prober', false ) );
 		exit;
 	}
@@ -157,6 +168,34 @@ class wp_site_prober_Admin {
 			<form id="activity-filter" method="get">
 				<input type="hidden" name="page" value="Yes" />
 				<?php $this->get_list_table()->display(); ?>
+			</form>
+
+		</div>
+	<?php
+
+	}
+
+	public function render_page_list_table_custom_log() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		
+		if ( isset( $_GET['page'] ) && 'wpsp-site-prober' !== $_GET['page'] ) {
+			$this->redirect_back();
+		} 
+
+		$this->get_list_table_custom_log()->prepare_items();
+	?>
+		<div class="wrap">
+			<h1>
+				<?php 
+					esc_html_e( 'Custom Log', 'wpsp-site-prober' ); 
+				?>
+			</h1>
+			
+			<form id="custom-log-filter" method="get">
+				<input type="hidden" name="page" value="Yes" />
+				<?php $this->get_list_table_custom_log()->display(); ?>
 			</form>
 
 		</div>

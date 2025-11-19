@@ -32,6 +32,7 @@ class wp_site_prober_Activator {
 	public static function activate() {
 		add_option( 'wp_site_prober_active', 'yes' );
 		self::_create_tables();
+		self::_create_tables_custom_log();
 	}
 
 	/**

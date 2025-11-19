@@ -88,8 +88,11 @@
     </div>
 
     <div id="panel2" class="panel" role="tabpanel" aria-labelledby="tab2">
-      <h2>Details</h2>
-      <p>Detail content here. Use radio buttons to switch panels.</p>
+      <!-- <h2>Custome Log</h2> -->
+      <!-- <p>Detail content here. Use radio buttons to switch panels.</p> -->
+      <?php
+        $this->render_page_list_table_custom_log();
+      ?>
     </div>
 
     <div id="panel3" class="panel" role="tabpanel" aria-labelledby="tab3">

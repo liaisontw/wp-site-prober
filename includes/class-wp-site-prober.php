@@ -110,6 +110,7 @@ class WP_Site_Prober {
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wp-site-prober-list-table.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wp-site-prober-list-table-custom-log.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wp-site-prober-admin.php';
 
 		/**
@@ -224,6 +225,10 @@ class WP_Site_Prober {
 	/* helpers for admin class */
 	public function get_table_name() {
 		return $this->table_name;
+	}
+
+	public function get_table_name_custom_log() {
+		return $this->table_name_custom_log;
 	}
 
 	public function get_plugin_dir() {
