@@ -41,6 +41,9 @@ class wp_site_prober_Admin {
 
 		// handle csv export
 		add_action( 'admin_post_WP_Site_Prober_export_csv', [ $this, 'handle_export_csv' ] );
+
+		// handle csv export: custom log
+		add_action( 'admin_post_WP_Custom_Log_export_csv', [ $this, 'handle_export_csv_custom_log' ] );
 	}
 
 	    /**
@@ -203,6 +206,16 @@ class wp_site_prober_Admin {
 
 	}
 
+	/**
+	 * 將陣列轉成 CSV 一行（處理引號、逗號等）
+	 */
+	private function array_to_csv_line( $fields, $delimiter = ',', $enclosure = '"' ) {
+		$escaped = [];
+		foreach ( $fields as $field ) {
+			$escaped[] = $enclosure . str_replace( $enclosure, $enclosure . $enclosure, $field ) . $enclosure;
+		}
+		return implode( $delimiter, $escaped ) . "\n";
+	}
 	function handle_export_csv( ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
@@ -282,15 +295,84 @@ class wp_site_prober_Admin {
 		exit;
 	}
 
-	/**
-	 * 將陣列轉成 CSV 一行（處理引號、逗號等）
-	 */
-	private function array_to_csv_line( $fields, $delimiter = ',', $enclosure = '"' ) {
-		$escaped = [];
-		foreach ( $fields as $field ) {
-			$escaped[] = $enclosure . str_replace( $enclosure, $enclosure . $enclosure, $field ) . $enclosure;
+	function handle_export_csv_custom_log( ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
 		}
-		return implode( $delimiter, $escaped ) . "\n";
+
+		if ( ! isset( $_GET['wpsp_nonce_custom_log'] ) ||
+         	! wp_verify_nonce( sanitize_key( $_GET['wpsp_nonce_custom_log'] ), 'wpsp_list_table_action' ) ) {
+        		wp_die( esc_html__( 'Invalid request.', 'wpsp-site-prober' ) );
+    	}
+		global $wpdb;
+		$this->table = $this->logger->get_table_name_custom_log();
+		$table = sanitize_key( $this->table );
+		$cache_key   = 'site_prober_logs_page_custom_log';
+		$cache_group = 'wp-site-prober';
+
+		// 嘗試從快取抓資料
+		$results = wp_cache_get( $cache_key, $cache_group );
+
+		if ( false === $results ) {
+			// Safe direct database access (custom table, prepared query)
+			$rows = $wpdb->get_results( "SELECT * FROM {$table} ORDER BY created_at DESC",
+				ARRAY_A
+			);
+
+			wp_cache_set( $cache_key, $results, $cache_group, 5 * MINUTE_IN_SECONDS );
+		}
+
+		// 初始化 WP_Filesystem
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		global $wp_filesystem;
+		WP_Filesystem();
+
+		// 暫存檔路徑
+		$upload_dir = wp_upload_dir();
+		$tmp_file   = trailingslashit( $upload_dir['basedir'] ) . 'wp-custom-log-export.csv';
+
+		// 建立 CSV 內容
+		$csv_lines = [];
+		$csv_lines[] = [ 'id', 'log_id', 'plugin_name', 'message', 'severity', 'session_type', 'session_id', 'created_at' ];
+
+		foreach ( $rows as $r ) {
+			$csv_lines[] = [
+				$r['id'],
+				$r['log_id'],
+				$r['plugin_name'],
+				$r['message'],				
+				$r['severity'],				
+				$r['session_type'],				
+				$r['session_id'],				
+				$r['created_at'],
+			];
+		}
+		
+		// 將陣列轉為 CSV 格式字串
+		$csv_content = '';
+		foreach ( $csv_lines as $line ) {
+			$csv_content .= $this->array_to_csv_line( $line );
+		}
+
+		$wp_filesystem->put_contents( $tmp_file, $csv_content, FS_CHMOD_FILE );
+
+		header( 'Content-Type: text/csv; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename=wp-site-prober-export-' . gmdate( 'Y-m-d' ) . '.csv' );
+		header( 'Pragma: no-cache' );
+		header( 'Expires: 0' );
+
+		// 直接輸出檔案
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		//readfile( $tmp_file );
+		//wp_kses_post()
+		// 用 WP_Filesystem 安全讀出內容
+		echo wp_kses_post( $wp_filesystem->get_contents( $tmp_file ) );
+
+		$wp_filesystem->delete( $tmp_file );
+		exit;
 	}
 }
 

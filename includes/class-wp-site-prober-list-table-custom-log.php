@@ -112,7 +112,7 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 	    ?>
             <form id="wpsp-form-delete" method="post" action="">
                 <input type="hidden" id="clearLogs" name="clearLogs" value="Yes">
-				<?php wp_nonce_field( 'wpsp_list_table_action_custom_log', 'wpsp_nonce' ); ?>
+				<?php wp_nonce_field( 'wpsp_list_table_action_custom_log', 'wpsp_nonce_custom_log' ); ?>
                 <div class="alignleft actions">
                     <?php submit_button( __( 'Clear Custom Logs', 'wpsp-site-prober' ), '', 'clear_action', false ); ?>
                 </div>
@@ -138,7 +138,6 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 
 		echo '<div class="alignleft actions">';
 
-		//$table = sanitize_key( $this->table_name );
 		$cache_key   = 'site_prober_logs_page_custom_log';
 		$cache_group = 'wp-site-prober';
 
@@ -305,7 +304,7 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
         $clear  = isset( $_POST['clearLogsCustomLog'] ) ? sanitize_text_field( wp_unslash( $_POST['clearLogsCustomLog'] ) ) : '';
 		if ( $clear ){
 			//error_log(  'clearLogs');
-			check_admin_referer( 'wpsp_list_table_action_custom_log', 'wpsp_nonce' );
+			check_admin_referer( 'wpsp_list_table_action_custom_log', 'wpsp_nonce_custom_log' );
 			$this->delete_all_items_custom_log();
 		}
         
