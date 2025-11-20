@@ -38,12 +38,16 @@ class wp_site_prober_Admin {
 		$this->table = $this->logger->get_table_name();
 		$this->table_custom_log = $this->logger->get_table_name_custom_log();
         add_action('admin_menu', array($this, 'admin_menu'));
+		add_action('custom_log_add'  , array( $this, 'add_custom_log' ), 10, 4 );
 
 		// handle csv export
 		add_action( 'admin_post_WP_Site_Prober_export_csv', [ $this, 'handle_export_csv' ] );
 
 		// handle csv export: custom log
-		add_action( 'admin_post_WP_Custom_Log_export_csv', [ $this, 'handle_export_csv_custom_log' ] );
+		add_action( 'admin_post_WP_Custom_Log_export_csv_custom_log', [ $this, 'handle_export_csv_custom_log' ] );
+
+		// Generate custom log for testing
+		add_action( 'admin_post_WP_Custom_Log_custom_log_generate', [ $this, 'handle_custom_log_generate' ] );
 	}
 
 	    /**
@@ -216,7 +220,7 @@ class wp_site_prober_Admin {
 		}
 		return implode( $delimiter, $escaped ) . "\n";
 	}
-	function handle_export_csv( ) {
+	public function handle_export_csv( ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
@@ -295,7 +299,7 @@ class wp_site_prober_Admin {
 		exit;
 	}
 
-	function handle_export_csv_custom_log( ) {
+	public function handle_export_csv_custom_log( ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
@@ -374,6 +378,61 @@ class wp_site_prober_Admin {
 		$wp_filesystem->delete( $tmp_file );
 		exit;
 	}
+
+	public function handle_custom_log_generate() {
+		error_log(  'custom_log_generate');
+		do_action( 'custom_log_add', 'wpsp-site-prober-custom-log', 'message-', 'step-', 2 );
+		//$this->redirect_back();
+		//exit;
+	}
+
+	public function add_custom_log( $plugin_name, $log, $message, $severity = 1 ) {
+
+	}
+
+	/*
+	public function add_log_entry( $plugin_name, $log, $message, $severity = 1 ) {
+		$plugin_name = sanitize_text_field( (string) $plugin_name );
+		$log         = sanitize_text_field( (string) $log );
+		$message     = (string) $message;
+		$severity    = intval( $severity );
+
+		if ( self::$session_post ) {
+			$post_id = self::$session_post;
+		} else {
+			$post_id = $this->check_existing_log( $plugin_name, $log );
+			if ( false == $post_id ) {
+				$post_id = $this->create_post_with_terms( $plugin_name, $log );
+				if ( false == $post_id ) {
+					return false;
+				}
+			}
+		}
+
+		$comment_data = array(
+			'comment_post_ID'      => $post_id,
+			'comment_content'      => wp_kses_post( $message ),
+			'comment_author'       => $plugin_name,
+			'comment_approved'     => self::CPT,
+			'comment_author_IP'    => '',
+			'comment_author_url'   => '',
+			'comment_author_email' => '',
+			'user_id'              => $severity,
+		);
+
+		if ( self::$session_post ) {
+			$comment_data['comment_parent'] = 1;
+		}
+
+		$comment_id = wp_insert_comment( wp_filter_comment( $comment_data ) );
+
+		if ( ! self::$session_post ) {
+			$this->limit_plugin_logs( $plugin_name, $log, $post_id );
+		}
+
+		return (bool) $comment_id;
+	}
+	*/
 }
 
 

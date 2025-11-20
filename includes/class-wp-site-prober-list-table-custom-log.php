@@ -91,13 +91,26 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 				<?php 
 					// 產生帶 nonce 的 URL
 					$export_url = wp_nonce_url(
-						admin_url( 'admin-post.php?action=WP_Site_Prober_export_csv_custom_log' ),
+						admin_url( 'admin-post.php?action=WP_Custom_Log_export_csv_custom_log' ),
 						'wpsp_list_table_action_custom_log',
 						'wpsp_nonce'
 					);
 				?>
 				<a class="button" href="<?php echo esc_url( $export_url ); ?>">
 					<?php esc_html_e( 'Export CSV (Custom Log)', 'wpsp-site-prober' ); ?>
+				</a>
+                <?php 
+					// 產生帶 nonce 的 URL
+					// $export_url = wp_nonce_url(
+					// 	admin_url( 'admin-post.php?action=WP_Custom_Log_custom_log_generate' ),
+					// 	'wpsp_list_table_action_custom_log',
+					// 	'wpsp_nonce'
+					// );
+
+                    $export_url = 'admin-post.php?action=WP_Custom_Log_custom_log_generate';
+				?>
+				<a class="button" href="<?php echo esc_url( $export_url ); ?>">
+					<?php esc_html_e( 'Custom Log Generate', 'wpsp-site-prober' ); ?>
 				</a>
 			</form>
 		<?php
