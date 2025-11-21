@@ -24,7 +24,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
     }
 
     private function get_filtered_link( $name = '', $value = '' ) {
-		$base_page_url = menu_page_url( 'wpsp-site-prober', false );
+		$base_page_url = menu_page_url( 'wpsp_site_prober_log_list', false );
 
 		if ( empty( $name ) ) {
 			return $base_page_url;
@@ -393,20 +393,33 @@ class wp_site_prober_List_Table extends WP_List_Table {
 			// Safe direct database access (custom table, prepared query)
 			$table = sanitize_key( $this->table_name );
 
+			$orderby = isset( $_GET['orderby'] ) ? sanitize_key( $_GET['orderby'] ) : 'created_at';
+			$order   = isset( $_GET['order'] ) && in_array( strtolower($_GET['order']), ['asc','desc'], true )
+				? strtolower($_GET['order'])
+				: 'desc';
+
+			$allowed_orderby = ['created_at', 'user_id', 'ip'];
+			if ( ! in_array( $orderby, $allowed_orderby, true ) ) {
+				$orderby = 'created_at';
+			}
+
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is sanitized above.
 			//Since pagiation gets LIMIT $items_per_page=20 from DB table.
 			//$total_items must get whole table count directly.
 			//$total_items = count( $this->items ); gets only $items_per_page.
+			// count total items
 			$total_items = $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name sanitized and validated above.
 			$this->items = $wpdb->get_results( 
 				$wpdb->prepare(
 					"SELECT * FROM {$table} {$where} 
-					ORDER BY created_at DESC LIMIT %d, %d",
+					ORDER BY {$orderby} {$order}
+					LIMIT %d, %d",
 					$offset,
 					$items_per_page
-				), ARRAY_A
+				),
+				ARRAY_A
 			);
 			
 			wp_cache_set( $cache_key, $results, $cache_group, 5 * MINUTE_IN_SECONDS );

@@ -107,9 +107,13 @@ class wp_site_prober_Admin {
 		add_menu_page(
 			'Site Prober',
 			'Site Prober',
-			'manage_options',
-			'wpsp-site-prober',
+			'update_core',
+			//'manage_options',
+			//'logger_catcher_log_list',
+			//'wpsp-site-prober',
+			'wpsp_site_prober_log_list',
 			array($this, 'render_page_tabs'),
+			//array($this, 'render_page_list_table'),
 			'dashicons-video-alt2',
 			80
 		);
@@ -151,7 +155,7 @@ class wp_site_prober_Admin {
 	}
 
 	protected function redirect_back() {
-		wp_safe_redirect( menu_page_url( 'wpsp-site-prober', false ) );
+		wp_safe_redirect( menu_page_url( 'wpsp_site_prober_log_list', false ) );
 		exit;
 	}
 	public function render_page_list_table() {
@@ -159,7 +163,7 @@ class wp_site_prober_Admin {
 			return;
 		}
 		
-		if ( isset( $_GET['page'] ) && 'wpsp-site-prober' !== $_GET['page'] ) {
+		if ( isset( $_GET['page'] ) && 'wpsp_site_prober_log_list' !== $_GET['page'] ) {
 			$this->redirect_back();
 		} 
 
@@ -187,7 +191,7 @@ class wp_site_prober_Admin {
 			return;
 		}
 		
-		if ( isset( $_GET['page'] ) && 'wpsp-site-prober' !== $_GET['page'] ) {
+		if ( isset( $_GET['page'] ) && 'wpsp_site_prober_log_list' !== $_GET['page'] ) {
 			$this->redirect_back();
 		} 
 
