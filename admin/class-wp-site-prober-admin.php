@@ -380,59 +380,53 @@ class wp_site_prober_Admin {
 	}
 
 	public function handle_custom_log_generate() {
-		error_log(  'custom_log_generate');
-		do_action( 'custom_log_add', 'wpsp-site-prober-custom-log', 'message-', 'step-', 2 );
+		$table = sanitize_key( $this->logger->get_table_name_custom_log() );
+		error_log( sprintf('table_custom_log : %s', $table) );
+		
+		do_action( 'custom_log_add', 'wpsp-site-prober', 'message-', 'step-', 2 );
 		//$this->redirect_back();
 		//exit;
 	}
 
 	public function add_custom_log( $plugin_name, $log, $message, $severity = 1 ) {
-
-	}
-
-	/*
-	public function add_log_entry( $plugin_name, $log, $message, $severity = 1 ) {
-		$plugin_name = sanitize_text_field( (string) $plugin_name );
-		$log         = sanitize_text_field( (string) $log );
-		$message     = (string) $message;
-		$severity    = intval( $severity );
-
+		global $wpdb;
+		/*
 		if ( self::$session_post ) {
 			$post_id = self::$session_post;
-		} else {
-			$post_id = $this->check_existing_log( $plugin_name, $log );
-			if ( false == $post_id ) {
-				$post_id = $this->create_post_with_terms( $plugin_name, $log );
-				if ( false == $post_id ) {
+		} else
+		
+		{
+			$log_id = $this->check_existing_log( $plugin_name, $log );
+			if ( false == $log_id ) {
+				$log_id = $this->create_post_with_terms( $plugin_name, $log );
+				if ( false == $log_id ) {
 					return false;
 				}
 			}
 		}
+		*/
 
-		$comment_data = array(
-			'comment_post_ID'      => $post_id,
-			'comment_content'      => wp_kses_post( $message ),
-			'comment_author'       => $plugin_name,
-			'comment_approved'     => self::CPT,
-			'comment_author_IP'    => '',
-			'comment_author_url'   => '',
-			'comment_author_email' => '',
-			'user_id'              => $severity,
-		);
-
+		/*
 		if ( self::$session_post ) {
 			$comment_data['comment_parent'] = 1;
 		}
-
 		$comment_id = wp_insert_comment( wp_filter_comment( $comment_data ) );
+		*/
+		$table = sanitize_key( $this->logger->get_table_name_custom_log() );
 
-		if ( ! self::$session_post ) {
-			$this->limit_plugin_logs( $plugin_name, $log, $post_id );
-		}
-
-		return (bool) $comment_id;
+		$wpdb->insert(
+			$table,
+			[		
+				'log_id'      => null,
+				'plugin_name' => sanitize_text_field( (string) $plugin_name ),
+				'message'     => sanitize_text_field( $message ),
+				'severity'    => intval( $severity ),
+				//'session_type'
+				//'session_id'				
+			],
+			[ '%d', '%s', '%s', '%d']
+		);
 	}
-	*/
 }
 
 

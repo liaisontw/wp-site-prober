@@ -7,6 +7,7 @@ if ( ! class_exists( 'WP_List_Table' ) )
 
 class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 
+    protected $plugins = array();
     protected $log_severity = array();
     protected $table_name = '';        
 
@@ -162,7 +163,7 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 			$table = sanitize_key( $this->table_name );
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is sanitized above.
-			$plugins = $wpdb->get_results(
+			$this->plugins = $wpdb->get_col(
 				"SELECT DISTINCT plugin_name 
 				FROM `{$table}`
 				GROUP BY plugin_name
@@ -183,35 +184,38 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 		}
 
 		// Make sure we get items for filter.
-		if ( $plugins || $this->log_severity ) {
+		if ( $this->plugins || $this->log_severity ) {
 			submit_button( __( 'Filter', 'wpsp-site-prober' ), 'button', 'wpsp-filter', false, array() );
 		}
 
-		if ( $plugins ) {
+		if ( $this->plugins ) {
 			if ( ! isset( $_REQUEST['pluginshow'] ) )
 				$_REQUEST['pluginshow'] = '';
 
-			$output = array();
-			foreach ( $plugins as $_plugin ) {
-				if ( $_plugin->plugin_name )
-					$output[ $user->ID ] = $user->user_nicename;
-			}
 
 			$selected_value = isset( $_REQUEST['pluginshow'] )
 				? sanitize_text_field( wp_unslash( $_REQUEST['pluginshow'] ) )
 				: '';
 
 			$name_output = array();
-			if ( ! empty( $output ) ) {
-				foreach ( $output as $key => $value ) {
-					$name_output[] = sprintf(
-						'<option value="%s"%s>%s</option>',
-						esc_attr( $key ), // escape attribute
-						selected( $selected_value, $key, false ),
-						esc_html( $value )  // escape display text
-					);
-				}
-			}
+			
+            foreach ( $this->plugins as $_plugin ) {
+                $name_output[] = sprintf(
+                    '<option value="%s"%s>%s</option>',
+                    esc_html( $_plugin ), // escape attribute
+                    selected( $selected_value, $_plugin, false ),
+                    esc_html( $_plugin )  // escape display text
+                );
+            }
+				// foreach ( $output as $key => $value ) {
+				// 	$name_output[] = sprintf(
+				// 		'<option value="%s"%s>%s</option>',
+				// 		esc_attr( $key ), // escape attribute
+				// 		selected( $selected_value, $key, false ),
+				// 		esc_html( $value )  // escape display text
+				// 	);
+				// }
+			
 			?>
 				<select name="pluginshow" id="hs-filter-pluginshow">
 				<option value=""><?php echo esc_html( 'All Plugins', 'wpsp-site-prober' ); ?></option>
@@ -363,7 +367,7 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 			$this->items = $wpdb->get_results( 
 				$wpdb->prepare(
 					"SELECT * FROM {$table} {$where} 
-					ORDER BY log_id DESC LIMIT %d, %d",
+					ORDER BY created_at DESC LIMIT %d, %d",
 					$offset,
 					$items_per_page
 				), ARRAY_A
