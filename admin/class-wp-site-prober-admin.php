@@ -44,7 +44,7 @@ class wp_site_prober_Admin {
 		add_action( 'admin_post_WP_Site_Prober_export_csv', [ $this, 'handle_export_csv' ] );
 
 		// handle csv export: custom log
-		add_action( 'admin_post_WP_Custom_Log_export_csv_custom_log', [ $this, 'handle_export_csv_custom_log' ] );
+		add_action( 'admin_post_WP_Site_Prober_export_csv_custom_log', [ $this, 'handle_export_csv_custom_log' ] );
 
 		// Generate custom log for testing
 		add_action( 'admin_post_WP_Custom_Log_custom_log_generate', [ $this, 'handle_custom_log_generate' ] );
@@ -65,7 +65,7 @@ class wp_site_prober_Admin {
          * defined in hidden_Stuff_Loader as all of the hooks are defined
          * in that particular class.
          *
-         * The hidden_Stuff_Loader will then create the relationship
+         * The Loader will then create the relationship
          * between the defined hooks and the functions defined in this
          * class.
          */
@@ -108,9 +108,6 @@ class wp_site_prober_Admin {
 			'Site Prober',
 			'Site Prober',
 			'update_core',
-			//'manage_options',
-			//'logger_catcher_log_list',
-			//'wpsp-site-prober',
 			'wpsp_site_prober_log_list',
 			array($this, 'render_page_tabs'),
 			//array($this, 'render_page_list_table'),
@@ -120,7 +117,9 @@ class wp_site_prober_Admin {
 	}	
 
 	public function render_page_tabs() {
+		$active_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'log';
 		require_once( trailingslashit( dirname( __FILE__ ) ) . 'partials/wp-site-prober-admin-display.php' );
+		
 	}
 
 	public function user_info_export( $user_id ) {
@@ -177,7 +176,12 @@ class wp_site_prober_Admin {
 			</h1>
 			
 			<form id="activity-filter" method="get">
-				<input type="hidden" name="page" value="Yes" />
+				<input type="hidden" name="page" value="wpsp_site_prober_log_list">
+				<input type="hidden" name="tab" value="
+					<?php 
+				  		echo esc_attr( $_GET['tab'] ?? 'log' ); 
+					?>" 
+				/>
 				<?php $this->get_list_table()->display(); ?>
 			</form>
 
@@ -205,7 +209,12 @@ class wp_site_prober_Admin {
 			</h1>
 			
 			<form id="custom-log-filter" method="get">
-				<input type="hidden" name="page" value="Yes" />
+				<input type="hidden" name="page" value="wpsp_site_prober_log_list">
+				<input type="hidden" name="tab" value="
+					<?php 
+						echo esc_attr( $_GET['tab'] ?? 'log' ); 
+					?>" 
+				/>
 				<?php $this->get_list_table_custom_log()->display(); ?>
 			</form>
 
@@ -248,7 +257,7 @@ class wp_site_prober_Admin {
 				ARRAY_A
 			);
 
-			wp_cache_set( $cache_key, $results, $cache_group, 5 * MINUTE_IN_SECONDS );
+			wp_cache_set( $cache_key, $rows, $cache_group, 5 * MINUTE_IN_SECONDS );
 		}
 
 		// 初始化 WP_Filesystem
@@ -309,7 +318,7 @@ class wp_site_prober_Admin {
 		}
 
 		if ( ! isset( $_GET['wpsp_nonce_custom_log'] ) ||
-         	! wp_verify_nonce( sanitize_key( $_GET['wpsp_nonce_custom_log'] ), 'wpsp_list_table_action' ) ) {
+         	! wp_verify_nonce( sanitize_key( $_GET['wpsp_nonce_custom_log'] ), 'wpsp_export_custom_log' ) ) {
         		wp_die( esc_html__( 'Invalid request.', 'wpsp-site-prober' ) );
     	}
 		global $wpdb;
@@ -327,7 +336,7 @@ class wp_site_prober_Admin {
 				ARRAY_A
 			);
 
-			wp_cache_set( $cache_key, $results, $cache_group, 5 * MINUTE_IN_SECONDS );
+			wp_cache_set( $cache_key, $rows, $cache_group, 5 * MINUTE_IN_SECONDS );
 		}
 
 		// 初始化 WP_Filesystem
@@ -368,7 +377,7 @@ class wp_site_prober_Admin {
 		$wp_filesystem->put_contents( $tmp_file, $csv_content, FS_CHMOD_FILE );
 
 		header( 'Content-Type: text/csv; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename=wp-site-prober-export-' . gmdate( 'Y-m-d' ) . '.csv' );
+		header( 'Content-Disposition: attachment; filename=wp-custom-log-export-' . gmdate( 'Y-m-d' ) . '.csv' );
 		header( 'Pragma: no-cache' );
 		header( 'Expires: 0' );
 
@@ -430,6 +439,19 @@ class wp_site_prober_Admin {
 			],
 			[ '%d', '%s', '%s', '%d']
 		);
+
+		//wp_safe_redirect( menu_page_url( 'wpsp_site_prober_log_list', false ) );
+		wp_safe_redirect(
+			add_query_arg(
+				[
+					'page' => 'wpsp_site_prober_log_list',
+					'tab'  => 'custom',
+				],
+				admin_url('admin.php')
+			)
+		);
+
+		exit;
 	}
 }
 

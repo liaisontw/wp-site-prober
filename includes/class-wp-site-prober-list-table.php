@@ -117,14 +117,27 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		 */
 	    ?>
 			<form method="get">
-				<input type="hidden" name="page" value="wpsp-site-prober" />
+				<input type="hidden" name="page" value="wpsp_site_prober_log_list" />
 				<?php 
 					// 產生帶 nonce 的 URL
+					// $export_url = wp_nonce_url(
+					// 	admin_url( 'admin-post.php?action=WP_Site_Prober_export_csv' ),
+					// 	'wpsp_list_table_action',
+					// 	'wpsp_nonce'
+					// );
+
 					$export_url = wp_nonce_url(
-						admin_url( 'admin-post.php?action=WP_Site_Prober_export_csv' ),
+						add_query_arg(
+							array(
+								'action' => 'WP_Site_Prober_export_csv',
+								'tab'    => $_GET['tab'] ?? 'log'
+							),
+							admin_url('admin-post.php')
+						),
 						'wpsp_list_table_action',
 						'wpsp_nonce'
 					);
+
 				?>
 				<a class="button" href="<?php echo esc_url( $export_url ); ?>">
 					<?php esc_html_e( 'Export CSV', 'wpsp-site-prober' ); ?>

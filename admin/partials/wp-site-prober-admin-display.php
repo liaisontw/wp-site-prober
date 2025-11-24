@@ -22,86 +22,121 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <!-- <title>CSS-only Tabs (Radio)</title> -->
 <style>
-  :root{
-    --accent:#0b79d0;
-    --muted:#666;
-  }
-  body{font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; padding:20px;}
-  .tabs{max-width:900px;margin:0 auto;border:1px solid #eee;border-radius:6px;overflow:hidden}
-  /* hide inputs */
-  .tabs input[type="radio"]{position:absolute;left:-9999px}
-  /* tab labels row */
-  .tab-labels{display:flex;background:#fafafa;border-bottom:1px solid #eee}
-  .tab-labels label{
-    padding:12px 18px;cursor:pointer;color:var(--muted);flex:0 0 auto;
-    user-select:none;transition:color .15s, border-color .15s;
-  }
-  .tab-labels label:hover{color:#000}
-  /* selected style via :checked adjacent sibling combinator */
-  #tab1:checked ~ .tab-labels label[for="tab1"],
-  #tab2:checked ~ .tab-labels label[for="tab2"],
-  #tab3:checked ~ .tab-labels label[for="tab3"]{
-    color:var(--accent);
-    border-bottom:3px solid var(--accent);
-    padding-bottom:9px; /* make space for bottom border */
-  }
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+ 
+ :root {
+  --accent: #0b79d0;
+  --muted: #666;
+}
 
-  /* content panels */
-  .tab-content{padding:20px;background:#fff}
-  .panel{display:none}
-  #tab1:checked ~ .tab-content #panel1,
-  #tab2:checked ~ .tab-content #panel2,
-  #tab3:checked ~ .tab-content #panel3{
-    display:block;
-  }
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  padding: 20px;
+}
 
-  /* responsive: stack labels */
-  @media (max-width:520px){
-    .tab-labels{flex-direction:column}
-    .tab-labels label{border-bottom:1px solid #f0f0f0}
-  }
+.tabs {
+  max-width: 900px;
+  margin: 0 auto;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.tab-labels {
+  display: flex;
+  background: #fafafa;
+  border-bottom: 1px solid #eee;
+}
+
+.tab-labels a {
+  padding: 12px 20px;
+  display: inline-block;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+  transition: color .2s ease, border-color .2s ease;
+  font-weight: 500;
+}
+
+.tab-labels a:hover {
+  color: #000;
+}
+
+.tab-labels a.active {
+  color: var(--accent);
+  border-bottom: 3px solid var(--accent);
+}
+
+.tab-content {
+  padding: 20px;
+  background: #fff;
+}
+
+.panel {
+  display: none;
+}
+
+.panel.active {
+  display: block;
+}
+ 
+
 </style>
 </head>
 <body>
-
 <div class="tabs">
-  <!-- radios -->
-  <input type="radio" id="tab1" name="tab" checked>
-  <input type="radio" id="tab2" name="tab">
-  <input type="radio" id="tab3" name="tab">
 
-  <!-- labels -->
-  <div class="tab-labels" role="tablist" aria-label="範例分頁">
-    <label for="tab1" role="tab" tabindex="0">Actions</label>
-    <label for="tab2" role="tab" tabindex="0">Custom Logs</label>
-    <label for="tab3" role="tab" tabindex="0">Settings</label>
+  <!-- Tab labels -->
+  <div class="tab-labels">
+      <a class="<?php echo $active_tab==='log'?'active':''; ?>"
+         href="<?php echo admin_url('admin.php?page=wpsp_site_prober_log_list&tab=log'); ?>">
+         Actions
+      </a>
+
+      <a class="<?php echo $active_tab==='custom'?'active':''; ?>"
+         href="<?php echo admin_url('admin.php?page=wpsp_site_prober_log_list&tab=custom'); ?>">
+         Custom Logs
+      </a>
   </div>
 
-  <!-- panel container -->
+  <!-- tab content -->
   <div class="tab-content">
-    <div id="panel1" class="panel" role="tabpanel" aria-labelledby="tab1">
-      <!-- <h2>Overview</h2>
-      <p>This is the overview panel. Works without JavaScript.</p> -->
-      <?php
-        $this->render_page_list_table();
-      ?>
-    </div>
 
-    <div id="panel2" class="panel" role="tabpanel" aria-labelledby="tab2">
-      <!-- <h2>Custome Log</h2> -->
-      <!-- <p>Detail content here. Use radio buttons to switch panels.</p> -->
-      <?php
-        $this->render_page_list_table_custom_log();
-      ?>
-    </div>
+      <div id="panel1"
+           class="panel <?php echo $active_tab==='log'?'active':''; ?>">
+          <?php $this->render_page_list_table(); ?>
+      </div>
 
-    <div id="panel3" class="panel" role="tabpanel" aria-labelledby="tab3">
-      <h2>Settings</h2>
-      <p>Settings content. Responsive and accessible enough for many uses.</p>
-    </div>
+      <div id="panel2"
+           class="panel <?php echo $active_tab==='custom'?'active':''; ?>">
+          <?php $this->render_page_list_table_custom_log(); ?>
+      </div>
+
   </div>
 </div>
 
+
 </body>
+  <!-- labels -->
+  <!-- <div class="tab-labels" role="tablist" aria-label="範例分頁">
+    <label for="tab1" role="tab" tabindex="0">Actions</label>
+    <label for="tab2" role="tab" tabindex="0">Custom Logs</label>    
+    <label for="tab3" role="tab" tabindex="0">Settings</label>
+  </div> -->
+    <!-- <div id="panel2" class="panel" role="tabpanel" aria-labelledby="tab2"> -->
+      <!-- <h2>Custome Log</h2> -->
+      <!-- <p>Detail content here. Use radio buttons to switch panels.</p> -->
+    <!-- <div id="panel3" class="panel" role="tabpanel" aria-labelledby="tab3">
+      <h2>Settings</h2>
+      <p>Settings content. Responsive and accessible enough for many uses.</p>
+    </div> -->
+
 </html>
+
+
+
 

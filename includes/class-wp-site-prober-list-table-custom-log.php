@@ -88,29 +88,41 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 		 */
 	    ?>
 			<form method="get">
-				<input type="hidden" name="page" value="wpsp-site-prober-custom-log" />
+				<input type="hidden" name="page" value="wpsp_site_prober_log_list" />
 				<?php 
 					// 產生帶 nonce 的 URL
+					// $export_url = wp_nonce_url(
+					// 	admin_url( 'admin-post.php?action=WP_Custom_Log_export_csv_custom_log' ),
+					// 	'wpsp_list_table_action_custom_log',
+					// 	'wpsp_nonce'
+					// );
+
 					$export_url = wp_nonce_url(
-						admin_url( 'admin-post.php?action=WP_Custom_Log_export_csv_custom_log' ),
-						'wpsp_list_table_action_custom_log',
-						'wpsp_nonce'
+						add_query_arg(
+							array(
+								'action' => 'WP_Site_Prober_export_csv_custom_log',
+								'tab'    => $_GET['tab'] ?? 'log'
+							),
+							admin_url('admin-post.php')
+						),
+						'wpsp_export_custom_log',
+						'wpsp_nonce_custom_log'
 					);
 				?>
 				<a class="button" href="<?php echo esc_url( $export_url ); ?>">
 					<?php esc_html_e( 'Export CSV (Custom Log)', 'wpsp-site-prober' ); ?>
 				</a>
-                <?php 
-					// 產生帶 nonce 的 URL
-					// $export_url = wp_nonce_url(
-					// 	admin_url( 'admin-post.php?action=WP_Custom_Log_custom_log_generate' ),
-					// 	'wpsp_list_table_action_custom_log',
-					// 	'wpsp_nonce'
-					// );
-
-                    $export_url = 'admin-post.php?action=WP_Custom_Log_custom_log_generate';
+				<?php 
+                    //$generate_url = 'admin-post.php?action=WP_Custom_Log_custom_log_generate';
+					$generate_url = add_query_arg(
+						[
+							'action' => 'WP_Custom_Log_custom_log_generate',
+							'tab'    => 'custom',
+						],
+						admin_url('admin-post.php')
+					);
 				?>
-				<a class="button" href="<?php echo esc_url( $export_url ); ?>">
+				<a class="button" href="<?php echo esc_url( $generate_url ); ?>">
 					<?php esc_html_e( 'Custom Log Generate', 'wpsp-site-prober' ); ?>
 				</a>
 			</form>
@@ -126,7 +138,11 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 	    ?>
             <form id="wpsp-form-delete" method="post" action="">
                 <input type="hidden" id="clearLogs" name="clearLogs" value="Yes">
-				<?php wp_nonce_field( 'wpsp_list_table_action_custom_log', 'wpsp_nonce_custom_log' ); ?>
+				<?php wp_nonce_field( 'wpsp_delete_custom_log', 'wpsp_nonce_delete_custom_log' ); ?>
+
+				<?php 
+					//wp_nonce_field( 'wpsp_list_table_action_custom_log', 'wpsp_nonce_custom_log' ); 
+				?>
                 <div class="alignleft actions">
                     <?php submit_button( __( 'Clear Custom Logs', 'wpsp-site-prober' ), '', 'clear_action', false ); ?>
                 </div>

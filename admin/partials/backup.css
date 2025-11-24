@@ -1,0 +1,73 @@
+  :root{
+    --accent:#0b79d0;
+    --muted:#666;
+  }
+  body{font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; padding:20px;}
+  .tabs{max-width:900px;margin:0 auto;border:1px solid #eee;border-radius:6px;overflow:hidden}
+  /* hide inputs */
+  .tabs input[type="radio"]{position:absolute;left:-9999px}
+  /* tab labels row */
+  .tab-labels{display:flex;background:#fafafa;border-bottom:1px solid #eee}
+  .tab-labels label{
+    padding:12px 18px;cursor:pointer;color:var(--muted);flex:0 0 auto;
+    user-select:none;transition:color .15s, border-color .15s;
+  }
+  .tab-labels label:hover{color:#000}
+  /* selected style via :checked adjacent sibling combinator */
+  #tab1:checked ~ .tab-labels label[for="tab1"],
+  #tab2:checked ~ .tab-labels label[for="tab2"],
+  #tab3:checked ~ .tab-labels label[for="tab3"]{
+    color:var(--accent);
+    border-bottom:3px solid var(--accent);
+    padding-bottom:9px; /* make space for bottom border */
+  }
+
+  /* content panels */
+  .tab-content{padding:20px;background:#fff}
+  .panel{display:none}
+  #tab1:checked ~ .tab-content #panel1,
+  #tab2:checked ~ .tab-content #panel2,
+  #tab3:checked ~ .tab-content #panel3{
+    display:block;
+  }
+
+  /* responsive: stack labels */
+  @media (max-width:520px){
+    .tab-labels{flex-direction:column}
+    .tab-labels label{border-bottom:1px solid #f0f0f0}
+  }
+
+  <div class="tabs">
+  <!-- radios -->
+  <input type="radio" id="tab1" name="tab" <?php echo $active_tab==='log'?'checked':''; ?> >
+  <input type="radio" id="tab2" name="tab" <?php echo $active_tab==='custom'?'checked':''; ?>>
+  <!-- <input type="radio" id="tab3" name="tab"> -->
+
+  <div class="tab-labels">
+    <a 
+       href="<?php echo admin_url('admin.php?page=wpsp_site_prober_log_list&tab=log'); ?>">Actions</a>
+
+    <a class="<?php echo $active_tab==='custom'?'active':''; ?>"
+       href="<?php echo admin_url('admin.php?page=wpsp_site_prober_log_list&tab=custom'); ?>">Custom Logs</a>
+</div>
+  
+  <!-- panel container -->
+  <div class="tab-content">
+    <div id="panel1" class="panel" style="<?php echo $active_tab==='log'?'':'display:none'; ?>">
+
+    <!-- <div id="panel1" class="panel" role="tabpanel" aria-labelledby="tab1"> -->
+      <!-- <h2>Overview</h2>
+      <p>This is the overview panel. Works without JavaScript.</p> -->
+      <?php
+        $this->render_page_list_table();
+      ?>
+    </div>
+
+    <div id="panel2" class="panel" style="<?php echo $active_tab==='custom'?'':'display:none'; ?>">
+      <?php
+        $this->render_page_list_table_custom_log();
+      ?>
+    </div>
+
+  </div>
+</div>
