@@ -106,18 +106,6 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 				<a class="button" href="<?php echo esc_url( $export_url ); ?>">
 					<?php esc_html_e( 'Export CSV (Custom Log)', 'liaison-site-prober' ); ?>
 				</a>
-				<?php 
-					$generate_url = add_query_arg(
-						[
-							'action' => 'WP_Custom_Log_custom_log_generate',
-							'tab'    => 'custom',
-						],
-						admin_url('admin-post.php')
-					);
-				?>
-				<a class="button" href="<?php echo esc_url( $generate_url ); ?>">
-					<?php esc_html_e( 'Custom Log Generate', 'liaison-site-prober' ); ?>
-				</a>
 			</form>
 		<?php
 	}
@@ -128,7 +116,35 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 		 *
 		 * @return array Array items should represent action_id => 'Action Title'
 		 */
+			$generate_url = add_query_arg(
+				[
+					'action' => 'WP_Custom_Log_custom_log_generate',
+					'tab'    => 'custom',
+				],
+				admin_url('admin-post.php')
+			);
+
+			$session_url = add_query_arg(
+				[
+					'action' => 'WP_Custom_Log_custom_session_generate',
+					'tab'    => 'custom',
+				],
+				admin_url('admin-post.php')
+			);
 	    ?>
+			<br class="clear" />
+			<div class="alignright actions">
+				<a class="button" href="<?php echo esc_url( $generate_url ); ?>">
+					<?php esc_html_e( 'Custom Log Generate', 'liaison-site-prober' ); ?>
+				</a>
+			
+			<!-- <br class="clear" /> -->
+			
+				<a class="button" href="<?php echo esc_url( $session_url ); ?>">
+					<?php esc_html_e( 'Session Generate', 'liaison-site-prober' ); ?>
+				</a>
+			</div>
+			<br class="clear" />
             <form id="wpsp-form-delete" method="post" action="">
                 <input type="hidden" id="clearLogsCustomLog" name="clearLogsCustomLog" value="Yes">
 				<?php wp_nonce_field( 'wpsp_delete_custom_log', 'wpsp_nonce_delete_custom_log' ); ?>
@@ -137,6 +153,7 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
                     <?php submit_button( __( 'Clear Custom Logs', 'liaison-site-prober' ), '', 'clear_action', false ); ?>
                 </div>
 			</form>
+			
 		<?php
 	}
 

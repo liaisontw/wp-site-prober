@@ -39,6 +39,9 @@ class liaison_site_prober_Admin {
 		$this->table_custom_log = $this->logger->get_table_name_custom_log();
         add_action('admin_menu', array($this, 'admin_menu'));
 		add_action('custom_log_add'  , array( $this, 'add_custom_log' ), 10, 4 );
+		add_action( 'custom_log_session_begin', array( $this, 'begin_session' ), 10, 4 );
+		add_action( 'custom_log_session_end', array( $this, 'end_session' ) );
+		add_action( 'admin_post_WP_Custom_Log_session_generate', [ $this, 'handle_session_generate' ] );
 
 		// handle csv export
 		add_action( 'admin_post_WP_Site_Prober_export_csv', [ $this, 'handle_export_csv' ] );
@@ -460,6 +463,24 @@ class liaison_site_prober_Admin {
 		);
 
 		exit;
+	}
+
+	//add_action( 'custom_log_session_begin', array( $this, 'begin_session' ), 10, 4 );
+	//add_action( 'custom_log_session_end', array( $this, 'end_session' ) );
+	function begin_session( $plugin_name, $log, $session_title, $severity = 0 ) {
+		//get session id
+		self::$session_id_in_use = $session_id;
+		return true;
+	}
+
+	function end_session() {
+		self::$session_id_in_use = null;
+		return true;
+	}
+
+	public function handle_sesson_generate() {
+		
+		//do_action( 'custom_log_add', 'liaison-site-prober', 'message-'.$append_now, 'step-'.$append_now, 2 );
 	}
 }
 
