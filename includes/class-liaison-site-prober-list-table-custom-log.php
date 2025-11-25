@@ -91,12 +91,6 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 				<input type="hidden" name="page" value="wpsp_site_prober_log_list" />
 				<?php 
 					// 產生帶 nonce 的 URL
-					// $export_url = wp_nonce_url(
-					// 	admin_url( 'admin-post.php?action=WP_Custom_Log_export_csv_custom_log' ),
-					// 	'wpsp_list_table_action_custom_log',
-					// 	'wpsp_nonce'
-					// );
-
 					$export_url = wp_nonce_url(
 						add_query_arg(
 							array(
@@ -113,7 +107,6 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 					<?php esc_html_e( 'Export CSV (Custom Log)', 'liaison-site-prober' ); ?>
 				</a>
 				<?php 
-                    //$generate_url = 'admin-post.php?action=WP_Custom_Log_custom_log_generate';
 					$generate_url = add_query_arg(
 						[
 							'action' => 'WP_Custom_Log_custom_log_generate',
@@ -137,12 +130,9 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 		 */
 	    ?>
             <form id="wpsp-form-delete" method="post" action="">
-                <input type="hidden" id="clearLogs" name="clearLogs" value="Yes">
+                <input type="hidden" id="clearLogsCustomLog" name="clearLogsCustomLog" value="Yes">
 				<?php wp_nonce_field( 'wpsp_delete_custom_log', 'wpsp_nonce_delete_custom_log' ); ?>
 
-				<?php 
-					//wp_nonce_field( 'wpsp_list_table_action_custom_log', 'wpsp_nonce_custom_log' ); 
-				?>
                 <div class="alignleft actions">
                     <?php submit_button( __( 'Clear Custom Logs', 'liaison-site-prober' ), '', 'clear_action', false ); ?>
                 </div>
@@ -223,15 +213,6 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
                     esc_html( $_plugin )  // escape display text
                 );
             }
-				// foreach ( $output as $key => $value ) {
-				// 	$name_output[] = sprintf(
-				// 		'<option value="%s"%s>%s</option>',
-				// 		esc_attr( $key ), // escape attribute
-				// 		selected( $selected_value, $key, false ),
-				// 		esc_html( $value )  // escape display text
-				// 	);
-				// }
-			
 			?>
 				<select name="pluginshow" id="hs-filter-pluginshow">
 				<option value=""><?php echo esc_html( 'All Plugins', 'liaison-site-prober' ); ?></option>
@@ -336,8 +317,8 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
         
         $clear  = isset( $_POST['clearLogsCustomLog'] ) ? sanitize_text_field( wp_unslash( $_POST['clearLogsCustomLog'] ) ) : '';
 		if ( $clear ){
-			//error_log(  'clearLogs');
-			check_admin_referer( 'wpsp_list_table_action_custom_log', 'wpsp_nonce_custom_log' );
+			error_log(  'clearLogsCustomLog');
+			check_admin_referer( 'wpsp_delete_custom_log', 'wpsp_nonce_delete_custom_log' );
 			$this->delete_all_items_custom_log();
 		}
         
@@ -398,14 +379,6 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 					$offset,
 					$items_per_page
 				),
-                /*
-				$wpdb->prepare(
-					"SELECT * FROM {$table} {$where} 
-					ORDER BY created_at DESC LIMIT %d, %d",
-					$offset,
-					$items_per_page
-				),
-                */ 
                 ARRAY_A
 			);
 			

@@ -120,12 +120,6 @@ class liaison_site_prober_List_Table extends WP_List_Table {
 				<input type="hidden" name="page" value="wpsp_site_prober_log_list" />
 				<?php 
 					// 產生帶 nonce 的 URL
-					// $export_url = wp_nonce_url(
-					// 	admin_url( 'admin-post.php?action=WP_Site_Prober_export_csv' ),
-					// 	'wpsp_list_table_action',
-					// 	'wpsp_nonce'
-					// );
-
 					$export_url = wp_nonce_url(
 						add_query_arg(
 							array(
@@ -365,7 +359,6 @@ class liaison_site_prober_List_Table extends WP_List_Table {
 		global $wpdb;
 
         $items_per_page = 20;        
-        //$table = $this->table_name;
         
         $clear  = isset( $_POST['clearLogs'] ) ? sanitize_text_field( wp_unslash( $_POST['clearLogs'] ) ) : '';
 		if ( $clear ){
