@@ -1,4 +1,4 @@
-=== WPSP Site Prober ===
+=== Liaison Site Prober ===
 Contributors: Liaison  
 Donate link:  
 Tags: site monitoring, activity log, security, audit log  
@@ -8,16 +8,16 @@ Stable tag: 1.0.0
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
-WPSP Site Prober helps you log and track key changes and user actions on your WordPress website — giving you better visibility and security.
+Liaison Site Prober helps you log and track key changes and user actions on your WordPress website — giving you better visibility and security.
 
 == Description ==
 
 <strong>A lightweight and easy-to-use plugin to secure and monitor your WordPress website.</strong><br>
 
 Have you ever wondered when your website changed — and who did it?  
-WPSP Site Prober makes it easy to track your WordPress site's change history and user activities.
+Liaison Site Prober makes it easy to track your WordPress site's change history and user activities.
 
-With WPSP Site Prober, you can easily monitor:
+With Liaison Site Prober, you can easily monitor:
 
 * Who logged in, logged out, or attempted (and failed) to log in.  
 * When a post was published or updated — and by whom.  
@@ -48,7 +48,7 @@ all log data is stored in a dedicated custom table, fully isolated from your sit
 3. Click **Install Now**, then **Activate**.
 
 = Manual Installation =
-1. Upload the **wpsp-site-prober** folder to the `/wp-content/plugins/` directory.  
+1. Upload the **liaison-site-prober** folder to the `/wp-content/plugins/` directory.  
 2. Activate the plugin through the **Plugins** screen in your WordPress dashboard.
 
 == Frequently Asked Questions ==
@@ -61,7 +61,7 @@ Yes. You can export your site’s activity log to a CSV file from the plugin’s
 
 == Screenshots ==
 
-1. Dashboard: WPSP Site Prober Settings panel.  
+1. Dashboard: Liaison Site Prober Settings panel.  
 2. Example view of logged activities.  
 
 == Changelog ==

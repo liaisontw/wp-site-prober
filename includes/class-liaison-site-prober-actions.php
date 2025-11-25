@@ -1,6 +1,6 @@
 <?php
 
-class wp_site_prober_Actions {
+class liaison_site_prober_Actions {
 
     /**
      * The ID of this plugin.

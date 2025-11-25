@@ -6,8 +6,8 @@
  * @link       https://github.com/liaisontw
  * @since      1.0.0
  *
- * @package    wp_site_prober
- * @subpackage wp_site_prober/includes
+ * @package    liaison_site_prober
+ * @subpackage liaison_site_prober/includes
  */
 
 /**
@@ -17,11 +17,11 @@
  * the plugin, and register them with the WordPress API. Call the
  * run function to execute the list of actions and filters.
  *
- * @package    wp_site_prober
- * @subpackage wp_site_prober/includes
+ * @package    liaison_site_prober
+ * @subpackage liaison_site_prober/includes
  * @author     liason <liaison.tw@gmail.com>
  */
-class wp_site_prober_Loader {
+class liaison_site_prober_Loader {
 
 	/**
 	 * The array of actions registered with WordPress.

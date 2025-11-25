@@ -10,10 +10,10 @@
  *
  * @link              https://github.com/liaisontw/wp-site-prober
  * @since             1.0.0
- * @package           wpsp-site-prober
+ * @package           liaison-site-prober
  *
  * @wordpress-plugin
- * Plugin Name:       WPSP Site Prober
+ * Plugin Name:       Liaison Site Prober
  * Plugin URI:        https://github.com/liaisontw/wp-site-prober
  * Description:       Simple activity / audit logger for WordPress. Creates activity table, hooks common events, admin UI and CSV export.
  * Version:           1.0.0
@@ -21,7 +21,7 @@
  * Author URI:        https://github.com/liaisontw/
  * License: 		  GPLv3 or later  
  * License URI: 	  https://www.gnu.org/licenses/gpl-3.0.html  
- * Text Domain:       wpsp-site-prober
+ * Text Domain:       liaison-site-prober
  * Domain Path:       /languages
  */
 
@@ -35,35 +35,35 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'WP_SITE_PROBER_VERSION', '1.0.0' );
+define( 'LIAISON_SITE_PROBER_VERSION', '1.0.0' );
 
 /**
  * The code that runs during plugin activation.
- * This action is documented in includes/class-wp-site-prober-activator.php
+ * This action is documented in includes/class-liaison-site-prober-activator.php
  */
-function wpsp_activate_wp_site_prober() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-site-prober-activator.php';
-	wp_site_prober_Activator::activate();
+function liaisonsp_activate_wp_site_prober() {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-liaison-site-prober-activator.php';
+	liaison_site_prober_Activator::activate();
 }
 
 /**
  * The code that runs during plugin deactivation.
- * This action is documented in includes/class-wp-site-prober-deactivator.php
+ * This action is documented in includes/class-liaison-site-prober-deactivator.php
  */
-function wpsp_deactivate_wp_site_prober() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-site-prober-deactivator.php';
-	wp_site_prober_Deactivator::deactivate();
+function liaisonsp_deactivate_wp_site_prober() {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-liaison-site-prober-deactivator.php';
+	liaison_site_prober_Deactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'wpsp_activate_wp_site_prober' );
-register_deactivation_hook( __FILE__, 'wpsp_deactivate_wp_site_prober' );
+register_activation_hook( __FILE__, 'liaisonsp_activate_wp_site_prober' );
+register_deactivation_hook( __FILE__, 'liaisonsp_deactivate_wp_site_prober' );
 
 
 /**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path( __FILE__ ) . 'includes/class-wp-site-prober.php';
+require plugin_dir_path( __FILE__ ) . 'includes/class-liaison-site-prober.php';
 
 /**
  * Begins execution of the plugin.
@@ -74,11 +74,11 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-wp-site-prober.php';
  *
  * @since    1.0.0
  */
-function wpsp_run_wp_site_prober() {
+function liaisonsp_run_wp_site_prober() {
 
-	$plugin = new WP_Site_Prober();
+	$plugin = new liaison_site_prober();
 	$plugin->run();
 
 }
-wpsp_run_wp_site_prober();
+liaisonsp_run_wp_site_prober();
 

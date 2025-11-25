@@ -8,8 +8,8 @@
  * @link       https://github.com/liaisontw
  * @since      1.0.0
  *
- * @package    wp_site_prober
- * @subpackage wp_site_prober/public/partials
+ * @package    liaison_site_prober
+ * @subpackage liaison_site_prober/public/partials
  */
 ?>
 

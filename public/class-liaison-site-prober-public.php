@@ -6,8 +6,8 @@
  * @link       https://github.com/liaisontw
  * @since      1.0.0
  *
- * @package    wp_site_prober
- * @subpackage wp_site_prober/public
+ * @package    liaison_site_prober
+ * @subpackage liaison_site_prober/public
  */
 
 /**
@@ -16,11 +16,11 @@
  * Defines the plugin name, version, and two examples hooks for how to
  * enqueue the public-facing stylesheet and JavaScript.
  *
- * @package    wp_site_prober
- * @subpackage wp_site_prober/public
+ * @package    liaison_site_prober
+ * @subpackage liaison_site_prober/public
  * @author     liason <liaison.tw@gmail.com>
  */
-class wp_site_prober_Public {
+class liaison_site_prober_Public {
 
 	/**
 	 * The ID of this plugin.
@@ -65,15 +65,15 @@ class wp_site_prober_Public {
 		 * This function is provided for demonstration purposes only.
 		 *
 		 * An instance of this class should be passed to the run() function
-		 * defined in wp_site_prober_Loader as all of the hooks are defined
+		 * defined in liaison_site_prober_Loader as all of the hooks are defined
 		 * in that particular class.
 		 *
-		 * The wp_site_prober_Loader will then create the relationship
+		 * The liaison_site_prober_Loader will then create the relationship
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
 
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wp-site-prober-public.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/liaison-site-prober-public.css', array(), $this->version, 'all' );
 
 	}
 
@@ -88,15 +88,15 @@ class wp_site_prober_Public {
 		 * This function is provided for demonstration purposes only.
 		 *
 		 * An instance of this class should be passed to the run() function
-		 * defined in wp_site_prober_Loader as all of the hooks are defined
+		 * defined in liaison_site_prober_Loader as all of the hooks are defined
 		 * in that particular class.
 		 *
-		 * The wp_site_prober_Loader will then create the relationship
+		 * The liaison_site_prober_Loader will then create the relationship
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wp-site-prober-public.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/liaison-site-prober-public.js', array( 'jquery' ), $this->version, false );
 
 	}
 

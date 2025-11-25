@@ -6,8 +6,8 @@
  * @link       https://github.com/liaisontw
  * @since      1.0.0
  *
- * @package    wp_site_prober
- * @subpackage wp_site_prober/includes
+ * @package    liaison_site_prober
+ * @subpackage liaison_site_prober/includes
  */
 
 /**
@@ -16,11 +16,11 @@
  * This class defines all code necessary to run during the plugin's activation.
  *
  * @since      1.0.0
- * @package    wp_site_prober
- * @subpackage wp_site_prober/includes
+ * @package    liaison_site_prober
+ * @subpackage liaison_site_prober/includes
  * @author     liason <liaison.tw@gmail.com>
  */
-class wp_site_prober_Activator {
+class liaison_site_prober_Activator {
 
 	/**
 	 * Short Description. (use period)
@@ -31,6 +31,7 @@ class wp_site_prober_Activator {
 	 */
 	public static function activate() {
 		add_option( 'wp_site_prober_active', 'yes' );
+		add_option('wpsp_custom_log_x', 0);
 		self::_create_tables();
 		self::_create_tables_custom_log();
 	}

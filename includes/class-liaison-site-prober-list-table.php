@@ -5,7 +5,7 @@ if ( ! class_exists( 'WP_List_Table' ) )
 	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 
 
-class wp_site_prober_List_Table extends WP_List_Table {
+class liaison_site_prober_List_Table extends WP_List_Table {
 
     protected $data_types = array();
     protected $table_name = '';        
@@ -15,8 +15,8 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
 		parent::__construct(
 			array(
-				'singular'  => esc_html__( 'activity', 'wpsp-site-prober' ),
-				'plural'    => esc_html__( 'activities', 'wpsp-site-prober' ),
+				'singular'  => esc_html__( 'activity', 'liaison-site-prober' ),
+				'plural'    => esc_html__( 'activities', 'liaison-site-prober' ),
 			)
 		);
 
@@ -51,13 +51,13 @@ class wp_site_prober_List_Table extends WP_List_Table {
 					$this->get_filtered_link( 'usershow', $user->ID ),
 					get_avatar( $user->ID, 40 ),
 					$user->display_name,
-					isset( $user->roles[0] ) && isset( $wp_roles->role_names[ $user->roles[0] ] ) ? $wp_roles->role_names[ $user->roles[0] ] : __( 'Unknown', 'wpsp-site-prober' )
+					isset( $user->roles[0] ) && isset( $wp_roles->role_names[ $user->roles[0] ] ) ? $wp_roles->role_names[ $user->roles[0] ] : __( 'Unknown', 'liaison-site-prober' )
 				);		
 			}
 		} else {
 			$msg =  sprintf(
 				'<span class="wpsp-author-name">%s</span>',
-				__( 'N/A', 'wpsp-site-prober' )
+				__( 'N/A', 'liaison-site-prober' )
 			);
 		}
 		
@@ -85,12 +85,12 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
     public function get_columns() {
         $columns = array(
-            'created_at'  => __( 'Time', 'wpsp-site-prober' ),
-            'user_id'     => __( 'User Info', 'wpsp-site-prober' ),
-            'ip'          => __( 'IP', 'wpsp-site-prober' ),
-            'action'      => __( 'Action', 'wpsp-site-prober' ),
-            'object_type' => __( 'Object', 'wpsp-site-prober' ),
-            'description' => __( 'Description', 'wpsp-site-prober' ),
+            'created_at'  => __( 'Time', 'liaison-site-prober' ),
+            'user_id'     => __( 'User Info', 'liaison-site-prober' ),
+            'ip'          => __( 'IP', 'liaison-site-prober' ),
+            'action'      => __( 'Action', 'liaison-site-prober' ),
+            'object_type' => __( 'Object', 'liaison-site-prober' ),
+            'description' => __( 'Description', 'liaison-site-prober' ),
         );
 
 		return $columns;
@@ -140,7 +140,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
 				?>
 				<a class="button" href="<?php echo esc_url( $export_url ); ?>">
-					<?php esc_html_e( 'Export CSV', 'wpsp-site-prober' ); ?>
+					<?php esc_html_e( 'Export CSV', 'liaison-site-prober' ); ?>
 				</a>
 			</form>
 		<?php
@@ -157,7 +157,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
                 <input type="hidden" id="clearLogs" name="clearLogs" value="Yes">
 				<?php wp_nonce_field( 'wpsp_list_table_action', 'wpsp_nonce' ); ?>
                 <div class="alignleft actions">
-                    <?php submit_button( __( 'Clear Logs', 'wpsp-site-prober' ), '', 'clear_action', false ); ?>
+                    <?php submit_button( __( 'Clear Logs', 'liaison-site-prober' ), '', 'clear_action', false ); ?>
                 </div>
 			</form>
 		<?php
@@ -183,7 +183,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
 		//$table = sanitize_key( $this->table_name );
 		$cache_key   = 'site_prober_logs_page_';
-		$cache_group = 'wp-site-prober';
+		$cache_group = 'liaison-site-prober';
 
 		// 嘗試從快取抓資料
 		$results = wp_cache_get( $cache_key, $cache_group );
@@ -215,7 +215,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
 		// Make sure we get items for filter.
 		if ( $users || $this->data_types ) {
-			submit_button( __( 'Filter', 'wpsp-site-prober' ), 'button', 'wpsp-filter', false, array() );
+			submit_button( __( 'Filter', 'liaison-site-prober' ), 'button', 'wpsp-filter', false, array() );
 		}
 
 		if ( $users ) {
@@ -225,7 +225,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 			$output = array();
 			foreach ( $users as $_user ) {
 				if ( 0 === (int) $_user->user_id ) {
-					$output[0] = __( 'N/A', 'wpsp-site-prober' );
+					$output[0] = __( 'N/A', 'liaison-site-prober' );
 					continue;
 				}
 
@@ -275,7 +275,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 			}
 
 			// echo '<select name="typeshow" id="hs-filter-typeshow">';
-			// printf( '<option value="">%s</option>', __( 'All Objects', 'wpsp-site-prober' ) );
+			// printf( '<option value="">%s</option>', __( 'All Objects', 'liaison-site-prober' ) );
 			// echo implode( '', $output );
 			// echo '</select>';
 			$output = array();
@@ -316,7 +316,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 			?>
 				<a href="<?php echo esc_html( $this->get_filtered_link() ); ?>" id="wpsp-reset-filter">
 					<span class="dashicons dashicons-dismiss"></span> . 
-					<?php echo esc_html( __( 'Reset Filters', 'wpsp-site-prober' ) ); ?>
+					<?php echo esc_html( __( 'Reset Filters', 'liaison-site-prober' ) ); ?>
 				</a>
 			<?php
 
@@ -334,7 +334,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 		?>
 		<p class="search-box">
             <label class="screen-reader-text" for="<?php echo esc_attr($input_id); ?>"><?php echo esc_attr($text); ?>:</label>
-			<input type="search" id="<?php echo esc_attr($input_id); ?>" name="s" value="<?php echo esc_attr( $search_data ); ?>" placeholder="<?php esc_attr_e( 'Search actions, descriptions, IP', 'wpsp-site-prober' ); ?>"/>
+			<input type="search" id="<?php echo esc_attr($input_id); ?>" name="s" value="<?php echo esc_attr( $search_data ); ?>" placeholder="<?php esc_attr_e( 'Search actions, descriptions, IP', 'liaison-site-prober' ); ?>"/>
 			<?php submit_button( $text, 'button', false, false, array('id' => 'search-submit') ); ?>
 		</p>
 	<?php
@@ -342,7 +342,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
 
 	public function display_tablenav( $which ) {
 		if ( 'top' == $which ) {
-			$this->search_box( __( 'Search', 'wpsp-site-prober' ), 'wpsp-search' );
+			$this->search_box( __( 'Search', 'liaison-site-prober' ), 'wpsp-search' );
 		}
 		?>
 		<div class="tablenav <?php echo esc_attr( $which ); ?>">
@@ -397,7 +397,7 @@ class wp_site_prober_List_Table extends WP_List_Table {
       
 
 		$cache_key   = 'site_prober_logs_page_';
-		$cache_group = 'wp-site-prober';
+		$cache_group = 'liaison-site-prober';
 
 		// 嘗試從快取抓資料
 		$results = wp_cache_get( $cache_key, $cache_group );

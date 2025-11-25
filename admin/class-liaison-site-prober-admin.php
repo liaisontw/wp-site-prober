@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class wp_site_prober_Admin {
+class liaison_site_prober_Admin {
 
     /**
      * The ID of this plugin.
@@ -27,10 +27,10 @@ class wp_site_prober_Admin {
 	protected $logger;
 	protected $table;
 	protected $wpsp_list_table = null;
-
-	//protected $logger_custom_log;
+	
 	protected $table_custom_log;
 	protected $wpsp_custom_log = null;
+	//public $wpsp_custom_log_x = 0;
 	public function __construct( $logger, $plugin_name, $version ) {
 		$this->logger = $logger;
 		$this->plugin_name = $plugin_name;
@@ -70,7 +70,7 @@ class wp_site_prober_Admin {
          * class.
          */
 
-        wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/wp-site-prober-admin.css', array(), $this->version, 'all');
+        wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/liaison-site-prober-admin.css', array(), $this->version, 'all');
     }
 
     /**
@@ -93,7 +93,7 @@ class wp_site_prober_Admin {
          * class.
          */
 
-        wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/wp-site-prober-admin.js', array( 'jquery' ), $this->version, false);
+        wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/liaison-site-prober-admin.js', array( 'jquery' ), $this->version, false);
     }
 
     /**
@@ -118,7 +118,7 @@ class wp_site_prober_Admin {
 
 	public function render_page_tabs() {
 		$active_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'log';
-		require_once( trailingslashit( dirname( __FILE__ ) ) . 'partials/wp-site-prober-admin-display.php' );
+		require_once( trailingslashit( dirname( __FILE__ ) ) . 'partials/liaison-site-prober-admin-display.php' );
 		
 	}
 
@@ -139,7 +139,7 @@ class wp_site_prober_Admin {
 
 	public function get_list_table() {
 		if ( is_null( $this->wpsp_list_table ) ) {
-			$this->wpsp_list_table = new wp_site_prober_List_Table( );
+			$this->wpsp_list_table = new liaison_site_prober_List_Table( );
 		}
 
 		return $this->wpsp_list_table;
@@ -147,7 +147,7 @@ class wp_site_prober_Admin {
 
 	public function get_list_table_custom_log() {
 		if ( is_null( $this->wpsp_custom_log ) ) {
-			$this->wpsp_custom_log = new wp_site_prober_List_Table_Custom_Log( );
+			$this->wpsp_custom_log = new liaison_site_prober_List_Table_Custom_Log( );
 		}
 
 		return $this->wpsp_custom_log;
@@ -171,7 +171,7 @@ class wp_site_prober_Admin {
 		<div class="wrap">
 			<h1>
 				<?php 
-					esc_html_e( 'Actions', 'wpsp-site-prober' ); 
+					esc_html_e( 'Actions', 'liaison-site-prober' ); 
 				?>
 			</h1>
 			
@@ -204,7 +204,7 @@ class wp_site_prober_Admin {
 		<div class="wrap">
 			<h1>
 				<?php 
-					esc_html_e( 'Custom Log', 'wpsp-site-prober' ); 
+					esc_html_e( 'Custom Log', 'liaison-site-prober' ); 
 				?>
 			</h1>
 			
@@ -229,7 +229,7 @@ class wp_site_prober_Admin {
 	private function array_to_csv_line( $fields, $delimiter = ',', $enclosure = '"' ) {
 		$escaped = [];
 		foreach ( $fields as $field ) {
-			$escaped[] = $enclosure . str_replace( $enclosure, $enclosure . $enclosure, $field ) . $enclosure;
+			$escaped[] = $field ? $enclosure . str_replace( $enclosure, $enclosure . $enclosure, $field ) . $enclosure : '';
 		}
 		return implode( $delimiter, $escaped ) . "\n";
 	}
@@ -240,13 +240,13 @@ class wp_site_prober_Admin {
 
 		if ( ! isset( $_GET['wpsp_nonce'] ) ||
          	! wp_verify_nonce( sanitize_key( $_GET['wpsp_nonce'] ), 'wpsp_list_table_action' ) ) {
-        		wp_die( esc_html__( 'Invalid request.', 'wpsp-site-prober' ) );
+        		wp_die( esc_html__( 'Invalid request.', 'liaison-site-prober' ) );
     	}
 		global $wpdb;
 		$this->table = $this->logger->get_table_name();
 		$table = sanitize_key( $this->table );
 		$cache_key   = 'site_prober_logs_page_';
-		$cache_group = 'wp-site-prober';
+		$cache_group = 'liaison-site-prober';
 
 		// 嘗試從快取抓資料
 		$results = wp_cache_get( $cache_key, $cache_group );
@@ -270,7 +270,7 @@ class wp_site_prober_Admin {
 
 		// 暫存檔路徑
 		$upload_dir = wp_upload_dir();
-		$tmp_file   = trailingslashit( $upload_dir['basedir'] ) . 'wp-site-prober-export.csv';
+		$tmp_file   = trailingslashit( $upload_dir['basedir'] ) . 'liaison-site-prober-export.csv';
 
 		// 建立 CSV 內容
 		$csv_lines = [];
@@ -297,14 +297,11 @@ class wp_site_prober_Admin {
 		$wp_filesystem->put_contents( $tmp_file, $csv_content, FS_CHMOD_FILE );
 
 		header( 'Content-Type: text/csv; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename=wp-site-prober-export-' . gmdate( 'Y-m-d' ) . '.csv' );
+		header( 'Content-Disposition: attachment; filename=liaison-site-prober-export-' . gmdate( 'Y-m-d' ) . '.csv' );
 		header( 'Pragma: no-cache' );
 		header( 'Expires: 0' );
 
-		// 直接輸出檔案
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		//readfile( $tmp_file );
-		//wp_kses_post()
 		// 用 WP_Filesystem 安全讀出內容
 		echo wp_kses_post( $wp_filesystem->get_contents( $tmp_file ) );
 
@@ -319,13 +316,13 @@ class wp_site_prober_Admin {
 
 		if ( ! isset( $_GET['wpsp_nonce_custom_log'] ) ||
          	! wp_verify_nonce( sanitize_key( $_GET['wpsp_nonce_custom_log'] ), 'wpsp_export_custom_log' ) ) {
-        		wp_die( esc_html__( 'Invalid request.', 'wpsp-site-prober' ) );
+        		wp_die( esc_html__( 'Invalid request.', 'liaison-site-prober' ) );
     	}
 		global $wpdb;
 		$this->table = $this->logger->get_table_name_custom_log();
 		$table = sanitize_key( $this->table );
 		$cache_key   = 'site_prober_logs_page_custom_log';
-		$cache_group = 'wp-site-prober';
+		$cache_group = 'liaison-site-prober';
 
 		// 嘗試從快取抓資料
 		$results = wp_cache_get( $cache_key, $cache_group );
@@ -381,10 +378,7 @@ class wp_site_prober_Admin {
 		header( 'Pragma: no-cache' );
 		header( 'Expires: 0' );
 
-		// 直接輸出檔案
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		//readfile( $tmp_file );
-		//wp_kses_post()
 		// 用 WP_Filesystem 安全讀出內容
 		echo wp_kses_post( $wp_filesystem->get_contents( $tmp_file ) );
 
@@ -393,12 +387,26 @@ class wp_site_prober_Admin {
 	}
 
 	public function handle_custom_log_generate() {
-		$table = sanitize_key( $this->logger->get_table_name_custom_log() );
-		error_log( sprintf('table_custom_log : %s', $table) );
+		$appends = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '!', '@', '#'];
 		
-		do_action( 'custom_log_add', 'wpsp-site-prober', 'message-', 'step-', 2 );
-		//$this->redirect_back();
-		//exit;
+		// 從 option 讀取
+		$x = intval( get_option('liaison_custom_log_x', 0) );
+
+		$append_now = $appends[$x];
+
+		// 計算下一個值
+		if ( ($x + 1) >= count($appends) ) {
+			$x = 0;
+		} else {
+			$x++;
+		}
+
+		// 寫回 option
+		update_option('liaison_custom_log_x', $x);
+
+		error_log( sprintf('append_now : %s, liaison_custom_log_x : %s', $append_now, $x) );
+		
+		do_action( 'custom_log_add', 'liaison-site-prober', 'message-'.$append_now, 'step-'.$append_now, 2 );
 	}
 
 	public function add_custom_log( $plugin_name, $log, $message, $severity = 1 ) {

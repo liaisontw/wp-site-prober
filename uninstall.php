@@ -22,7 +22,7 @@
  * @link       https://github.com/liaisontw
  * @since      1.0.0
  *
- * @package    wp_site_prober
+ * @package    liaison_site_prober
  */
 
 // If uninstall not called from WordPress, then exit.

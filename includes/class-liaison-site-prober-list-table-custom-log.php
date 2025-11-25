@@ -5,7 +5,7 @@ if ( ! class_exists( 'WP_List_Table' ) )
 	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 
 
-class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
+class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 
     protected $plugins = array();
     protected $log_severity = array();
@@ -16,8 +16,8 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 
 		parent::__construct(
 			array(
-				'singular'  => esc_html__( 'custom_log', 'wpsp-site-prober' ),
-				'plural'    => esc_html__( 'custom_logs', 'wpsp-site-prober' ),
+				'singular'  => esc_html__( 'custom_log', 'liaison-site-prober' ),
+				'plural'    => esc_html__( 'custom_logs', 'liaison-site-prober' ),
 			)
 		);
 
@@ -56,11 +56,11 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 
     public function get_columns() {
         $columns = array(
-            'log_id'      => __( 'Log Id', 'wpsp-site-prober' ),
-            'message'     => __( 'Message', 'wpsp-site-prober' ),
-            'plugin'      => __( 'Plugin', 'wpsp-site-prober' ),
-            'severity'    => __( 'Severity', 'wpsp-site-prober' ),
-            'created_at'  => __( 'Time', 'wpsp-site-prober' ),
+            'log_id'      => __( 'Log Id', 'liaison-site-prober' ),
+            'message'     => __( 'Message', 'liaison-site-prober' ),
+            'plugin'      => __( 'Plugin', 'liaison-site-prober' ),
+            'severity'    => __( 'Severity', 'liaison-site-prober' ),
+            'created_at'  => __( 'Time', 'liaison-site-prober' ),
         );
 
 		return $columns;
@@ -110,7 +110,7 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 					);
 				?>
 				<a class="button" href="<?php echo esc_url( $export_url ); ?>">
-					<?php esc_html_e( 'Export CSV (Custom Log)', 'wpsp-site-prober' ); ?>
+					<?php esc_html_e( 'Export CSV (Custom Log)', 'liaison-site-prober' ); ?>
 				</a>
 				<?php 
                     //$generate_url = 'admin-post.php?action=WP_Custom_Log_custom_log_generate';
@@ -123,7 +123,7 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 					);
 				?>
 				<a class="button" href="<?php echo esc_url( $generate_url ); ?>">
-					<?php esc_html_e( 'Custom Log Generate', 'wpsp-site-prober' ); ?>
+					<?php esc_html_e( 'Custom Log Generate', 'liaison-site-prober' ); ?>
 				</a>
 			</form>
 		<?php
@@ -144,7 +144,7 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 					//wp_nonce_field( 'wpsp_list_table_action_custom_log', 'wpsp_nonce_custom_log' ); 
 				?>
                 <div class="alignleft actions">
-                    <?php submit_button( __( 'Clear Custom Logs', 'wpsp-site-prober' ), '', 'clear_action', false ); ?>
+                    <?php submit_button( __( 'Clear Custom Logs', 'liaison-site-prober' ), '', 'clear_action', false ); ?>
                 </div>
 			</form>
 		<?php
@@ -169,7 +169,7 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 		echo '<div class="alignleft actions">';
 
 		$cache_key   = 'site_prober_logs_page_custom_log';
-		$cache_group = 'wp-site-prober';
+		$cache_group = 'liaison-site-prober';
 
 		// 嘗試從快取抓資料
 		$results = wp_cache_get( $cache_key, $cache_group );
@@ -201,7 +201,7 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 
 		// Make sure we get items for filter.
 		if ( $this->plugins || $this->log_severity ) {
-			submit_button( __( 'Filter', 'wpsp-site-prober' ), 'button', 'wpsp-filter', false, array() );
+			submit_button( __( 'Filter', 'liaison-site-prober' ), 'button', 'wpsp-filter', false, array() );
 		}
 
 		if ( $this->plugins ) {
@@ -234,7 +234,7 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 			
 			?>
 				<select name="pluginshow" id="hs-filter-pluginshow">
-				<option value=""><?php echo esc_html( 'All Plugins', 'wpsp-site-prober' ); ?></option>
+				<option value=""><?php echo esc_html( 'All Plugins', 'liaison-site-prober' ); ?></option>
 				<?php 
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Fully escaped when building each option
 					echo implode( '', $name_output );
@@ -264,7 +264,7 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 
 			?>
 				<select name="severityshow" id="hs-filter-severityshow">
-					<option value=""><?php echo esc_html( 'All Severity', 'wpsp-site-prober' ); ?></option>
+					<option value=""><?php echo esc_html( 'All Severity', 'liaison-site-prober' ); ?></option>
 					<?php 
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Fully escaped when building each option
 					echo implode( '', $output );
@@ -284,7 +284,7 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 			?>
 				<a href="<?php echo esc_html( $this->get_filtered_link() ); ?>" id="wpsp-reset-filter">
 					<span class="dashicons dashicons-dismiss"></span> . 
-					<?php echo esc_html( __( 'Reset Filters', 'wpsp-site-prober' ) ); ?>
+					<?php echo esc_html( __( 'Reset Filters', 'liaison-site-prober' ) ); ?>
 				</a>
 			<?php
 
@@ -302,7 +302,7 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 		?>
 		<p class="search-box">
             <label class="screen-reader-text" for="<?php echo esc_attr($input_id); ?>"><?php echo esc_attr($text); ?>:</label>
-			<input type="search" id="<?php echo esc_attr($input_id); ?>" name="s_custom_log" value="<?php echo esc_attr( $search_data ); ?>" placeholder="<?php esc_attr_e( 'Search plugins, messages', 'wpsp-site-prober' ); ?>"/>
+			<input type="search" id="<?php echo esc_attr($input_id); ?>" name="s_custom_log" value="<?php echo esc_attr( $search_data ); ?>" placeholder="<?php esc_attr_e( 'Search plugins, messages', 'liaison-site-prober' ); ?>"/>
 			<?php submit_button( $text, 'button', false, false, array('id' => 'search-submit') ); ?>
 		</p>
 	<?php
@@ -310,7 +310,7 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
 
 	public function display_tablenav( $which ) {
 		if ( 'top' == $which ) {
-			$this->search_box( __( 'Search', 'wpsp-site-prober' ), 'wpsp-search' );
+			$this->search_box( __( 'Search', 'liaison-site-prober' ), 'wpsp-search' );
 		}
 		?>
 		<div class="tablenav <?php echo esc_attr( $which ); ?>">
@@ -364,7 +364,7 @@ class wp_site_prober_List_Table_Custom_Log extends WP_List_Table {
       
 
 		$cache_key   = 'site_prober_logs_page_custom_log';
-		$cache_group = 'wp-site-prober';
+		$cache_group = 'liaison-site-prober';
 
 		// 嘗試從快取抓資料
 		$results = wp_cache_get( $cache_key, $cache_group );
