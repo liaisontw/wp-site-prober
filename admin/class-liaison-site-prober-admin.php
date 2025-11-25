@@ -374,7 +374,7 @@ class liaison_site_prober_Admin {
 		$wp_filesystem->put_contents( $tmp_file, $csv_content, FS_CHMOD_FILE );
 
 		header( 'Content-Type: text/csv; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename=wp-custom-log-export-' . gmdate( 'Y-m-d' ) . '.csv' );
+		header( 'Content-Disposition: attachment; filename=liaison-site-prober-custom-log-export-' . gmdate( 'Y-m-d' ) . '.csv' );
 		header( 'Pragma: no-cache' );
 		header( 'Expires: 0' );
 

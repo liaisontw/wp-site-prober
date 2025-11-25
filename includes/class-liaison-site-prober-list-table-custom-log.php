@@ -34,9 +34,9 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 		return add_query_arg( $name, $value, $base_page_url );
 	}
 
-    public function column_log_id( $item ) {
-        return esc_html( $item['log_id'] ); 
-	}
+    // public function column_log_id( $item ) {
+    //     return esc_html( $item['log_id'] ); 
+	// }
 
     public function column_message( $item ) {
         return esc_html( $item['message'] );
@@ -56,7 +56,7 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 
     public function get_columns() {
         $columns = array(
-            'log_id'      => __( 'Log Id', 'liaison-site-prober' ),
+            //'log_id'      => __( 'Log Id', 'liaison-site-prober' ),
             'message'     => __( 'Message', 'liaison-site-prober' ),
             'plugin'      => __( 'Plugin', 'liaison-site-prober' ),
             'severity'    => __( 'Severity', 'liaison-site-prober' ),
@@ -73,7 +73,7 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 
 	public function get_sortable_columns() {
 		return array(
-			'log_id'     => array( 'log_id', false ),
+			//'log_id'     => array( 'log_id', false ),
 			'plugin'     => array( 'plugin', false ),
             'severity'   => array( 'severity', false ),
             'created_at' => array( 'created_at', false ),
