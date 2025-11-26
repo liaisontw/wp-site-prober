@@ -234,6 +234,10 @@ class liaison_site_prober {
 		return $this->table_name_custom_log;
 	}
 
+	public function get_table_name_custom_log_session() {
+		return $this->table_name_custom_log_session;
+	}
+
 	public function get_plugin_dir() {
 		return $this->dir;
 	}

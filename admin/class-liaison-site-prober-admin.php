@@ -29,14 +29,18 @@ class liaison_site_prober_Admin {
 	protected $wpsp_list_table = null;
 	
 	protected $table_custom_log;
+	protected $table_custom_log_session;
 	protected $wpsp_custom_log = null;
-	//public $wpsp_custom_log_x = 0;
+
+	//protected $session_id_in_use = null;
+	protected static $session_id_in_use = null;
 	public function __construct( $logger, $plugin_name, $version ) {
 		$this->logger = $logger;
 		$this->plugin_name = $plugin_name;
         $this->version = $version;
 		$this->table = $this->logger->get_table_name();
 		$this->table_custom_log = $this->logger->get_table_name_custom_log();
+		$this->table_custom_log_session = $this->logger->get_table_name_custom_log_session();
         add_action('admin_menu', array($this, 'admin_menu'));
 		add_action('custom_log_add'  , array( $this, 'add_custom_log' ), 10, 4 );
 		add_action( 'custom_log_session_begin', array( $this, 'begin_session' ), 10, 4 );
@@ -449,34 +453,60 @@ class liaison_site_prober_Admin {
 		}
 		$comment_id = wp_insert_comment( wp_filter_comment( $comment_data ) );
 		*/
+		$session_id = self::$session_id_in_use;
 		$table = sanitize_key( $this->logger->get_table_name_custom_log() );
+		error_log( sprintf( 'inserted data to: %s', $table) );
 
 		$wpdb->insert(
 			$table,
 			[		
-				'log_id'      => null,
-				'plugin_name' => sanitize_text_field( (string) $plugin_name ),
-				'message'     => sanitize_text_field( $message ),
-				'severity'    => intval( $severity ),
-				//'session_type'
-				//'session_id'				
+				'log_id'       => null,
+				'plugin_name'  => sanitize_text_field( (string) $plugin_name ),
+				'message'      => sanitize_text_field( $message ),
+				'severity'     => intval( $severity ),
+				//'session_type' => false,
+				'session_id'   => intval( $session_id ),
 			],
-			[ '%d', '%s', '%s', '%d']
+			[ '%d', '%s', '%s', '%d', '%d' ]
 		);
 
 	}
 
-	function begin_session( $plugin_name, $log, $session_title, $severity = 0 ) {
-		//get session id
+	function begin_session( $plugin_name, $message, $session_title, $severity = 0 ) {
+		global $wpdb;
+		//do_action( 'liaison-site-prober', 'message-session-begin', 'session-begin !', 0 );
+		//$table_session = sanitize_key( $this->logger->get_table_name_custom_log_session() );
+		$table_session = $this->table_custom_log_session;
+
+/*
+		$result = $wpdb->insert(
+			$table_session,
+			[		
+				'plugin_name'  => sanitize_text_field( (string) $plugin_name ),
+				'message'      => sanitize_text_field( $message ),
+				'severity'     => intval( $severity ),
+			],
+			[ '%s', '%s', '%d']
+		);
+
+		if ( $result !== false ) {
+			$last_inserted_id = $wpdb->insert_id;
+			error_log( sprintf( 'Successfully inserted data. Last inserted ID: %d', $last_inserted_id) );
+		} else {
+			error_log( 'Error inserting data.');
+		}
+		$session_id = $last_inserted_id;
+	*/
+		$session_id = 1;	
 		error_log('begin_session');
-		//self::$session_id_in_use = $session_id;
+		self::$session_id_in_use = $session_id;
 		return true;
 	}
 
 	//function end_session( $plugin_name, $log, $session_title, $severity = 0 ) {
 	function end_session( ...$args ) {
 		error_log('end_session');
-		//self::$session_id_in_use = null;
+		self::$session_id_in_use = null;
 		return true;
 	}
 

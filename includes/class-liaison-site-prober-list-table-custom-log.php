@@ -22,6 +22,7 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 		);
 
         $this->table_name = $wpdb->wpsp_custom_log;     
+		$this->table_name_session = $wpdb->wpsp_custom_log_session;     
     }
 
     private function get_filtered_link( $name = '', $value = '' ) {
@@ -326,6 +327,9 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 		$table = sanitize_key( $this->table_name );
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name sanitized above.
 		$wpdb->query( "TRUNCATE TABLE {$table}" );
+
+		$table_session = sanitize_key( $this->table_name_session );
+		$wpdb->query( "TRUNCATE TABLE {$table_session}" );
 	}
     public function prepare_items() {
 		global $wpdb;
@@ -342,6 +346,8 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
         $search = isset( $_REQUEST['s_custom_log'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s_custom_log'] ) ) : '';
 		$offset = ( $this->get_pagenum() - 1 ) * $items_per_page;
         $where = ' WHERE 1 = 1';
+		//$where .= ' AND session_type = 0 ';
+		$where_session = ' WHERE 1 = 1';
 
 		if ( ! empty( $_REQUEST['severityshow'] ) ) {
 			$where .= $wpdb->prepare( ' AND `severity` = %d', 
@@ -370,6 +376,7 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 		if ( false === $results ) {
 			// Safe direct database access (custom table, prepared query)
 			$table = sanitize_key( $this->table_name );
+			$table_session = sanitize_key( $this->table_name_session );
 
             $orderby = isset( $_GET['orderby'] ) ? sanitize_key( $_GET['orderby'] ) : 'created_at';
 			$order   = isset( $_GET['order'] ) && in_array( strtolower($_GET['order']), ['asc','desc'], true )
@@ -390,12 +397,31 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name sanitized and validated above.
 
 			/*
+			if ( ! empty( $_POST['session-select'] ) ) {
+				$comment_where .= $wpdb->prepare( " AND comment_post_ID = %d AND comment_parent = 1", intval( $_POST['session-select'] ) );
+			} else {
+				$comment_where .= ' AND comment_parent = 0';
+			}
+			
+			$sql = "SELECT
+				comment_ID AS the_ID,
+				user_ID AS severity,
+				comment_content AS message,
+				comment_date AS the_date,
+				comment_author AS log_plugin,
+				0 AS session
+			FROM
+				{$wpdb->comments}
+			WHERE
+				{$comment_where}
+
 			if ( empty( $_POST['session-select'] ) ) {
 				$sql = $session_select . $sql;
 			}
 
 			$rows   = $wpdb->get_results( "{$sql} {$args['limit']}" );
 			*/
+
 			$sql = $wpdb->prepare(
 					"SELECT * FROM {$table} {$where} 
 					ORDER BY {$orderby} {$order}
@@ -403,8 +429,7 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 					$offset,
 					$items_per_page
 			);
-			$this->items = $wpdb->get_results( "{$sql}", ARRAY_A );
-			
+			$this->items = $wpdb->get_results( $sql, 'ARRAY_A' );
 			
 			wp_cache_set( $cache_key, $this->items, $cache_group, 5 * MINUTE_IN_SECONDS );
 		}            
