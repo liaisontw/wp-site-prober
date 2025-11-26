@@ -42,6 +42,7 @@ class liaison_site_prober_Admin {
 		add_action( 'custom_log_session_begin', array( $this, 'begin_session' ), 10, 4 );
 		add_action( 'custom_log_session_end', array( $this, 'end_session' ) );
 		add_action( 'admin_post_WP_Custom_Log_session_generate', [ $this, 'handle_session_generate' ] );
+		//add_action( 'admin_WP_Custom_Log_session_generate', [ $this, 'handle_session_generate' ] );
 
 		// handle csv export
 		add_action( 'admin_post_WP_Site_Prober_export_csv', [ $this, 'handle_export_csv' ] );
@@ -407,9 +408,21 @@ class liaison_site_prober_Admin {
 		// 寫回 option
 		update_option('liaison_custom_log_x', $x);
 
-		error_log( sprintf('append_now : %s, liaison_custom_log_x : %s', $append_now, $x) );
+		//error_log( sprintf('append_now : %s, liaison_custom_log_x : %s', $append_now, $x) );
 		
 		do_action( 'custom_log_add', 'liaison-site-prober', 'message-'.$append_now, 'step-'.$append_now, 2 );
+		add_action('shutdown', function () {
+			wp_safe_redirect(
+				add_query_arg(
+					[
+						'page' => 'wpsp_site_prober_log_list',
+						'tab'  => 'custom',
+					],
+					admin_url('admin.php')
+				)
+			);
+			exit;	
+		} );
 	}
 
 	public function add_custom_log( $plugin_name, $log, $message, $severity = 1 ) {
@@ -451,36 +464,39 @@ class liaison_site_prober_Admin {
 			[ '%d', '%s', '%s', '%d']
 		);
 
-		//wp_safe_redirect( menu_page_url( 'wpsp_site_prober_log_list', false ) );
-		wp_safe_redirect(
-			add_query_arg(
-				[
-					'page' => 'wpsp_site_prober_log_list',
-					'tab'  => 'custom',
-				],
-				admin_url('admin.php')
-			)
-		);
-
-		exit;
 	}
 
-	//add_action( 'custom_log_session_begin', array( $this, 'begin_session' ), 10, 4 );
-	//add_action( 'custom_log_session_end', array( $this, 'end_session' ) );
 	function begin_session( $plugin_name, $log, $session_title, $severity = 0 ) {
 		//get session id
-		self::$session_id_in_use = $session_id;
+		error_log('begin_session');
+		//self::$session_id_in_use = $session_id;
 		return true;
 	}
 
-	function end_session() {
-		self::$session_id_in_use = null;
+	//function end_session( $plugin_name, $log, $session_title, $severity = 0 ) {
+	function end_session( ...$args ) {
+		error_log('end_session');
+		//self::$session_id_in_use = null;
 		return true;
 	}
 
-	public function handle_sesson_generate() {
-		
-		//do_action( 'custom_log_add', 'liaison-site-prober', 'message-'.$append_now, 'step-'.$append_now, 2 );
+	public function handle_session_generate() {
+		do_action( 'custom_log_session_begin', 'liaison-site-prober', 'message-session-begin', 'session-begin !', 0 );
+			error_log('in_session');
+			do_action( 'custom_log_add', 'liaison-site-prober', 'message-in-session', 'step-in-session', 4 );
+		do_action( 'custom_log_session_end' );
+		add_action('shutdown', function () {
+			wp_safe_redirect(
+				add_query_arg(
+					[
+						'page' => 'wpsp_site_prober_log_list',
+						'tab'  => 'custom',
+					],
+					admin_url('admin.php')
+				)
+			);
+			exit;	
+		} );
 	}
 }
 

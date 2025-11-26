@@ -126,7 +126,7 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 
 			$session_url = add_query_arg(
 				[
-					'action' => 'WP_Custom_Log_custom_session_generate',
+					'action' => 'WP_Custom_Log_session_generate',
 					'tab'    => 'custom',
 				],
 				admin_url('admin-post.php')
