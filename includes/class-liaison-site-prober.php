@@ -42,6 +42,7 @@ class liaison_site_prober {
 
 	protected $table_name;
 	protected $table_name_custom_log;
+	protected $table_name_custom_log_session;
 	public $dir;
 	/**
 	 * Define the core functionality of the plugin.
@@ -68,8 +69,10 @@ class liaison_site_prober {
 		global $wpdb;
 		$wpdb->wpsp_activity = $wpdb->prefix . 'liaison_site_prober';
 		$wpdb->wpsp_custom_log = $wpdb->prefix . 'liaison_site_prober_custom_log';	
+		$wpdb->wpsp_custom_log_session = $wpdb->prefix . 'liaison_site_prober_custom_log_session';	
 		$this->table_name = $wpdb->wpsp_activity;
 		$this->table_name_custom_log = $wpdb->wpsp_custom_log;
+		$this->table_name_custom_log_session = $wpdb->wpsp_custom_log_session;
 		$this->dir = plugin_basename( __FILE__ );
 
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-liaison-site-prober-actions.php';

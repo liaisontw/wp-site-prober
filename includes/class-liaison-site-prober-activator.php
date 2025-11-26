@@ -34,6 +34,7 @@ class liaison_site_prober_Activator {
 		add_option('wpsp_custom_log_x', 0);
 		self::_create_tables();
 		self::_create_tables_custom_log();
+		self::_create_tables_custom_log_session();
 	}
 
 	/**
@@ -78,8 +79,30 @@ class liaison_site_prober_Activator {
 			plugin_name varchar(191) NOT NULL,
 			message text DEFAULT NULL,
 			severity bigint(20) DEFAULT NULL,
-			session_type varchar(45) DEFAULT NULL,
+			session_type BOOLEAN DEFAULT 0,
 			session_id bigint(20) DEFAULT NULL,
+			created_at datetime DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (id)
+		) $charset_collate;";
+
+		dbDelta( $sql );
+	}
+
+	protected static function _create_tables_custom_log_session() {
+		global $wpdb;
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+		// set up DB name
+		$table_name = $wpdb->wpsp_custom_log_session;
+		$charset_collate = $wpdb->get_charset_collate();
+
+		$sql = "CREATE TABLE {$table_name} (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			session_id bigint(20) DEFAULT NULL,
+			session_type BOOLEAN DEFAULT 1,
+			plugin_name varchar(191) NOT NULL,
+			message text DEFAULT NULL,
+			severity bigint(20) DEFAULT NULL,
 			created_at datetime DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY (id)
 		) $charset_collate;";

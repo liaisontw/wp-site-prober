@@ -388,18 +388,25 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 			$total_items = $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name sanitized and validated above.
-			$this->items = $wpdb->get_results( 
-                $wpdb->prepare(
+
+			/*
+			if ( empty( $_POST['session-select'] ) ) {
+				$sql = $session_select . $sql;
+			}
+
+			$rows   = $wpdb->get_results( "{$sql} {$args['limit']}" );
+			*/
+			$sql = $wpdb->prepare(
 					"SELECT * FROM {$table} {$where} 
 					ORDER BY {$orderby} {$order}
 					LIMIT %d, %d",
 					$offset,
 					$items_per_page
-				),
-                ARRAY_A
 			);
+			$this->items = $wpdb->get_results( "{$sql}", ARRAY_A );
 			
-			wp_cache_set( $cache_key, $results, $cache_group, 5 * MINUTE_IN_SECONDS );
+			
+			wp_cache_set( $cache_key, $this->items, $cache_group, 5 * MINUTE_IN_SECONDS );
 		}            
         
         $this->_column_headers = 
