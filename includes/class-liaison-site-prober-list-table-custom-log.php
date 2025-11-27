@@ -10,6 +10,7 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
     protected $plugins = array();
     protected $log_severity = array();
     protected $table_name = '';        
+	protected $table_name_session = '';        
 
     public function __construct( $args = array() ) {
         global $wpdb;
@@ -346,8 +347,8 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
         $search = isset( $_REQUEST['s_custom_log'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s_custom_log'] ) ) : '';
 		$offset = ( $this->get_pagenum() - 1 ) * $items_per_page;
         $where = ' WHERE 1 = 1';
-		$where .= ' AND ( session_type = 0 OR session_type IS NULL )';
-		$where_session = ' WHERE 1 = 1';
+		//$where .= ' AND ( session_type = 0 OR session_type IS NULL )';
+		//$where_session = ' WHERE 1 = 1';
 
 		if ( ! empty( $_REQUEST['severityshow'] ) ) {
 			$where .= $wpdb->prepare( ' AND `severity` = %d', 
@@ -366,7 +367,7 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
             $where .= $wpdb->prepare( ' AND (`plugin_name` LIKE %s OR `message` LIKE %s )', $like, $like);
 		}
       
-
+		
 		$cache_key   = 'site_prober_logs_page_custom_log';
 		$cache_group = 'liaison-site-prober';
 
@@ -395,40 +396,36 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 			$total_items = $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name sanitized and validated above.
+			$session = $wpdb->prepare(
+					"SELECT 
+						plugin_name AS plugin_name,
+						message AS message,
+						severity AS severity,
+						created_at AS created_at
+					FROM {$table_session} {$where} 
+					UNION "
+			);
 
-			/*
-			if ( ! empty( $_POST['session-select'] ) ) {
-				$comment_where .= $wpdb->prepare( " AND comment_post_ID = %d AND comment_parent = 1", intval( $_POST['session-select'] ) );
-			} else {
-				$comment_where .= ' AND comment_parent = 0';
-			}
-			
-			$sql = "SELECT
-				comment_ID AS the_ID,
-				user_ID AS severity,
-				comment_content AS message,
-				comment_date AS the_date,
-				comment_author AS log_plugin,
-				0 AS session
-			FROM
-				{$wpdb->comments}
-			WHERE
-				{$comment_where}
+			//$this->items = $wpdb->get_results( $session, 'ARRAY_A' );
 
-			if ( empty( $_POST['session-select'] ) ) {
-				$sql = $session_select . $sql;
-			}
-
-			$rows   = $wpdb->get_results( "{$sql} {$args['limit']}" );
-			*/
+			$where .= ' AND ( session_type = 0 OR session_type IS NULL )';
+			//$where .= ' AND ( session_type = 0 )';
 
 			$sql = $wpdb->prepare(
-					"SELECT * FROM {$table} {$where} 
+					"SELECT
+						plugin_name AS plugin_name,
+						message AS message,
+						severity AS severity,
+						created_at AS created_at
+					FROM {$table} {$where} 
 					ORDER BY {$orderby} {$order}
 					LIMIT %d, %d",
 					$offset,
 					$items_per_page
 			);
+
+			$sql = $session . $sql;
+
 			$this->items = $wpdb->get_results( $sql, 'ARRAY_A' );
 			
 			wp_cache_set( $cache_key, $this->items, $cache_group, 5 * MINUTE_IN_SECONDS );
