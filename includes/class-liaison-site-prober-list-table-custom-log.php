@@ -189,11 +189,19 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 		$cache_group = 'liaison-site-prober';
 
 		// 嘗試從快取抓資料
+		//wp_cache_delete( 'site_prober_logs_page_custom_log', 'liaison-site-prober' );
 		$results = wp_cache_get( $cache_key, $cache_group );
 
-		if ( false === $results ) {
+		if ( $results['plugins'] || $results['log_severity'] ) {		
+			// cache hit — 必須把 cache 裡的資料還原到物件屬性
+			$this->plugins      = $results['plugins'];
+			$this->log_severity = $results['log_severity'];
+		} else {
+
+		//if ( false === $results ) {
 			// Safe direct database access (custom table, prepared query)
-			$table = sanitize_key( $this->table_name );
+			//$table = sanitize_key( $this->table_name );
+			$table = esc_sql( $this->table_name );
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is sanitized above.
 			$this->plugins = $wpdb->get_col(
@@ -213,8 +221,14 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
                 LIMIT 200;"
 			);
 
+			// 正確存入 cache
+			$results = [
+				'plugins'      => $this->plugins,
+				'log_severity' => $this->log_severity,
+			];
+
 			wp_cache_set( $cache_key, $results, $cache_group, 5 * MINUTE_IN_SECONDS );
-		}
+		} 
 
 		// Make sure we get items for filter.
 		if ( $this->plugins || $this->log_severity ) {
