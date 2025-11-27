@@ -41,7 +41,15 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 	// }
 
     public function column_message( $item ) {
-        return esc_html( $item['message'] );
+		if ( 1 == $item['session_type'] ) {
+			$session_url = esc_url( admin_url( 'admin.php?page=wpsp_site_prober_log_list&tab=custom&session-select=' . intval( $item['id'] ) ) );
+			$message = "<a href='{$session_url}' class='thickbox'>" . esc_html( $item['message'] ) . "</a>";
+		} else {
+			$message = esc_html( $item['message'] );
+		}
+
+		return $message;
+        //return esc_html( $item['message'] );
     }
 
     public function column_plugin( $item ) {
@@ -347,9 +355,13 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
         $search = isset( $_REQUEST['s_custom_log'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s_custom_log'] ) ) : '';
 		$offset = ( $this->get_pagenum() - 1 ) * $items_per_page;
         $where = ' WHERE 1 = 1';
-		//$where .= ' AND ( session_type = 0 OR session_type IS NULL )';
-		//$where_session = ' WHERE 1 = 1';
 
+		if ( ! empty( $_REQUEST['session-select'] ) ) {
+			//$comment_where .= $wpdb->prepare( " AND comment_post_ID = %d AND comment_parent = 1", $_POST['session-select'] );
+		} else {
+			//$comment_where .= ' AND comment_parent = 0';
+		}
+		
 		if ( ! empty( $_REQUEST['severityshow'] ) ) {
 			$where .= $wpdb->prepare( ' AND `severity` = %d', 
 			sanitize_text_field( wp_unslash( $_REQUEST['severityshow'] ) ) );
@@ -366,7 +378,6 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 			$like = '%' . $wpdb->esc_like( $search ) . '%';
             $where .= $wpdb->prepare( ' AND (`plugin_name` LIKE %s OR `message` LIKE %s )', $like, $like);
 		}
-      
 		
 		$cache_key   = 'site_prober_logs_page_custom_log';
 		$cache_group = 'liaison-site-prober';
@@ -393,30 +404,35 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 			//Since pagiation gets LIMIT $items_per_page=20 from DB table.
 			//$total_items must get whole table count directly.
 			//$total_items = count( $this->items ); gets only $items_per_page.
-			$total_items = $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
+			$total_items = $wpdb->get_var( "SELECT COUNT(*) FROM {$table_session}" );
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name sanitized and validated above.
-			$session = $wpdb->prepare(
-					"SELECT 
+			//$session = $wpdb->prepare(
+			$session = "SELECT 
+						id AS id,
 						plugin_name AS plugin_name,
 						message AS message,
 						severity AS severity,
-						created_at AS created_at
+						created_at AS created_at,
+						session_type AS session_type
 					FROM {$table_session} {$where} 
-					UNION "
-			);
+					UNION
+					";
+			//);
 
 			//$this->items = $wpdb->get_results( $session, 'ARRAY_A' );
+			$where .= ' AND ( session_id = 0 OR session_id IS NULL )';
+			$total_items += $wpdb->get_var( "SELECT COUNT(*) FROM {$table} {$where}" );
 
-			$where .= ' AND ( session_type = 0 OR session_type IS NULL )';
-			//$where .= ' AND ( session_type = 0 )';
-
+			//session_type AS session_type
 			$sql = $wpdb->prepare(
 					"SELECT
+						id AS id,
 						plugin_name AS plugin_name,
 						message AS message,
 						severity AS severity,
-						created_at AS created_at
+						created_at AS created_at,
+						session_type AS session_type
 					FROM {$table} {$where} 
 					ORDER BY {$orderby} {$order}
 					LIMIT %d, %d",
@@ -425,7 +441,6 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 			);
 
 			$sql = $session . $sql;
-
 			$this->items = $wpdb->get_results( $sql, 'ARRAY_A' );
 			
 			wp_cache_set( $cache_key, $this->items, $cache_group, 5 * MINUTE_IN_SECONDS );
