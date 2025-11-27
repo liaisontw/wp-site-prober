@@ -32,21 +32,17 @@ class liaison_site_prober_Admin {
 	protected $table_custom_log_session;
 	protected $wpsp_custom_log = null;
 
-	//protected $session_id_in_use = null;
 	protected static $session_id_in_use = null;
 	public function __construct( $logger, $plugin_name, $version ) {
 		$this->logger = $logger;
 		$this->plugin_name = $plugin_name;
         $this->version = $version;
 		$this->table = $this->logger->get_table_name();
-		$this->table_custom_log = $this->logger->get_table_name_custom_log();
-		$this->table_custom_log_session = $this->logger->get_table_name_custom_log_session();
         add_action('admin_menu', array($this, 'admin_menu'));
 		add_action('custom_log_add'  , array( $this, 'add_custom_log' ), 10, 4 );
 		add_action( 'custom_log_session_begin', array( $this, 'begin_session' ), 10, 4 );
 		add_action( 'custom_log_session_end', array( $this, 'end_session' ) );
 		add_action( 'admin_post_WP_Custom_Log_session_generate', [ $this, 'handle_session_generate' ] );
-		//add_action( 'admin_WP_Custom_Log_session_generate', [ $this, 'handle_session_generate' ] );
 
 		// handle csv export
 		add_action( 'admin_post_WP_Site_Prober_export_csv', [ $this, 'handle_export_csv' ] );
@@ -411,9 +407,7 @@ class liaison_site_prober_Admin {
 
 		// 寫回 option
 		update_option('liaison_custom_log_x', $x);
-
-		//error_log( sprintf('append_now : %s, liaison_custom_log_x : %s', $append_now, $x) );
-		
+		//error_log( sprintf('append_now : %s, liaison_custom_log_x : %s', $append_now, $x) );		
 		do_action( 'custom_log_add', 'liaison-site-prober', 'message-'.$append_now, 'step-'.$append_now, 2 );
 		add_action('shutdown', function () {
 			wp_safe_redirect(
@@ -431,30 +425,8 @@ class liaison_site_prober_Admin {
 
 	public function add_custom_log( $plugin_name, $log, $message, $severity = 1 ) {
 		global $wpdb;
-		/*
-		if ( self::$session_post ) {
-			$post_id = self::$session_post;
-		} else
-		
-		{
-			$log_id = $this->check_existing_log( $plugin_name, $log );
-			if ( false == $log_id ) {
-				$log_id = $this->create_post_with_terms( $plugin_name, $log );
-				if ( false == $log_id ) {
-					return false;
-				}
-			}
-		}
-		*/
-
-		/*
-		if ( self::$session_post ) {
-			$comment_data['comment_parent'] = 1;
-		}
-		$comment_id = wp_insert_comment( wp_filter_comment( $comment_data ) );
-		*/
 		$session_id = self::$session_id_in_use;
-		$table = sanitize_key( $this->logger->get_table_name_custom_log() );
+		$table = $this->get_custom_log_table();
 		error_log( sprintf( 'inserted data to: %s', $table) );
 
 		$wpdb->insert(
@@ -472,13 +444,20 @@ class liaison_site_prober_Admin {
 
 	}
 
+	public function get_custom_log_table() {
+		return sanitize_key( $this->logger->get_table_name_custom_log() );
+	}
+	public function get_custom_log_session_table() {
+		return sanitize_key( $this->logger->get_table_name_custom_log_session() );
+	}
+
 	function begin_session( $plugin_name, $message, $session_title, $severity = 0 ) {
 		global $wpdb;
+		
+		error_log('begin_session');
 		//do_action( 'liaison-site-prober', 'message-session-begin', 'session-begin !', 0 );
-		//$table_session = sanitize_key( $this->logger->get_table_name_custom_log_session() );
-		$table_session = $this->table_custom_log_session;
+		$table_session = $this->get_custom_log_session_table();
 
-/*
 		$result = $wpdb->insert(
 			$table_session,
 			[		
@@ -492,18 +471,15 @@ class liaison_site_prober_Admin {
 		if ( $result !== false ) {
 			$last_inserted_id = $wpdb->insert_id;
 			error_log( sprintf( 'Successfully inserted data. Last inserted ID: %d', $last_inserted_id) );
+			$session_id = $last_inserted_id;
+			self::$session_id_in_use = $session_id;
 		} else {
 			error_log( 'Error inserting data.');
 		}
-		$session_id = $last_inserted_id;
-	*/
-		$session_id = 1;	
-		error_log('begin_session');
-		self::$session_id_in_use = $session_id;
+		
 		return true;
 	}
 
-	//function end_session( $plugin_name, $log, $session_title, $severity = 0 ) {
 	function end_session( ...$args ) {
 		error_log('end_session');
 		self::$session_id_in_use = null;

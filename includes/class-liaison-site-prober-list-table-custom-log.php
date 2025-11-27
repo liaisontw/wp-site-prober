@@ -346,7 +346,7 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
         $search = isset( $_REQUEST['s_custom_log'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s_custom_log'] ) ) : '';
 		$offset = ( $this->get_pagenum() - 1 ) * $items_per_page;
         $where = ' WHERE 1 = 1';
-		//$where .= ' AND session_type = 0 ';
+		$where .= ' AND ( session_type = 0 OR session_type IS NULL )';
 		$where_session = ' WHERE 1 = 1';
 
 		if ( ! empty( $_REQUEST['severityshow'] ) ) {
