@@ -20,7 +20,7 @@
  * @subpackage liaison_site_prober/public
  * @author     liason <liaison.tw@gmail.com>
  */
-class liaison_site_prober_Public {
+class LIAISIPR_Public {
 
 	/**
 	 * The ID of this plugin.

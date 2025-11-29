@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'LIAISON_SITE_PROBER_VERSION', '1.0.0' );
+define( 'LIAISIPR_VERSION', '1.0.0' );
 
 /**
  * The code that runs during plugin activation.
@@ -43,7 +43,7 @@ define( 'LIAISON_SITE_PROBER_VERSION', '1.0.0' );
  */
 function liaisonsp_activate_wp_site_prober() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-liaison-site-prober-activator.php';
-	liaison_site_prober_Activator::activate();
+	LIAISIPR_Activator::activate();
 }
 
 /**
@@ -52,7 +52,7 @@ function liaisonsp_activate_wp_site_prober() {
  */
 function liaisonsp_deactivate_wp_site_prober() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-liaison-site-prober-deactivator.php';
-	liaison_site_prober_Deactivator::deactivate();
+	LIAISIPR_Deactivator::deactivate();
 }
 
 register_activation_hook( __FILE__, 'liaisonsp_activate_wp_site_prober' );
@@ -76,7 +76,7 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-liaison-site-prober.php';
  */
 function liaisonsp_run_wp_site_prober() {
 
-	$plugin = new liaison_site_prober();
+	$plugin = new LIAISIPR();
 	$plugin->run();
 
 }

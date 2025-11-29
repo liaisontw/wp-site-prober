@@ -24,7 +24,7 @@
  * @subpackage liaison_site_prober/includes
  * @author     liason <liaison.tw@gmail.com>
  */
-class LIAISIPR_i18n {
+class liaison_site_prober_i18n {
 
 
 	/**

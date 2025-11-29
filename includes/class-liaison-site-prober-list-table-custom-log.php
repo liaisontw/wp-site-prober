@@ -5,7 +5,7 @@ if ( ! class_exists( 'WP_List_Table' ) )
 	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 
 
-class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
+class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 
     protected $plugins = array();
     protected $log_severity = array();
@@ -192,7 +192,7 @@ class liaison_site_prober_List_Table_Custom_Log extends WP_List_Table {
 		//wp_cache_delete( 'site_prober_logs_page_custom_log', 'liaison-site-prober' );
 		$results = wp_cache_get( $cache_key, $cache_group );
 
-		if ( $results['plugins'] || $results['log_severity'] ) {		
+		if ( isset($results['plugins']) || isset($results['log_severity']) ) {		
 			// cache hit — 必須把 cache 裡的資料還原到物件屬性
 			$this->plugins      = $results['plugins'];
 			$this->log_severity = $results['log_severity'];

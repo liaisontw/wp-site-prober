@@ -1,6 +1,6 @@
 <?php
 
-class LIAISIPR {
+class liaison_site_prober {
 
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
@@ -54,8 +54,8 @@ class LIAISIPR {
 	 * @since    1.0.0
 	 */
 	public function __construct() {
-		if ( defined( 'LIAISIPR_VERSION' ) ) {
-			$this->version = LIAISIPR_VERSION;
+		if ( defined( 'LIAISON_SITE_PROBER_VERSION' ) ) {
+			$this->version = LIAISON_SITE_PROBER_VERSION;
 		} else {
 			$this->version = '1.0.0';
 		}
@@ -76,7 +76,7 @@ class LIAISIPR {
 		$this->dir = plugin_basename( __FILE__ );
 
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-liaison-site-prober-actions.php';
-		$this->actions = new LIAISIPR_Actions($this, $this->get_plugin_name(), $this->get_version());
+		$this->actions = new liaison_site_prober_Actions($this, $this->get_plugin_name(), $this->get_version());
 	}
 
 	/**
@@ -123,7 +123,7 @@ class LIAISIPR {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-liaison-site-prober-public.php';
 
 
-		$this->loader = new LIAISIPR_Loader();
+		$this->loader = new liaison_site_prober_Loader();
 
 	}
 
@@ -138,7 +138,7 @@ class LIAISIPR {
 	 */
 	private function set_locale() {
 
-		//$plugin_i18n = new LIAISIPR_i18n();
+		//$plugin_i18n = new liaison_site_prober_i18n();
 		//$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
 			/*
 			* load_plugin_textdomain() has been discouraged 
@@ -161,7 +161,7 @@ class LIAISIPR {
 	 */
 	private function define_admin_hooks() {
 
-		$plugin_admin = new LIAISIPR_Admin( $this, $this->get_plugin_name(), $this->get_version() );
+		$plugin_admin = new liaison_site_prober_Admin( $this, $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
@@ -176,7 +176,7 @@ class LIAISIPR {
 	 */
 	private function define_public_hooks() {
 
-		$plugin_public = new LIAISIPR_Public( $this->get_plugin_name(), $this->get_version() );
+		$plugin_public = new liaison_site_prober_Public( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'init'              , $plugin_public, 'init_wp_site_prober' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );

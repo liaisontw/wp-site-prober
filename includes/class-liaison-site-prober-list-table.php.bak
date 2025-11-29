@@ -182,13 +182,10 @@ class LIAISIPR_List_Table extends WP_List_Table {
 		// 嘗試從快取抓資料
 		$results = wp_cache_get( $cache_key, $cache_group );
 
-		if (    ( false !== $results) 
-			 && ( isset($results['users']) && isset($results['data_types']) ) 
-		   )
-		{
-				// cache hit — 必須把 cache 裡的資料還原到物件屬性
-				$users      	  = $results['users'];
-				$this->data_types = $results['data_types'];
+		if ( $results['users'] || $results['data_types'] ) {		
+			// cache hit — 必須把 cache 裡的資料還原到物件屬性
+			$users      	  = $results['users'];
+			$this->data_types = $results['data_types'];
 		} else {
 			// Safe direct database access (custom table, prepared query)
 			$table = sanitize_key( $this->table_name );
@@ -400,19 +397,6 @@ class LIAISIPR_List_Table extends WP_List_Table {
             $where .= $wpdb->prepare( ' AND (`action` LIKE %s OR `description` LIKE %s OR `ip` LIKE %s)', $like, $like, $like );
 		}
       
-		// Safe direct database access (custom table, prepared query)
-		$table = sanitize_key( $this->table_name );
-
-		$orderby = isset( $_GET['orderby'] ) ? sanitize_key( $_GET['orderby'] ) : 'created_at';
-		//$order picked is safe since it comes from ['asc','desc']
-		$order   = isset( $_GET['order'] ) && in_array( strtolower($_GET['order']), ['asc','desc'], true )
-			? strtolower( sanitize_key( $_GET['order'] ) )
-			: 'desc';
-
-		$allowed_orderby = ['created_at', 'user_id', 'ip'];
-		if ( ! in_array( $orderby, $allowed_orderby, true ) ) {
-			$orderby = 'created_at';
-		}
 
 		$cache_key   = 'site_prober_logs_page_';
 		$cache_group = 'liaison-site-prober';
@@ -420,12 +404,19 @@ class LIAISIPR_List_Table extends WP_List_Table {
 		// 嘗試從快取抓資料
 		$results = wp_cache_get( $cache_key, $cache_group );
 
-		if (   ( isset( $results['items'] ) ) 
-			&& ( isset($results['total_items']) )  
-		) { 
-			$this->items = $results['items'];
-			$total_items = $results['total_items'];	
-		} else {
+		if ( false === $results ) {
+			// Safe direct database access (custom table, prepared query)
+			$table = sanitize_key( $this->table_name );
+
+			$orderby = isset( $_GET['orderby'] ) ? sanitize_key( $_GET['orderby'] ) : 'created_at';
+			$order   = isset( $_GET['order'] ) && in_array( strtolower($_GET['order']), ['asc','desc'], true )
+				? strtolower( sanitize_key( $_GET['order'] ) )
+				: 'desc';
+
+			$allowed_orderby = ['created_at', 'user_id', 'ip'];
+			if ( ! in_array( $orderby, $allowed_orderby, true ) ) {
+				$orderby = 'created_at';
+			}
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is sanitized above.
 			//Since pagiation gets LIMIT $items_per_page=20 from DB table.
@@ -446,11 +437,6 @@ class LIAISIPR_List_Table extends WP_List_Table {
 				ARRAY_A
 			);
 			
-			$results = [
-				'items'      => $this->items,
-				'total_items' => $total_items,
-			];
-
 			wp_cache_set( $cache_key, $results, $cache_group, 5 * MINUTE_IN_SECONDS );
 		}            
         

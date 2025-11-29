@@ -20,7 +20,7 @@
  * @subpackage liaison_site_prober/includes
  * @author     liason <liaison.tw@gmail.com>
  */
-class LIAISIPR_Activator {
+class liaison_site_prober_Activator {
 
 	/**
 	 * Short Description. (use period)
@@ -30,7 +30,7 @@ class LIAISIPR_Activator {
 	 * @since    1.0.0
 	 */
 	public static function activate() {
-		add_option( 'liaisipr_active', 'yes' );
+		add_option( 'wp_site_prober_active', 'yes' );
 		add_option('wpsp_custom_log_x', 0);
 		self::_create_tables();
 		self::_create_tables_custom_log();

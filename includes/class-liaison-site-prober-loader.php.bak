@@ -21,7 +21,7 @@
  * @subpackage liaison_site_prober/includes
  * @author     liason <liaison.tw@gmail.com>
  */
-class LIAISIPR_Loader {
+class liaison_site_prober_Loader {
 
 	/**
 	 * The array of actions registered with WordPress.
