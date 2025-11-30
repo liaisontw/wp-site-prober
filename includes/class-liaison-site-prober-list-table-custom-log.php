@@ -357,7 +357,8 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
     public function prepare_items() {
 		global $wpdb;
 
-        $items_per_page = 20;        
+        $items_per_page = 20; 
+		$total_items = 0;       
         
         $clear  = isset( $_POST['clearLogsCustomLog'] ) ? sanitize_text_field( wp_unslash( $_POST['clearLogsCustomLog'] ) ) : '';
 		if ( $clear ){
@@ -369,13 +370,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
         $search = isset( $_REQUEST['s_custom_log'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s_custom_log'] ) ) : '';
 		$offset = ( $this->get_pagenum() - 1 ) * $items_per_page;
         $where = ' WHERE 1 = 1';
-
-		if ( ! empty( $_REQUEST['session-select'] ) ) {
-			//$comment_where .= $wpdb->prepare( " AND comment_post_ID = %d AND comment_parent = 1", $_POST['session-select'] );
-		} else {
-			//$comment_where .= ' AND comment_parent = 0';
-		}
-		
+	
 		if ( ! empty( $_REQUEST['severityshow'] ) ) {
 			$where .= $wpdb->prepare( ' AND `severity` = %d', 
 			sanitize_text_field( wp_unslash( $_REQUEST['severityshow'] ) ) );
@@ -413,30 +408,32 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 			if ( ! in_array( $orderby, $allowed_orderby, true ) ) {
 				$orderby = 'created_at';
 			}
+					
+			$session = '';
+			if ( ! empty( $_REQUEST['session-select'] ) ) {
+				$where .= $wpdb->prepare( " AND `session_id` = %d", $_POST['session-select'] );
+			} else {
+				$total_items = $wpdb->get_var( "SELECT COUNT(*) FROM {$table_session}" );
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name sanitized and validated above.
+				$session = "SELECT 
+							id AS id,
+							plugin_name AS plugin_name,
+							message AS message,
+							severity AS severity,
+							created_at AS created_at,
+							session_type AS session_type
+						FROM {$table_session} {$where} 
+						UNION
+						";
+				//$this->items = $wpdb->get_results( $session, 'ARRAY_A' );
+				$where .= ' AND ( session_id = 0 OR session_id IS NULL )';
 
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is sanitized above.
-			//Since pagiation gets LIMIT $items_per_page=20 from DB table.
-			//$total_items must get whole table count directly.
-			//$total_items = count( $this->items ); gets only $items_per_page.
-			$total_items = $wpdb->get_var( "SELECT COUNT(*) FROM {$table_session}" );
-
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name sanitized and validated above.
-			//$session = $wpdb->prepare(
-			$session = "SELECT 
-						id AS id,
-						plugin_name AS plugin_name,
-						message AS message,
-						severity AS severity,
-						created_at AS created_at,
-						session_type AS session_type
-					FROM {$table_session} {$where} 
-					UNION
-					";
-			//);
-
-			//$this->items = $wpdb->get_results( $session, 'ARRAY_A' );
-			$where .= ' AND ( session_id = 0 OR session_id IS NULL )';
-			$total_items += $wpdb->get_var( "SELECT COUNT(*) FROM {$table} {$where}" );
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is sanitized above.
+				//Since pagiation gets LIMIT $items_per_page=20 from DB table.
+				//$total_items must get whole table count directly.
+				//$total_items = count( $this->items ); gets only $items_per_page.
+				$total_items += $wpdb->get_var( "SELECT COUNT(*) FROM {$table} {$where}" );
+			}			
 
 			//session_type AS session_type
 			$sql = $wpdb->prepare(
@@ -454,8 +451,13 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 					$items_per_page
 			);
 
-			$sql = $session . $sql;
+			if ($session != '') {
+				$sql = $session . $sql;	
+			}
 			$this->items = $wpdb->get_results( $sql, 'ARRAY_A' );
+			if ($total_items == 0) {
+				$total_items = count( $this->items );
+			}
 			
 			wp_cache_set( $cache_key, $this->items, $cache_group, 5 * MINUTE_IN_SECONDS );
 		}            
