@@ -148,13 +148,31 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 					<?php esc_html_e( 'Custom Log Generate', 'liaison-site-prober' ); ?>
 				</a>
 			
-			<!-- <br class="clear" /> -->
-			
 				<a class="button" href="<?php echo esc_url( $session_url ); ?>">
 					<?php esc_html_e( 'Session Generate', 'liaison-site-prober' ); ?>
 				</a>
 			</div>
 			<br class="clear" />
+			<form method="get">
+				<input type="hidden" name="page" value="wpsp_site_prober_log_list" />
+				<?php 
+					// 產生帶 nonce 的 URL
+					$export_url = wp_nonce_url(
+						add_query_arg(
+							array(
+								'action' => 'WP_Site_Prober_export_csv_custom_log',
+								'tab'    => $_GET['tab'] ?? 'log'
+							),
+							admin_url('admin-post.php')
+						),
+						'wpsp_export_custom_log',
+						'wpsp_nonce_custom_log'
+					);
+				?>
+				<a class="button" href="<?php echo esc_url( $export_url ); ?>">
+					<?php esc_html_e( 'Export CSV (Custom Log)', 'liaison-site-prober' ); ?>
+				</a>
+			</form>
             <form id="wpsp-form-delete" method="post" action="">
                 <input type="hidden" id="clearLogsCustomLog" name="clearLogsCustomLog" value="Yes">
 				<?php wp_nonce_field( 'wpsp_delete_custom_log', 'wpsp_nonce_delete_custom_log' ); ?>
@@ -180,7 +198,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
         }
         
         if ( 'top' === $which ) {
-            $this->extra_tablenav_header();
+            //$this->extra_tablenav_header();
         }
 
 		echo '<div class="alignleft actions">';
@@ -189,7 +207,6 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		$cache_group = 'liaison-site-prober';
 
 		// 嘗試從快取抓資料
-		//wp_cache_delete( 'site_prober_logs_page_custom_log', 'liaison-site-prober' );
 		$results = wp_cache_get( $cache_key, $cache_group );
 
 		if ( isset($results['plugins']) || isset($results['log_severity']) ) {		
@@ -200,7 +217,6 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 
 		//if ( false === $results ) {
 			// Safe direct database access (custom table, prepared query)
-			//$table = sanitize_key( $this->table_name );
 			$table = esc_sql( $this->table_name );
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is sanitized above.
