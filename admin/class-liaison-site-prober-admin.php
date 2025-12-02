@@ -122,16 +122,16 @@ class LIAISIPR_Admin {
 	}	
 
 	function ajax_plugin_select() {
-		$plugin_select = isset( $_POST['plugin_name'] ) ? $_POST['plugin_name'] : '';
+		$plugin_select = isset( $_POST['plugin_select'] ) ? $_POST['plugin_select'] : '';
 		error_log( sprintf('plugin_select : %s', $plugin_select) );		
+		$this->get_list_table_custom_log()->log_plugin_select( sanitize_text_field( $plugin_select ) );
 		//$this->build_log_select( sanitize_text_field( $plugin_select ) );
 		exit;
 	}
 
 	public function render_page_tabs() {
 		$active_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'log';
-		require_once( trailingslashit( dirname( __FILE__ ) ) . 'partials/liaison-site-prober-admin-display.php' );
-		
+		require_once( trailingslashit( dirname( __FILE__ ) ) . 'partials/liaison-site-prober-admin-display.php' );	
 	}
 
 	public function user_info_export( $user_id ) {
@@ -211,7 +211,9 @@ class LIAISIPR_Admin {
 			$this->redirect_back();
 		} 
 
-		$this->get_list_table_custom_log()->prepare_items();
+		$plugin_select = isset( $_POST['plugin_select'] ) ? $_POST['plugin_select'] : '';
+
+		$this->get_list_table_custom_log()->prepare_items( $plugin_select );
 	?>
 		<div class="wrap">
 			<h1>

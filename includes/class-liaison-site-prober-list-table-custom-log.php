@@ -10,7 +10,8 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
     protected $plugins = array();
     protected $log_severity = array();
     protected $table_name = '';        
-	protected $table_name_session = '';        
+	protected $table_name_session = '';  
+	protected $plugin_select = '';
 
     public function __construct( $args = array() ) {
         global $wpdb;
@@ -187,7 +188,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 
 	/* build log <select> HTML (used in AJAX or page render) */
 	
-	private function build_log_select( $plugin_name, $log_id = false ) {
+	public function log_plugin_select( $plugin_select ) {
 		/*
 		$logs = $this->get_logs( $plugin_name );
 		if ( false !== $logs && $logs->have_posts() ) {
@@ -234,8 +235,6 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 			$this->plugins      = $results['plugins'];
 			$this->log_severity = $results['log_severity'];
 		} else {
-
-		//if ( false === $results ) {
 			// Safe direct database access (custom table, prepared query)
 			$table = esc_sql( $this->table_name );
 
@@ -275,16 +274,12 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 			if ( ! isset( $_REQUEST['pluginshow'] ) )
 				$_REQUEST['pluginshow'] = '';
 
-
 			$selected_value = isset( $_REQUEST['pluginshow'] )
 				? sanitize_text_field( wp_unslash( $_REQUEST['pluginshow'] ) )
 				: '';
 
 			?>
 				<label for="pluginshow">
-					<?php 
-					//esc_html_e( 'Plugin:', 'liaison-site-prober' ); 
-					?>
 				</label>
 				<select name="pluginshow" id="pluginshow">
 				<option value=""><?php echo esc_html( 'All Plugins', 'liaison-site-prober' ); ?></option>
@@ -301,33 +296,15 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 						);
 					}
 					echo implode( '', $name_output );
-
-					/*
-					foreach ( $this->get_plugins() as $plugin ) {
-						printf(
-							'<option value="%s"%s>%s</option>',
-							esc_attr( $plugin->name ),
-							selected( $plugin->name, $plugin_select, false ),
-							esc_html( $plugin->name )
-						);
-					}
-					*/
 				?>
 				</select>
 
 				<span id="log-select">
 				<?php
 					// AJAX will rerender，call here first time
-					$this->build_log_select( $plugin_select, $log_id );
+					$this->log_plugin_select( $this->plugin_select );
 				?>
 				</span>
-				<!-- <select name="plugin-select" id="plugin-select">
-					<option value="">
-						<?php 
-						//esc_html_e( 'All Plugins', 'log-catcher' ); 
-						?>
-					</option>
-				</select> -->
 			<?php
 		}
 
@@ -359,7 +336,6 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 					?>
 				</select>
 			<?php
-
 		}
 
 		$filters = array(
@@ -420,11 +396,12 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		$table_session = sanitize_key( $this->table_name_session );
 		$wpdb->query( "TRUNCATE TABLE {$table_session}" );
 	}
-    public function prepare_items() {
+    public function prepare_items( $plugin_select = '' ) {
 		global $wpdb;
 
         $items_per_page = 20; 
-		$total_items = 0;       
+		$total_items = 0; 
+		$this->plugin_select = $plugin_select;      
         
         $clear  = isset( $_POST['clearLogsCustomLog'] ) ? sanitize_text_field( wp_unslash( $_POST['clearLogsCustomLog'] ) ) : '';
 		if ( $clear ){

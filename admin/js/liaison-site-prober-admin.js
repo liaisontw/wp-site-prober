@@ -35,7 +35,7 @@
 
 			var data = {
 				action: 'plugin_select',
-				plugin_name: pluginName,
+				plugin_select: pluginName,
 				//custom_log_form_nonce: $('#custom_log_form_nonce').val()
 			};
 
