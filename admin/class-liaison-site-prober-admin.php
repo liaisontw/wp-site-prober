@@ -40,6 +40,7 @@ class LIAISIPR_Admin {
 		$this->table = $this->logger->get_table_name();
         add_action('admin_menu', array($this, 'admin_menu'));
 		add_action('custom_log_add'  , array( $this, 'add_custom_log' ), 10, 4 );
+		add_action( 'wp_ajax_plugin_select',     array( $this, 'ajax_plugin_select' ) );
 		add_action( 'custom_log_session_begin', array( $this, 'begin_session' ), 10, 4 );
 		add_action( 'custom_log_session_end', array( $this, 'end_session' ) );
 		add_action( 'admin_post_WP_Custom_Log_session_generate', [ $this, 'handle_session_generate' ] );
@@ -119,6 +120,13 @@ class LIAISIPR_Admin {
 			80
 		);
 	}	
+
+	function ajax_plugin_select() {
+		$plugin_select = isset( $_POST['plugin_name'] ) ? $_POST['plugin_name'] : '';
+		error_log( sprintf('plugin_select : %s', $plugin_select) );		
+		//$this->build_log_select( sanitize_text_field( $plugin_select ) );
+		exit;
+	}
 
 	public function render_page_tabs() {
 		$active_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'log';

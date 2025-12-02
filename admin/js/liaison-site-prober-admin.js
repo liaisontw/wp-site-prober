@@ -29,4 +29,24 @@
 	 * practising this, we should strive to set a better example in our own work.
 	 */
 
+	$(function() {   
+		$('#pluginshow').on('change', function() {
+			var pluginName = $(this).val();
+
+			var data = {
+				action: 'plugin_select',
+				plugin_name: pluginName,
+				//custom_log_form_nonce: $('#custom_log_form_nonce').val()
+			};
+
+			//alert(data.plugin_name);
+			$.post(ajaxurl, data, function(response) {
+				//$('#log-select').replaceWith(response);
+	 			$( '#log-select' ).html( response );
+	 			//$( '#session-select' ).html( '' );
+				//$('#session-select').html('<option value="">' + wp_logger_strings.all_sessions + '</option>');
+			});
+			
+		});
+	} );
 })( jQuery );

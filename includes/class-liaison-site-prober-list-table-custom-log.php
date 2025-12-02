@@ -185,6 +185,26 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		<?php
 	}
 
+	/* build log <select> HTML (used in AJAX or page render) */
+	
+	private function build_log_select( $plugin_name, $log_id = false ) {
+		/*
+		$logs = $this->get_logs( $plugin_name );
+		if ( false !== $logs && $logs->have_posts() ) {
+			echo '<select id="log-select" name="log-select">';
+			echo '<option value="">' . esc_html__( 'All Logs', 'log-catcher' ) . '</option>';
+			while ( $logs->have_posts() ) {
+				$logs->the_post();
+				$temp_log_id    = esc_attr( get_the_ID() );
+				$temp_log_title = esc_attr( get_the_title() );
+				printf( "<option value='%s'%s>%s</option>", $temp_log_id, selected( get_the_ID(), $log_id, false ), $temp_log_title );
+			}
+			wp_reset_postdata();
+			echo '</select>';
+		}
+			*/
+	}
+
 	public function extra_tablenav( $which ) {
 		global $wpdb;
 
@@ -260,24 +280,54 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 				? sanitize_text_field( wp_unslash( $_REQUEST['pluginshow'] ) )
 				: '';
 
-			$name_output = array();
-			
-            foreach ( $this->plugins as $_plugin ) {
-                $name_output[] = sprintf(
-                    '<option value="%s"%s>%s</option>',
-                    esc_html( $_plugin ), // escape attribute
-                    selected( $selected_value, $_plugin, false ),
-                    esc_html( $_plugin )  // escape display text
-                );
-            }
 			?>
-				<select name="pluginshow" id="hs-filter-pluginshow">
+				<label for="pluginshow">
+					<?php 
+					//esc_html_e( 'Plugin:', 'liaison-site-prober' ); 
+					?>
+				</label>
+				<select name="pluginshow" id="pluginshow">
 				<option value=""><?php echo esc_html( 'All Plugins', 'liaison-site-prober' ); ?></option>
 				<?php 
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Fully escaped when building each option
+					$name_output = array();
+			
+					foreach ( $this->plugins as $_plugin ) {
+						$name_output[] = sprintf(
+							'<option value="%s"%s>%s</option>',
+							esc_html( $_plugin ), // escape attribute
+							selected( $_plugin, $selected_value, false ),
+							esc_html( $_plugin )  // escape display text
+						);
+					}
 					echo implode( '', $name_output );
+
+					/*
+					foreach ( $this->get_plugins() as $plugin ) {
+						printf(
+							'<option value="%s"%s>%s</option>',
+							esc_attr( $plugin->name ),
+							selected( $plugin->name, $plugin_select, false ),
+							esc_html( $plugin->name )
+						);
+					}
+					*/
 				?>
 				</select>
+
+				<span id="log-select">
+				<?php
+					// AJAX will rerender，call here first time
+					$this->build_log_select( $plugin_select, $log_id );
+				?>
+				</span>
+				<!-- <select name="plugin-select" id="plugin-select">
+					<option value="">
+						<?php 
+						//esc_html_e( 'All Plugins', 'log-catcher' ); 
+						?>
+					</option>
+				</select> -->
 			<?php
 		}
 
@@ -451,7 +501,6 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 				$total_items += $wpdb->get_var( "SELECT COUNT(*) FROM {$table} {$where}" );
 			}			
 
-			//session_type AS session_type
 			$sql = $wpdb->prepare(
 					"SELECT
 						id AS id,
