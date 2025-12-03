@@ -29,6 +29,11 @@
 	 * practising this, we should strive to set a better example in our own work.
 	 */
 
+	/*
+	 * Generate and display the log select whenever a user changes the plugin that
+	 * they would like to view a report for.
+	 */
+
 	$(function() {   
 		$('#pluginshow').on('change', function() {
 			var pluginName = $(this).val();
@@ -43,10 +48,7 @@
 			$.post(ajaxurl, data, function(response) {
 				//$('#log-select').replaceWith(response);
 	 			$( '#log-select' ).html( response );
-	 			//$( '#session-select' ).html( '' );
-				//$('#session-select').html('<option value="">' + wp_logger_strings.all_sessions + '</option>');
 			});
-			
 		});
 	} );
 })( jQuery );

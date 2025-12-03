@@ -189,21 +189,49 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 	/* build log <select> HTML (used in AJAX or page render) */
 	
 	public function log_plugin_select( $plugin_select ) {
-		/*
-		$logs = $this->get_logs( $plugin_name );
-		if ( false !== $logs && $logs->have_posts() ) {
-			echo '<select id="log-select" name="log-select">';
-			echo '<option value="">' . esc_html__( 'All Logs', 'log-catcher' ) . '</option>';
-			while ( $logs->have_posts() ) {
-				$logs->the_post();
-				$temp_log_id    = esc_attr( get_the_ID() );
-				$temp_log_title = esc_attr( get_the_title() );
-				printf( "<option value='%s'%s>%s</option>", $temp_log_id, selected( get_the_ID(), $log_id, false ), $temp_log_title );
+		global $wpdb;
+		if ( '' !== $plugin_select ) {
+			$where = $wpdb->prepare( 
+					' WHERE `plugin_name` = %s', 
+					$plugin_select 
+				);
+
+			$cache_key   = 'ajax_custom_log';
+			$cache_group = 'liaison-site-prober';
+			// 嘗試從快取抓資料
+			$results = wp_cache_get( $cache_key, $cache_group );
+			if ( false === $results ) {
+				// Safe direct database access (custom table, prepared query)
+				$table = sanitize_key( $this->table_name );		
+				$sql = "SELECT message AS message
+						FROM {$table} {$where} ";				
+				$logs = $wpdb->get_results( $sql, 'ARRAY_A' );
+				wp_cache_set( $cache_key, $logs, $cache_group, 5 * MINUTE_IN_SECONDS );
+			} else {
+				$logs = $results;
 			}
-			wp_reset_postdata();
-			echo '</select>';
+
+			if ( false !== $logs ) {
+			?>
+				<select id="log-select" name="log-select">
+				<option value=""><?php echo esc_html__( 'All Logs', 'liaison-site-prober' ) ?></option>
+				<?php 
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Fully escaped when building each option
+					$log_output = array();	
+					foreach ( $logs as $_log ) {
+						$log_output[] = sprintf(
+							'<option value="%s"%s>%s</option>',
+							esc_html( $_log['message'] ), // escape attribute
+							selected( $_log['message'], true, false ),
+							esc_html( $_log['message'] )  // escape display text
+						);
+					}
+					echo implode( '', $log_output );
+				?>
+				</select>
+			<?php 
+			}
 		}
-			*/
 	}
 
 	public function extra_tablenav( $which ) {
