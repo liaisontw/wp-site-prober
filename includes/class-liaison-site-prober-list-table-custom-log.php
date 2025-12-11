@@ -190,47 +190,48 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 	
 	public function log_plugin_select( $plugin_select ) {
 		global $wpdb;
-		if ( '' !== $plugin_select ) {
-			$where = $wpdb->prepare( 
-					' WHERE `plugin_name` = %s', 
-					$plugin_select 
-				);
+		if ( '' === $plugin_select ) {
+			return false;
+		}
+		$where = $wpdb->prepare( 
+				' WHERE `plugin_name` = %s', 
+				$plugin_select 
+			);
 
-			$cache_key   = 'ajax_custom_log';
-			$cache_group = 'liaison-site-prober';
-			// 嘗試從快取抓資料
-			$results = wp_cache_get( $cache_key, $cache_group );
-			if ( false === $results ) {
-				// Safe direct database access (custom table, prepared query)
-				$table = sanitize_key( $this->table_name );		
-				$sql = "SELECT message AS message
-						FROM {$table} {$where} ";				
-				$logs = $wpdb->get_results( $sql, 'ARRAY_A' );
-				wp_cache_set( $cache_key, $logs, $cache_group, 5 * MINUTE_IN_SECONDS );
-			} else {
-				$logs = $results;
-			}
+		$cache_key   = 'ajax_custom_log';
+		$cache_group = 'liaison-site-prober';
+		// 嘗試從快取抓資料
+		$results = wp_cache_get( $cache_key, $cache_group );
+		if ( false === $results ) {
+			// Safe direct database access (custom table, prepared query)
+			$table = sanitize_key( $this->table_name );		
+			$sql = "SELECT message AS message
+					FROM {$table} {$where} ";				
+			$logs = $wpdb->get_results( $sql, 'ARRAY_A' );
+			wp_cache_set( $cache_key, $logs, $cache_group, 5 * MINUTE_IN_SECONDS );
+		} else {
+			$logs = $results;
+		}
 
-			if ( false !== $logs ) {
-			?>
-				<select id="log-select" name="log-select">
-				<option value=""><?php echo esc_html__( 'All Logs', 'liaison-site-prober' ) ?></option>
-				<?php 
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Fully escaped when building each option
-					$log_output = array();	
-					foreach ( $logs as $_log ) {
-						$log_output[] = sprintf(
-							'<option value="%s"%s>%s</option>',
-							esc_html( $_log['message'] ), // escape attribute
-							selected( $_log['message'], true, false ),
-							esc_html( $_log['message'] )  // escape display text
-						);
-					}
-					echo implode( '', $log_output );
-				?>
-				</select>
+		if ( false !== $logs ) {
+		?>
+			<select id="log-select" name="log-select">
+			<option value=""><?php echo esc_html__( 'All Logs', 'liaison-site-prober' ) ?></option>
 			<?php 
-			}
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Fully escaped when building each option
+				$log_output = array();	
+				foreach ( $logs as $_log ) {
+					$log_output[] = sprintf(
+						'<option value="%s"%s>%s</option>',
+						esc_html( $_log['message'] ), // escape attribute
+						selected( $_log['message'], true, false ),
+						esc_html( $_log['message'] )  // escape display text
+					);
+				}
+				echo implode( '', $log_output );
+			?>
+			</select>
+		<?php 
 		}
 	}
 

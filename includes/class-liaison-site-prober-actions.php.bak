@@ -35,9 +35,6 @@ class LIAISIPR_Actions {
         // register hooks to capture actions
 		//add_action( 'export_wp', [ $this, 'wpsp_export_csv' ] );
 
-		if ( defined('WP_RUNNING_PHPUNIT') ) {
-			return;
-		}
 		add_action( 'activated_plugin', [ $this, 'wpsp_plugin_activated' ], 10, 2 );
 		add_action( 'deactivated_plugin', [ $this, 'wpsp_plugin_deactivated' ], 10, 2 );
 		add_action( 'delete_plugin', [ $this, 'wpsp_plugin_delete' ]);
@@ -206,7 +203,6 @@ class LIAISIPR_Actions {
 			$comment = get_comment( $comment_ID );
 		
 		$action = 'created';
-		$term_id = $comment->comment_post_ID;
 		switch ( current_filter() ) {
 			case 'wp_insert_comment' :
 				$action = 1 === (int) $comment->comment_approved ? 'approved' : 'pending';

@@ -125,7 +125,6 @@ class LIAISIPR_Admin {
 		$plugin_select = isset( $_POST['plugin_select'] ) ? $_POST['plugin_select'] : '';
 		error_log( sprintf('plugin_select : %s', $plugin_select) );		
 		$this->get_list_table_custom_log()->log_plugin_select( sanitize_text_field( $plugin_select ) );
-		//$this->build_log_select( sanitize_text_field( $plugin_select ) );
 		exit;
 	}
 

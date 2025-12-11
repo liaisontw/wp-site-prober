@@ -61,20 +61,15 @@ Yes. You can export your site’s activity log to a CSV file from the plugin’s
 
 == Screenshots ==
 
-1. Dashboard: Liaison Site Prober Settings panel. Example view of logged activities.  
+1. Dashboard: Liaison Site Prober Settings panel.  
+2. Example view of logged activities.  
 
 == Changelog ==
-
-= 1.1.0 =
-* Add PHPUnit test cases.
 
 = 1.0.0 =
 * Initial release.
 
 == Upgrade Notice ==
-
-= 1.1.0 =
-* Add PHPUnit test cases.
 
 = 1.0.0 =
 First stable release.
