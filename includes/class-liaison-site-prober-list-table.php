@@ -20,7 +20,8 @@ class LIAISIPR_List_Table extends WP_List_Table {
 			)
 		);
 
-        $this->table_name = $wpdb->wpsp_activity;        
+        //$this->table_name = $wpdb->wpsp_activity;        
+		$this->table_name = $args['table_name'] ?? $wpdb->wpsp_activity;
     }
 
     private function get_filtered_link( $name = '', $value = '' ) {
@@ -240,15 +241,6 @@ class LIAISIPR_List_Table extends WP_List_Table {
 					$output[ $user->ID ] = $user->user_nicename;
 			}
 
-			// if ( ! empty( $output ) ) {
-			// 	echo '<select name="usershow" id="hs-filter-usershow">';
-			// 	printf( '<option value="">%s</option>', __( 'All Users', 'aryo-activity-log' ) );
-			// 	foreach ( $output as $key => $value ) {
-			// 		printf( '<option value="%s"%s>%s</option>', $key, selected( $_REQUEST['usershow'], $key, false ), $value );
-			// 	}
-			// 	echo '</select>';
-			// }
-
 			$selected_value = isset( $_REQUEST['usershow'] )
 				? sanitize_text_field( wp_unslash( $_REQUEST['usershow'] ) )
 				: '';
@@ -280,10 +272,6 @@ class LIAISIPR_List_Table extends WP_List_Table {
 				$_REQUEST['typeshow'] = '';
 			}
 
-			// echo '<select name="typeshow" id="hs-filter-typeshow">';
-			// printf( '<option value="">%s</option>', __( 'All Objects', 'liaison-site-prober' ) );
-			// echo implode( '', $output );
-			// echo '</select>';
 			$output = array();
 
 			$selected_value = isset( $_REQUEST['typeshow'] )
@@ -374,7 +362,6 @@ class LIAISIPR_List_Table extends WP_List_Table {
         
         $clear  = isset( $_POST['clearLogs'] ) ? sanitize_text_field( wp_unslash( $_POST['clearLogs'] ) ) : '';
 		if ( $clear ){
-			//error_log(  'clearLogs');
 			check_admin_referer( 'wpsp_list_table_action', 'wpsp_nonce' );
 			$this->delete_all_items();
 		}
@@ -420,9 +407,10 @@ class LIAISIPR_List_Table extends WP_List_Table {
 		// 嘗試從快取抓資料
 		$results = wp_cache_get( $cache_key, $cache_group );
 
-		if (   ( isset( $results['items'] ) ) 
-			&& ( isset($results['total_items']) )  
-		) { 
+		if (   is_array( $results ) 
+    		&& isset( $results['items'], $results['total_items'] )
+    		&& is_array( $results['items'] ) ) 
+		{
 			$this->items = $results['items'];
 			$total_items = $results['total_items'];	
 		} else {
