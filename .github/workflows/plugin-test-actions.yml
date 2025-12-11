@@ -41,7 +41,10 @@ jobs:
     - name: Cache WP Test Suite
       uses: actions/cache@v4
       with:
-        path: /tmp/wordpress-tests-lib
+        #path: /tmp/wordpress-tests-lib
+        path: |
+            /tmp/wordpress-tests-lib
+            /tmp/wordpress
         key: ${{ runner.os }}-wp-tests-${{ hashFiles('bin/install-wp-tests.sh') }}
         restore-keys: |
           ${{ runner.os }}-wp-tests-
