@@ -1,8 +1,4 @@
 <?php
-// function menu_page_url( $menu_slug, $echo = true ) {
-//     return 'admin.php?page=' . $menu_slug;
-// }
-
 
 /**
  * @group listtable
