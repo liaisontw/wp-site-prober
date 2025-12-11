@@ -24,28 +24,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # ------------------------
-    # Cache Composer directory
-    # ------------------------
-    - name: Cache Composer files
-      uses: actions/cache@v4
-      with:
-        path: vendor
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-composer-
-
-    # ------------------------
-    # Cache WordPress test suite
-    # ------------------------
-    - name: Cache WP Test Suite
-      uses: actions/cache@v4
-      with:
-        path: /tmp/wordpress-tests-lib
-        key: ${{ runner.os }}-wp-tests-${{ hashFiles('bin/install-wp-tests.sh') }}
-        restore-keys: |
-          ${{ runner.os }}-wp-tests-
-
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
@@ -59,15 +37,14 @@ jobs:
         sudo apt-get install -y subversion
 
     - name: Reset test DB
-      run: mysql -h127.0.0.1 -uroot -p -e "DROP DATABASE IF EXISTS wordpress_test;"
-
-    - name: Install WP Test Suite (runs only if cache not restored)
+      run: mysql -h127.0.0.1 -uroot -p -e "DROP DATABASE IF EXISTS wordpress_test;"      
+    
+    - name: Install WP Test Suite
       run: bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 latest
-      # prevents rerunning if cached
-      if: steps.cache.outputs.cache-hit != 'true'
 
     - name: Install Composer deps
       run: composer install --no-interaction --prefer-dist
 
     - name: Run PHPUnit
       run: vendor/bin/phpunit
+
