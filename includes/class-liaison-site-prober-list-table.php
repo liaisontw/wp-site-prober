@@ -8,7 +8,7 @@ if ( ! class_exists( 'WP_List_Table' ) )
 class LIAISIPR_List_Table extends WP_List_Table {
 
     protected $data_types = array();
-    protected $table_name = '';        
+    public $table_name = '';        
 
     public function __construct( $args = array() ) {
         global $wpdb;
