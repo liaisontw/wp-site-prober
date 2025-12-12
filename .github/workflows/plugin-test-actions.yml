@@ -18,7 +18,7 @@ jobs:
         mysql version: '5.7'
         mysql database: 'wordpress_test'
         mysql user: 'root'
-        mysql password: ''
+        mysql password: 'rootpass'
 
     - uses: actions/checkout@v4
 
@@ -59,7 +59,7 @@ jobs:
     # Install WP Test Suite
     # ------------------------
     - name: Install WP Test Suite
-      run: bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 latest
+      run: bash bin/install-wp-tests.sh wordpress_test root 'rootpass' 127.0.0.1 latest
 
     # ------------------------
     # Install Composer deps
