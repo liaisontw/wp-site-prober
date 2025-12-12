@@ -20,15 +20,6 @@ jobs:
 
     - uses: actions/checkout@v4
 
-    # Start MySQL service properly
-    #- name: Start MySQL 5.7
-    #  uses: mirromutth/mysql-action@v1.1
-    #  with:
-    #    mysql version: '5.7'
-    #    mysql database: 'wordpress_test'
-    #    mysql user: 'root'
-    #    mysql password: 'rootpass'
-
     # ------------------------
     # Cache Composer
     # ------------------------
