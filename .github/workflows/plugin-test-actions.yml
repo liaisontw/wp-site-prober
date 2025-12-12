@@ -10,7 +10,6 @@ jobs:
 
     services:
       mysql:
-        #image: mysql:5.7
         image: mariadb:10.6
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
