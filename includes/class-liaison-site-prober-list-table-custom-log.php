@@ -7,11 +7,11 @@ if ( ! class_exists( 'WP_List_Table' ) )
 
 class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 
-    protected $plugins = array();
-    protected $log_severity = array();
-    protected $table_name = '';        
-	protected $table_name_session = '';  
-	protected $plugin_select = '';
+    public $plugins = array();
+    public $log_severity = array();
+    public $table_name = '';        
+	public $table_name_session = '';  
+	public $plugin_select = '';
 
     public function __construct( $args = array() ) {
         global $wpdb;
