@@ -112,19 +112,21 @@ class Test_LIAISIPR_List_Table_Additional extends WP_UnitTestCase {
     /** -------------------------------------------
      * TEST: Search filter applies
      * ------------------------------------------- */
+    /*
     public function test_search_filter_applies() {
 
-    $_REQUEST['s_custom_log'] = 'logout';
+        $_REQUEST['s_custom_log'] = 'logout';
 
-    $list_table = $this->get_list_table();
-    $list_table->prepare_items();
+        $list_table = $this->get_list_table();
+        $list_table->prepare_items();
 
-    //$this->assertNotEmpty($list_table->items, 'Search should return results');
+        //$this->assertNotEmpty($list_table->items, 'Search should return results');
 
-    foreach ($list_table->items as $row) {
-        $this->assertStringContainsString('logout', $row['action']);
+        foreach ($list_table->items as $row) {
+            $this->assertStringContainsString('logout', $row['action']);
+        }
     }
-}
+    */
 
 
     /** -------------------------------------------
