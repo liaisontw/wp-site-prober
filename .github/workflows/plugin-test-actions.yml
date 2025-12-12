@@ -56,12 +56,6 @@ jobs:
     # ------------------------
     # Setup PHP
     # ------------------------
-    - uses: mirromutth/mysql-action@v1.1
-      with:
-        mysql version: '5.7'
-        mysql database: 'wordpress_test'
-        mysql user: 'root'
-        mysql password: ''
     - uses: shivammathur/setup-php@v2
       with:
         php-version: 8.2
