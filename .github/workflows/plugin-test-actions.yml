@@ -8,18 +8,27 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        #image: mysql:5.7
+        image: mariadb:10.6
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+        ports:
+          - 3306:3306
+
     steps:
 
     - uses: actions/checkout@v4
 
     # Start MySQL service properly
-    - name: Start MySQL 5.7
-      uses: mirromutth/mysql-action@v1.1
-      with:
-        mysql version: '5.7'
-        mysql database: 'wordpress_test'
-        mysql user: 'root'
-        mysql password: 'rootpass'
+    #- name: Start MySQL 5.7
+    #  uses: mirromutth/mysql-action@v1.1
+    #  with:
+    #    mysql version: '5.7'
+    #    mysql database: 'wordpress_test'
+    #    mysql user: 'root'
+    #    mysql password: 'rootpass'
 
     # ------------------------
     # Cache Composer
@@ -58,7 +67,7 @@ jobs:
     # Install WP Test Suite
     # ------------------------
     - name: Install WP Test Suite
-      run: bash bin/install-wp-tests.sh wordpress_test root 'rootpass' 127.0.0.1 latest
+      run: bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 latest
 
     # ------------------------
     # Install Composer deps
