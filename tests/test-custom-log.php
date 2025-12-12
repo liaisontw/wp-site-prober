@@ -71,7 +71,6 @@ class Test_LIAISIPR_List_Table_Custom_Log extends WP_UnitTestCase {
     }
 
     private function get_instance() {
-        //return new LIAISIPR_List_Table_Custom_Log();
         require_once __DIR__ . '/../includes/class-liaison-site-prober-list-table-custom-log.php';
         // 建立 instance
         $list_table = new LIAISIPR_List_Table_Custom_Log([
@@ -168,7 +167,6 @@ class Test_LIAISIPR_List_Table_Custom_Log extends WP_UnitTestCase {
     /** ----------------------------------------------------
      *  Test: prepare_items()
      * ---------------------------------------------------- */
-   /*
     public function test_prepare_items_loads_data() {
         $table = $this->get_instance();
         $table->prepare_items();
@@ -181,7 +179,6 @@ class Test_LIAISIPR_List_Table_Custom_Log extends WP_UnitTestCase {
         $this->assertContains('First Message', $messages);
         $this->assertContains('Session Message', $messages);
     }
-    */
 
     /** ----------------------------------------------------
      *  Test: log_plugin_select()
