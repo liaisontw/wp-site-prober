@@ -175,7 +175,7 @@ class Test_LIAISIPR_List_Table_Custom_Log extends WP_UnitTestCase {
 
         // 依照 LIMIT 20，只有 2 筆應該都讀到
         $messages = wp_list_pluck($table->items, 'message');
-
+   
         $this->assertContains('First Message', $messages);
         $this->assertContains('Session Message', $messages);
     }
