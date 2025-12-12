@@ -10,16 +10,21 @@ jobs:
 
     services:
       mysql:
-        image: mysql:5.7
+        #image: mysql:5.7
+        image: mariadb:10.6
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h localhost" 
-          --health-interval=10s 
-          --health-timeout=5s 
-          --health-retries=10
+          --health-cmd="echo ok" 
+          --health-interval=1s 
+          --health-timeout=1s 
+          --health-retries=1
+      #--health-cmd="mysqladmin ping -h localhost" 
+      #--health-interval=10s 
+      #--health-timeout=5s 
+      #--health-retries=10
 
     steps:
     - uses: actions/checkout@v4
