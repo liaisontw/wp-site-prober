@@ -71,7 +71,18 @@ class Test_LIAISIPR_List_Table_Custom_Log extends WP_UnitTestCase {
     }
 
     private function get_instance() {
-        return new LIAISIPR_List_Table_Custom_Log();
+        //return new LIAISIPR_List_Table_Custom_Log();
+        require_once __DIR__ . '/../includes/class-liaison-site-prober-list-table-custom-log.php';
+        // 建立 instance
+        $list_table = new LIAISIPR_List_Table_Custom_Log([
+            'table_name' => $this->table,
+            'table_name_session' => $this->table_session
+        ]);
+
+        // override 真正 table name
+        $list_table->table_name = $this->table; 
+        $list_table->table_name_session = $this->table_session;
+        return $list_table;
     }
 
     /** ----------------------------------------------------

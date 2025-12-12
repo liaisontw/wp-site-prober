@@ -99,6 +99,8 @@ class Test_LIAISIPR_List_Table extends WP_UnitTestCase {
             'table_name' => $this->table
         ]);
 
+        $list_table->table_name = $this->table; // override 真正 table name
+
         ob_start();
         $list_table->search_box('Search', 'wpsp-search');
         $output = ob_get_clean();

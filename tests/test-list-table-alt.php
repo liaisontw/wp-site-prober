@@ -50,9 +50,17 @@ class Test_LIAISIPR_List_Table_Additional extends WP_UnitTestCase {
 
     private function get_list_table() {
         require_once __DIR__ . '/../includes/class-liaison-site-prober-list-table.php';
-        $table = new LIAISIPR_List_Table();
-        $table->table_name = $this->table;
-        return $table;
+        //$table = new LIAISIPR_List_Table();
+        // 建立 instance
+        $list_table = new LIAISIPR_List_Table([
+            'table_name' => $this->table
+        ]);
+
+        $list_table->table_name = $this->table; // override 真正 table name
+        return $list_table;
+        
+        //$table->table_name = $this->table;
+        //return $table;
     }
 
     /** -------------------------------------------
