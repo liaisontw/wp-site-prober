@@ -39,7 +39,11 @@ class LIAISIPR_Admin {
         $this->version = $version;
 		$this->table = $this->logger->get_table_name();
         add_action('admin_menu', array($this, 'admin_menu'));
-		add_action('custom_log_add'  , array( $this, 'add_custom_log' ), 10, 4 );
+
+		if ( defined( 'LIAISIP_IMPLICIT_CUSTOM_LOG' ) ) {
+			;
+		} 
+		add_action('custom_log_add'  , array( $this, 'add_custom_log' ), 10, 4 );	
 		add_action( 'wp_ajax_plugin_select',     array( $this, 'ajax_plugin_select' ) );
 		add_action( 'custom_log_session_begin', array( $this, 'begin_session' ), 10, 4 );
 		add_action( 'custom_log_session_end', array( $this, 'end_session' ) );

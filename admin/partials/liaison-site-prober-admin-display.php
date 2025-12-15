@@ -35,6 +35,11 @@
          href="<?php echo esc_html(admin_url('admin.php?page=wpsp_site_prober_log_list&tab=custom')); ?>">
          Custom Logs
       </a>
+
+      <a class="<?php echo $active_tab==='implicit'?'active':''; ?>"
+         href="<?php echo esc_html(admin_url('admin.php?page=wpsp_site_prober_log_list&tab=implicit')); ?>">
+         Implicit Table
+      </a>
   </div>
 
   <!-- tab content -->
@@ -50,6 +55,9 @@
           <?php $this->render_page_list_table_custom_log(); ?>
       </div>
 
+      <div id="panel3"
+            class="<?php echo $active_tab==='implicit'?'active':''; ?>">
+      </div>
   </div>
 </div>
 

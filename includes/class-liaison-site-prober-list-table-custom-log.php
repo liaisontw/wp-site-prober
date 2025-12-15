@@ -23,8 +23,6 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 			)
 		);
 
-        //$this->table_name = $wpdb->wpsp_custom_log;     
-		//$this->table_name_session = $wpdb->wpsp_custom_log_session;     
 		$this->table_name = $args['table_name'] ?? $wpdb->wpsp_custom_log;
 		$this->table_name_session = $args['table_name_session'] ?? $wpdb->wpsp_custom_log_session;
     }

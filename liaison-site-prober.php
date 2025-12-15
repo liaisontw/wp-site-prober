@@ -37,6 +37,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 define( 'LIAISIPR_VERSION', '1.0.0' );
 
+//define( 'LIAISIP_IMPLICIT_CUSTOM_LOG', 'true' );
+define( 'LIAISIP_TAXONOMY', 'liaisip-custom-logs-taxonomy' );
+define( 'LIAISIP_CPT', 'liaisip-custom-logs-cpt' );
+
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-liaison-site-prober-activator.php
