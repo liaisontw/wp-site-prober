@@ -12,6 +12,8 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
     public $table_name = '';        
 	public $table_name_session = '';  
 	public $plugin_select = '';
+	public $_items_per_page = 20; 
+	public $_total_items = 0; 
 
     public function __construct( $args = array() ) {
         global $wpdb;
@@ -48,9 +50,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		} else {
 			$message = esc_html( $item['message'] );
 		}
-
 		return $message;
-        //return esc_html( $item['message'] );
     }
 
     public function column_plugin( $item ) {
@@ -425,11 +425,180 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		$table_session = sanitize_key( $this->table_name_session );
 		$wpdb->query( "TRUNCATE TABLE {$table_session}" );
 	}
-    public function prepare_items( $plugin_select = '' ) {
+    
+
+	private function maybe_handle_clear_action() {
+		if ( empty( $_POST['clearLogsCustomLog'] ) ) {
+			return;
+		}
+
+		check_admin_referer( 'wpsp_delete_custom_log', 'wpsp_nonce_delete_custom_log' );
+		$this->delete_all_items_custom_log();
+	}
+
+	private function get_orderby() {
+		$allowed = [ 'created_at', 'plugin', 'severity' ];
+		$orderby = isset( $_GET['orderby'] ) ? sanitize_key( $_GET['orderby'] ) : 'created_at';
+
+		return in_array( $orderby, $allowed, true ) ? $orderby : 'created_at';
+	}
+
+	private function get_order() {
+		return ( isset( $_GET['order'] ) && 'asc' === strtolower( $_GET['order'] ) )
+			? 'asc'
+			: 'desc';
+	}
+
+	private function build_query_args() {
 		global $wpdb;
 
-        $items_per_page = 20; 
-		$total_items = 0; 
+		$where = ' WHERE 1 = 1';
+
+		if ( ! empty( $_REQUEST['severityshow'] ) ) {
+			$where .= $wpdb->prepare(
+				' AND severity = %s',
+				sanitize_text_field( wp_unslash( $_REQUEST['severityshow'] ) )
+			);
+		}
+
+		if ( ! empty( $_REQUEST['pluginshow'] ) ) {
+			$where .= $wpdb->prepare(
+				' AND plugin_name = %s',
+				sanitize_text_field( wp_unslash( $_REQUEST['pluginshow'] ) )
+			);
+		}
+
+		if ( ! empty( $_REQUEST['s_custom_log'] ) ) {
+			$like = '%' . $wpdb->esc_like(
+				sanitize_text_field( wp_unslash( $_REQUEST['s_custom_log'] ) )
+			) . '%';
+
+			$where .= $wpdb->prepare(
+				' AND (plugin_name LIKE %s OR message LIKE %s)',
+				$like,
+				$like
+			);
+		}
+
+		return [
+			'where'   => $where,
+			'orderby' => $this->get_orderby(),
+			'order'   => $this->get_order(),
+			'offset'  => ( $this->get_pagenum() - 1 ) * $this->_items_per_page,
+			'limit'   => $this->_items_per_page,
+		];
+	}
+
+	private function get_items_with_cache( $args ) {
+		global $wpdb;
+
+		$cache_key   = 'site_prober_logs_page_custom_log';
+		$cache_group = 'liaison-site-prober';
+
+		$cached = wp_cache_get( $cache_key, $cache_group );
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
+		$table         = sanitize_key( $this->table_name );
+		$table_session = sanitize_key( $this->table_name_session );
+
+		$total_items = 0;
+		$session = '';
+		if ( ! empty( $_REQUEST['session-select'] ) ) {
+			$where .= $wpdb->prepare( " AND `session_id` = %d", $_POST['session-select'] );
+		} else {
+			$total_items = $wpdb->get_var( "SELECT COUNT(*) FROM {$table_session}" );
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name sanitized and validated above.
+			$session = "SELECT 
+						id AS id,
+						plugin_name AS plugin_name,
+						message AS message,
+						severity AS severity,
+						created_at AS created_at,
+						session_type AS session_type
+					FROM {$table_session} {$where} 
+					UNION
+					";
+
+			$args['where'] .= ' AND ( session_id = 0 OR session_id IS NULL )';
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is sanitized above.
+			//Since pagiation gets LIMIT $items_per_page=20 from DB table.
+			//$total_items must get whole table count directly.
+			//$total_items = count( $this->items ); gets only $items_per_page.
+			$total_items += $wpdb->get_var( "SELECT COUNT(*) FROM {$table} {$where}" );
+		}
+
+		//$total_items  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table_session}" );
+		//$total_items += (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} {$args['where']}" );
+
+		$sql = $wpdb->prepare(
+			"SELECT id, plugin_name, message, severity, created_at, session_type
+			FROM {$table}
+			{$args['where']}
+			ORDER BY {$args['orderby']} {$args['order']}
+			LIMIT %d, %d",
+			$args['offset'],
+			$args['limit']
+		);
+
+		if ($session != '') {
+			$sql = $session . $sql;	
+		}
+		
+		$items = $wpdb->get_results( $sql, ARRAY_A );
+
+		$result = [
+			'items'       => $items,
+			'total_items' => $total_items ?: count( $items ),
+		];
+
+		wp_cache_set( $cache_key, $result, $cache_group, 5 * MINUTE_IN_SECONDS );
+
+		return $result;
+	}
+
+	private function setup_table_headers() {
+		$this->_column_headers = [
+			$this->get_columns(),
+			$this->get_hidden_columns(),
+			$this->get_sortable_columns(),
+		];
+	}
+
+	private function setup_pagination( $total_items ) {
+		$this->set_pagination_args( [
+			'total_items' => $total_items,
+			'per_page'    => $this->_items_per_page,
+			'total_pages' => ceil( $total_items / $this->_items_per_page ),
+		] );
+	}
+
+	
+	public function prepare_items( $plugin_select = '' ) {
+		$this->plugin_select = $plugin_select;
+
+		$this->maybe_handle_clear_action();
+
+		$query_args = $this->build_query_args();
+
+		$results = $this->get_items_with_cache( $query_args );
+
+		$this->items = $results['items'];
+		$total_items = $results['total_items'];
+
+		$this->setup_table_headers();
+		$this->setup_pagination( $total_items );
+	}
+	
+
+	
+	/*
+	public function prepare_items( $plugin_select = '' ) {
+		global $wpdb;
+
+        $items_per_page = $this->_items_per_page; 
+		$total_items = $this->_total_items; 
 		$this->plugin_select = $plugin_select;      
         
         $clear  = isset( $_POST['clearLogsCustomLog'] ) ? sanitize_text_field( wp_unslash( $_POST['clearLogsCustomLog'] ) ) : '';
@@ -439,8 +608,6 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 			$this->delete_all_items_custom_log();
 		}
         
-        $search = isset( $_REQUEST['s_custom_log'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s_custom_log'] ) ) : '';
-		$offset = ( $this->get_pagenum() - 1 ) * $items_per_page;
         $where = ' WHERE 1 = 1';
 	
 		if ( ! empty( $_REQUEST['severityshow'] ) ) {
@@ -455,6 +622,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 			);
 		}
 
+		$search = isset( $_REQUEST['s_custom_log'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s_custom_log'] ) ) : '';
 		if ( $search ) {
 			$like = '%' . $wpdb->esc_like( $search ) . '%';
             $where .= $wpdb->prepare( ' AND (`plugin_name` LIKE %s OR `message` LIKE %s )', $like, $like);
@@ -507,6 +675,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 				$total_items += $wpdb->get_var( "SELECT COUNT(*) FROM {$table} {$where}" );
 			}			
 
+			$offset = ( $this->get_pagenum() - 1 ) * $items_per_page;
 			$sql = $wpdb->prepare(
 					"SELECT
 						id AS id,
@@ -544,4 +713,5 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 			'total_pages' => ceil( $total_items / $items_per_page ),
 		) );   
     }
+	*/
 }

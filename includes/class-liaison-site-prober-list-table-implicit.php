@@ -24,35 +24,37 @@ class LIAISIPR_List_Table_Implicit extends WP_List_Table {
 		return esc_html( $item['id'] );
 	}
 
-	public function column_log_msg( $item ) {
-		if ( 1 == $item['session'] ) {
-			$session_url = esc_url( admin_url( 'admin.php?page=logger_catcher_log_list&session-select=' . intval( $item['id'] ) ) );
-			$message = "<a href='{$session_url}' class='thickbox'>" . esc_html( $item['log_msg'] ) . "</a>";
+	public function column_message( $item ) {
+		if ( 1 == $item['session_type'] ) {
+			$session_url = esc_url( admin_url( 'admin.php?page=wpsp_site_prober_log_list&tab=implicit&session-select=' . intval( $item['id'] ) ) );
+			$message = "<a href='{$session_url}' class='thickbox'>" . esc_html( $item['message'] ) . "</a>";
 		} else {
-			$message = esc_html( $item['log_msg'] );
+			$message = esc_html( $item['message'] );
 		}
 		return $message;
 	}
 
-	public function column_log_date( $item ) {
-		return esc_html( $item['log_date'] );
+    public function column_plugin( $item ) {
+        return esc_html( $item['plugin_name'] );
+    }
+
+    public function column_severity( $item ) {
+		return esc_html( $item['severity'] );
 	}
 
-	public function column_log_plugin( $item ) {
-		return esc_html( $item['log_plugin'] );
-	}
+    public function column_created_at( $item ) {
+        return esc_html( $item['created_at'] );
+    }
 
-	public function column_log_severity( $item ) {
-		return esc_html( $item['log_severity'] );
-	}
+    public function get_columns() {
+        $columns = array(
+            //'log_id'      => __( 'Log Id', 'liaison-site-prober' ),
+            'message'     => esc_html__( 'Message', 'liaison-site-prober' ),
+            'plugin'      => esc_html__( 'Plugin', 'liaison-site-prober' ),
+            'severity'    => esc_html__( 'Severity', 'liaison-site-prober' ),
+            'created_at'  => esc_html__( 'Time', 'liaison-site-prober' ),
+        );
 
-	public function get_columns() {
-		$columns = array(
-			'log_msg'      => esc_html__( 'Log Message', 'log-catcher' ),
-			'log_severity' => esc_html__( 'Severity', 'log-catcher' ),
-			'log_plugin'   => esc_html__( 'Plugin', 'log-catcher' ),
-			'log_date'     => esc_html__( 'Date', 'log-catcher' ),
-		);
 		return $columns;
 	}
 
@@ -62,11 +64,12 @@ class LIAISIPR_List_Table_Implicit extends WP_List_Table {
 
 	public function get_sortable_columns() {
 		return array(
-			'log_severity' => array( 'log_severity', false ),
-			'log_plugin'   => array( 'log_plugin', false ),
-			'log_date'     => array( 'log_date', false ),
+			//'log_id'     => array( 'log_id', false ),
+			'plugin'     => array( 'plugin', false ),
+            'severity'   => array( 'severity', false ),
+            'created_at' => array( 'created_at', false ),
 		);
-	}
+	}	
 
 	private function table_data() {
 		$data = array();
@@ -86,20 +89,20 @@ class LIAISIPR_List_Table_Implicit extends WP_List_Table {
 	}
 
 	public function prepare_items() {
-		$columns  = $this->get_columns();
-		$hidden   = $this->get_hidden_columns();
-		$sortable = $this->get_sortable_columns();
-
 		$data = $this->table_data();
-
-		$this->set_pagination_args(
-			array(
-				'total_items' => $this->total_items,
-				'per_page'    => 20
-			)
-		);
-
-		$this->_column_headers = array( $columns, $hidden, $sortable );
 		$this->items = $data;
+
+		$this->_column_headers = 
+            array( $this->get_columns(), 
+                   $this->get_hidden_columns( ), 
+                   $this->get_sortable_columns() );
+				   
+		$items_per_page = 20; 
+		$total_items = 0; 		
+        $this->set_pagination_args( array(
+			'total_items' => $total_items,
+			'per_page' => $items_per_page,
+			'total_pages' => ceil( $total_items / $items_per_page ),
+		) );   
 	}
 }
