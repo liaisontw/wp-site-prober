@@ -31,8 +31,10 @@ class LIAISIPR_Admin {
 	protected $table_custom_log;
 	protected $table_custom_log_session;
 	protected $wpsp_custom_log = null;
+	protected $wpsp_log_implicit = null;
 
 	protected static $session_id_in_use = null;
+
 	public function __construct( $logger, $plugin_name, $version ) {
 		$this->logger = $logger;
 		$this->plugin_name = $plugin_name;
@@ -168,6 +170,14 @@ class LIAISIPR_Admin {
 		return $this->wpsp_custom_log;
 	}
 
+	public function get_list_table_log_implicit() {
+		if ( is_null( $this->wpsp_log_implicit ) ) {
+			$this->wpsp_log_implicit = new LIAISIPR_List_Table_Log_Implicit( );
+		}
+
+		return $this->wpsp_log_implicit;
+	}
+
 	protected function redirect_back() {
 		wp_safe_redirect( menu_page_url( 'wpsp_site_prober_log_list', false ) );
 		exit;
@@ -233,6 +243,41 @@ class LIAISIPR_Admin {
 					?>" 
 				/>
 				<?php $this->get_list_table_custom_log()->display(); ?>
+			</form>
+
+		</div>
+	<?php
+
+	}
+
+	public function render_page_list_table_log_implicit() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		
+		if ( isset( $_GET['page'] ) && 'wpsp_site_prober_log_list' !== $_GET['page'] ) {
+			$this->redirect_back();
+		} 
+
+		$plugin_select = isset( $_POST['plugin_select'] ) ? $_POST['plugin_select'] : '';
+
+		$this->get_list_table_log_implicit()->prepare_items( $plugin_select );
+	?>
+		<div class="wrap">
+			<h1>
+				<?php 
+					esc_html_e( 'Custom Log Implicit', 'liaison-site-prober' ); 
+				?>
+			</h1>
+			
+			<form id="custom-log-filter" method="get">
+				<input type="hidden" name="page" value="wpsp_site_prober_log_list">
+				<input type="hidden" name="tab" value="
+					<?php 
+						echo esc_attr( $_GET['tab'] ?? 'log' ); 
+					?>" 
+				/>
+				<?php $this->get_list_table_log_implicit()->display(); ?>
 			</form>
 
 		</div>

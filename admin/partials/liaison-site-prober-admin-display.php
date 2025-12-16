@@ -57,6 +57,7 @@
 
       <div id="panel3"
             class="<?php echo $active_tab==='implicit'?'active':''; ?>">
+            <?php $this->render_page_list_table_log_implicit(); ?>
       </div>
   </div>
 </div>

@@ -117,6 +117,7 @@ class LIAISIPR {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-liaison-site-prober-list-table.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-liaison-site-prober-list-table-custom-log.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-liaison-site-prober-list-table-log-implicit.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-liaison-site-prober-admin.php';
 
 		/**

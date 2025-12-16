@@ -427,7 +427,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 	}
     
 
-	private function maybe_handle_clear_action() {
+	public function maybe_handle_clear_action() {
 		if ( empty( $_POST['clearLogsCustomLog'] ) ) {
 			return;
 		}
@@ -436,20 +436,20 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		$this->delete_all_items_custom_log();
 	}
 
-	private function get_orderby() {
+	public function get_orderby() {
 		$allowed = [ 'created_at', 'plugin', 'severity' ];
 		$orderby = isset( $_GET['orderby'] ) ? sanitize_key( $_GET['orderby'] ) : 'created_at';
 
 		return in_array( $orderby, $allowed, true ) ? $orderby : 'created_at';
 	}
 
-	private function get_order() {
+	public function get_order() {
 		return ( isset( $_GET['order'] ) && 'asc' === strtolower( $_GET['order'] ) )
 			? 'asc'
 			: 'desc';
 	}
 
-	private function build_query_args() {
+	public function build_query_args() {
 		global $wpdb;
 
 		$where = ' WHERE 1 = 1';
@@ -489,14 +489,16 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		];
 	}
 
-	private function get_items_with_cache( $args ) {
+	public function get_items_with_cache( $args ) {
 		global $wpdb;
 
 		$cache_key   = 'site_prober_logs_page_custom_log';
 		$cache_group = 'liaison-site-prober';
 
 		$cached = wp_cache_get( $cache_key, $cache_group );
-		if ( false !== $cached ) {
+		if ( is_array( $cached )
+			&& isset( $cached['items'], $cached['total_items'] )
+		) {
 			return $cached;
 		}
 
@@ -550,7 +552,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 
 		$result = [
 			'items'       => $items,
-			'total_items' => $total_items ?: count( $items ),
+			'total_items' => (int) $total_items ?: count( $items ),
 		];
 
 		wp_cache_set( $cache_key, $result, $cache_group, 5 * MINUTE_IN_SECONDS );
@@ -558,7 +560,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		return $result;
 	}
 
-	private function setup_table_headers() {
+	public function setup_table_headers() {
 		$this->_column_headers = [
 			$this->get_columns(),
 			$this->get_hidden_columns(),
@@ -566,7 +568,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		];
 	}
 
-	private function setup_pagination( $total_items ) {
+	public function setup_pagination( $total_items ) {
 		$this->set_pagination_args( [
 			'total_items' => $total_items,
 			'per_page'    => $this->_items_per_page,
