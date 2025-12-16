@@ -517,7 +517,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 						severity AS severity,
 						created_at AS created_at,
 						session_type AS session_type
-					FROM {$table_session} {$where} 
+					FROM {$table_session} {$args['where']} 
 					UNION
 					";
 
@@ -526,7 +526,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 			//Since pagiation gets LIMIT $items_per_page=20 from DB table.
 			//$total_items must get whole table count directly.
 			//$total_items = count( $this->items ); gets only $items_per_page.
-			$total_items += $wpdb->get_var( "SELECT COUNT(*) FROM {$table} {$where}" );
+			$total_items += $wpdb->get_var( "SELECT COUNT(*) FROM {$table} {$args['where']}" );
 		}
 
 		//$total_items  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table_session}" );
