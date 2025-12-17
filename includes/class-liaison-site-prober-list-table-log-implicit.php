@@ -6,22 +6,23 @@ if ( ! class_exists( 'LIAISIPR_List_Table_Custom_Log' ) )
 
 class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 	
+	public function column_message( $item ) {
+		if ( 1 == $item['session_type'] ) {
+			$session_url = esc_url( admin_url( 'admin.php?page=wpsp_site_prober_log_list&tab=implicit&session-select=' . intval( $item['id'] ) ) );
+			$message = "<a href='{$session_url}' class='thickbox'>" . esc_html( $item['message'] ) . "</a>";
+		} else {
+			$message = esc_html( $item['message'] );
+		}
+		return $message;
+    }
 	public function build_query_args() {
 		global $wpdb;
 
 		$where = [];
-		$post_where    = ' 1 = 1';
-		$comment_where = '';
-		$comment_where = "comment_parent = '0'";
+		$post_where    = "post_type = 'log-catcher' OR post_type = 'wp-logger' AND post_parent != 0";
+		$comment_where = "comment_approved = 'log-catcher' OR comment_approved = 'wp-logger' ";
 		//$post_where    = "post_type = '" . esc_sql( self::CPT ) . "' AND post_parent != 0";
 		//$comment_where = "comment_approved = '" . esc_sql( self::CPT ) . "'";
-
-		// if ( ! empty( $_REQUEST['session-select'] ) ) {
-		// 	$comment_where .= $wpdb->prepare( " AND comment_post_ID = %d AND comment_parent = 1", intval( $_POST['session-select'] ) );
-		// } else {
-		// 	//$comment_where .= ' AND comment_parent = 0';
-		// 	$comment_where = "comment_parent = 0";
-		// }
 
 		if ( ! empty( $_REQUEST['severityshow'] ) ) {
 			// $where[] = $wpdb->prepare(
@@ -81,21 +82,20 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 			return $cached;
 		}
 
-		$where_sql = '1=1';
-		if ( ! empty( $args['where'] ) ) {
-			$where_sql .= ' AND ' . implode( ' AND ', $args['where'] );
-		}
-		
 		$post_where    = $args['post_where'];
 		$comment_where = $args['comment_where'];	
 		$total_items = 0;
 		$session_sql = '';
+
 		if ( ! empty( $_REQUEST['session-select'] ) ) {
-			$where_sql .= $wpdb->prepare( " AND `session_id` = %d", $_POST['session-select'] );
+			$comment_where .= $wpdb->prepare( " AND comment_post_ID = %d AND comment_parent = 1", intval( $_REQUEST['session-select'] ) );
 		} 
 		else 
 		{
-			$session_sql = "SELECT
+			$comment_where .= ' AND comment_parent = 0';
+			
+			$session_sql = "(
+				SELECT
 					ID AS id,
 					post_excerpt AS plugin_name,
 					post_title AS message,
@@ -104,7 +104,7 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 					1 AS session_type
 				FROM {$wpdb->posts}
 				WHERE {$post_where}
-			";		
+			) UNION ALL ";		
 	
 			$total_items = $wpdb->get_var( 
 				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE {$post_where}" );
@@ -113,7 +113,7 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 		$total_items += $wpdb->get_var( 
 				"SELECT COUNT(*) FROM {$wpdb->comments} WHERE {$comment_where}" );
 
-		$logs_sql ="
+		$logs_sql ="(
 			SELECT
 				comment_ID AS id,
 				comment_author AS plugin_name,
@@ -123,13 +123,12 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 				0 AS session_type
 			FROM {$wpdb->comments}
 			WHERE {$comment_where}
-		";
+		)";
 
 		$sql = $wpdb->prepare(
 			"
-			({$session_sql})
-			UNION ALL
-			({$logs_sql})
+			{$session_sql}
+			{$logs_sql}
 			ORDER BY {$args['orderby']} {$args['order']}
 			LIMIT %d, %d
 			",

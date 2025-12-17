@@ -508,7 +508,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		$total_items = 0;
 		$session = '';
 		if ( ! empty( $_REQUEST['session-select'] ) ) {
-			$args['where'] .= $wpdb->prepare( " AND `session_id` = %d", $_POST['session-select'] );
+			$args['where'] .= $wpdb->prepare( " AND `session_id` = %d", $_REQUEST['session-select'] );
 		} else {
 			$total_items = $wpdb->get_var( "SELECT COUNT(*) FROM {$table_session}" );
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name sanitized and validated above.
