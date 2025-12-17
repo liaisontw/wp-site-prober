@@ -10,6 +10,16 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 		global $wpdb;
 
 		$where = [];
+		$post_where    = '';
+		$comment_where = '';
+		//$post_where    = "post_type = '" . esc_sql( self::CPT ) . "' AND post_parent != 0";
+		//$comment_where = "comment_approved = '" . esc_sql( self::CPT ) . "'";
+
+		if ( ! empty( $_REQUEST['session-select'] ) ) {
+			$comment_where .= $wpdb->prepare( " AND comment_post_ID = %d AND comment_parent = 1", intval( $_POST['session-select'] ) );
+		} else {
+			$comment_where .= ' AND comment_parent = 0';
+		}
 
 		if ( ! empty( $_REQUEST['severityshow'] ) ) {
 			$where[] = $wpdb->prepare(
@@ -36,6 +46,8 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 				$like
 			);
 		}
+
+		
 
 		return [
 			'where'   => $where, // array of conditions
