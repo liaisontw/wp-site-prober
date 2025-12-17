@@ -10,29 +10,38 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 		global $wpdb;
 
 		$where = [];
-		$post_where    = '';
+		$post_where    = ' 1 = 1';
 		$comment_where = '';
+		$comment_where = "comment_parent = '0'";
 		//$post_where    = "post_type = '" . esc_sql( self::CPT ) . "' AND post_parent != 0";
 		//$comment_where = "comment_approved = '" . esc_sql( self::CPT ) . "'";
 
-		if ( ! empty( $_REQUEST['session-select'] ) ) {
-			$comment_where .= $wpdb->prepare( " AND comment_post_ID = %d AND comment_parent = 1", intval( $_POST['session-select'] ) );
-		} else {
-			$comment_where .= ' AND comment_parent = 0';
-		}
+		// if ( ! empty( $_REQUEST['session-select'] ) ) {
+		// 	$comment_where .= $wpdb->prepare( " AND comment_post_ID = %d AND comment_parent = 1", intval( $_POST['session-select'] ) );
+		// } else {
+		// 	//$comment_where .= ' AND comment_parent = 0';
+		// 	$comment_where = "comment_parent = 0";
+		// }
 
 		if ( ! empty( $_REQUEST['severityshow'] ) ) {
-			$where[] = $wpdb->prepare(
-				'severity = %s',
-				sanitize_text_field( wp_unslash( $_REQUEST['severityshow'] ) )
-			);
+			// $where[] = $wpdb->prepare(
+			// 	'severity = %s',
+			// 	sanitize_text_field( wp_unslash( $_REQUEST['severityshow'] ) )
+			// );
 		}
 
+		$join = '';
 		if ( ! empty( $_REQUEST['pluginshow'] ) ) {
-			$where[] = $wpdb->prepare(
-				'plugin_name = %s',
-				sanitize_text_field( wp_unslash( $_REQUEST['pluginshow'] ) )
-			);
+			// $where[] = $wpdb->prepare(
+			// 	'plugin_name = %s',
+			// 	sanitize_text_field( wp_unslash( $_REQUEST['pluginshow'] ) )
+			// );
+			//$term = get_term_by( 'slug', $this->prefix_slug( sanitize_text_field( wp_unslash( $_POST['plugin-select'] ) ) ), self::TAXONOMY );
+			if ( $term ) {
+				$post_where .= $wpdb->prepare( " AND (wp_term_relationships.term_taxonomy_id IN (%d))", intval( $term->term_id ) );
+				$comment_where .= $wpdb->prepare( " AND comment_author = %s", sanitize_text_field( wp_unslash( $_POST['plugin-select'] ) ) );
+				$join = 'INNER JOIN ' . $wpdb->term_relationships . ' ON ' . $wpdb->posts . '.ID = ' . $wpdb->term_relationships . '.object_id ';
+			}
 		}
 
 		if ( ! empty( $_REQUEST['s_custom_log'] ) ) {
@@ -47,10 +56,11 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 			);
 		}
 
-		
-
 		return [
 			'where'   => $where, // array of conditions
+			'join'    => $join,
+			'post_where'    => $post_where,
+			'comment_where' => $comment_where,
 			'orderby' => $this->get_orderby(),
 			'order'   => $this->get_order(),
 			'offset'  => ( $this->get_pagenum() - 1 ) * $this->_items_per_page,
@@ -71,13 +81,13 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 			return $cached;
 		}
 
-		//$where_sql = 'WHERE 1=1';
-		$where_sql = '';
+		$where_sql = '1=1';
 		if ( ! empty( $args['where'] ) ) {
-			//$where_sql .= ' AND ' . implode( ' AND ', $args['where'] );
-			$where_sql = $args['where'];
+			$where_sql .= ' AND ' . implode( ' AND ', $args['where'] );
 		}
 		
+		$post_where    = $args['post_where'];
+		$comment_where = $args['comment_where'];	
 		$total_items = 0;
 		$session_sql = '';
 		if ( ! empty( $_REQUEST['session-select'] ) ) {
@@ -93,15 +103,15 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 					post_date AS created_at,
 					1 AS session_type
 				FROM {$wpdb->posts}
-				{$where_sql}
+				WHERE {$post_where}
 			";		
 	
 			$total_items = $wpdb->get_var( 
-				"SELECT COUNT(*) FROM {$wpdb->posts}{$where_sql}" );
+				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE {$post_where}" );
 		}
 
 		$total_items += $wpdb->get_var( 
-				"SELECT COUNT(*) FROM {$wpdb->comments}{$where_sql}" );
+				"SELECT COUNT(*) FROM {$wpdb->comments} WHERE {$comment_where}" );
 
 		$logs_sql ="
 			SELECT
@@ -112,7 +122,7 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 				comment_date AS created_at,
 				0 AS session_type
 			FROM {$wpdb->comments}
-			{$where_sql}
+			WHERE {$comment_where}
 		";
 
 		$sql = $wpdb->prepare(
