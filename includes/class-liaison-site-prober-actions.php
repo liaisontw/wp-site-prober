@@ -33,7 +33,6 @@ class LIAISIPR_Actions {
 		$this->dir = $this->logger->get_plugin_dir();
 
         // register hooks to capture actions
-		//add_action( 'export_wp', [ $this, 'wpsp_export_csv' ] );
 
 		if ( defined('WP_RUNNING_PHPUNIT') ) {
 			return;

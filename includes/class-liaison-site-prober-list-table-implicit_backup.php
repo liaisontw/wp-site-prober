@@ -1,10 +1,6 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-if ( ! class_exists( 'WP_List_Table' ) )
-	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
-
-
 class LIAISIPR_List_Table_Implicit_Backup extends WP_List_Table {
 
 	function __construct( /*$items*/$args = array() ) {
@@ -378,5 +374,115 @@ class LIAISIPR_List_Table_Implicit_Backup extends WP_List_Table {
 			'total_pages' => ceil( $total_items / $items_per_page ),
 		) );   
     }
+	*/
+
+	/*
+	protected function redirect_back() {
+		wp_safe_redirect( menu_page_url( 'wpsp_site_prober_log_list', false ) );
+		exit;
+	}
+		
+	public function render_page_list_table() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		
+		if ( isset( $_GET['page'] ) && 'wpsp_site_prober_log_list' !== $_GET['page'] ) {
+			$this->redirect_back();
+		} 
+
+		$this->get_list_table()->prepare_items();
+	?>
+		<div class="wrap">
+			<h1>
+				<?php 
+					esc_html_e( 'Actions', 'liaison-site-prober' ); 
+				?>
+			</h1>
+			
+			<form id="activity-filter" method="get">
+				<input type="hidden" name="page" value="wpsp_site_prober_log_list">
+				<input type="hidden" name="tab" value="
+					<?php 
+				  		echo esc_attr( $_GET['tab'] ?? 'log' ); 
+					?>" 
+				/>
+				<?php $this->get_list_table()->display(); ?>
+			</form>
+
+		</div>
+	<?php
+
+	}
+
+	public function render_page_list_table_custom_log() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		
+		if ( isset( $_GET['page'] ) && 'wpsp_site_prober_log_list' !== $_GET['page'] ) {
+			$this->redirect_back();
+		} 
+
+		$plugin_select = isset( $_POST['plugin_select'] ) ? $_POST['plugin_select'] : '';
+
+		$this->get_list_table_custom_log()->prepare_items( $plugin_select );
+	?>
+		<div class="wrap">
+			<h1>
+				<?php 
+					esc_html_e( 'Custom Log', 'liaison-site-prober' ); 
+				?>
+			</h1>
+			
+			<form id="custom-log-filter" method="get">
+				<input type="hidden" name="page" value="wpsp_site_prober_log_list">
+				<input type="hidden" name="tab" value="
+					<?php 
+						echo esc_attr( $_GET['tab'] ?? 'log' ); 
+					?>" 
+				/>
+				<?php $this->get_list_table_custom_log()->display(); ?>
+			</form>
+
+		</div>
+	<?php
+
+	}
+
+	public function render_page_list_table_log_implicit() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		
+		if ( isset( $_GET['page'] ) && 'wpsp_site_prober_log_list' !== $_GET['page'] ) {
+			$this->redirect_back();
+		} 
+
+		$plugin_select = isset( $_POST['plugin_select'] ) ? $_POST['plugin_select'] : '';
+
+		$this->get_list_table_log_implicit()->prepare_items( $plugin_select );
+	?>
+		<div class="wrap">
+			<h1>
+				<?php 
+					esc_html_e( 'Custom Log Implicit', 'liaison-site-prober' ); 
+				?>
+			</h1>
+			
+			<form id="custom-log-filter" method="get">
+				<input type="hidden" name="page" value="wpsp_site_prober_log_list">
+				<input type="hidden" name="tab" value="
+					<?php 
+						echo esc_attr( $_GET['tab'] ?? 'log' ); 
+					?>" 
+				/>
+				<?php $this->get_list_table_log_implicit()->display(); ?>
+			</form>
+
+		</div>
+	<?php
+
+	}
 	*/
 }
