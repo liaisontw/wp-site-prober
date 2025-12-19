@@ -38,8 +38,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'LIAISIPR_VERSION', '1.0.0' );
 
 //define( 'LIAISIP_IMPLICIT_CUSTOM_LOG', 'true' );
-define( 'LIAISIP_TAXONOMY', 'liaisip-custom-logs-taxonomy' );
-define( 'LIAISIP_CPT', 'liaisip-custom-logs-cpt' );
+define( 'LIAISIP_TAXONOMY', 'liaisip-logs-taxonomy' );
+define( 'LIAISIP_CPT', 'liaisip-logs-cpt' );
 
 /**
  * The code that runs during plugin activation.

@@ -47,12 +47,14 @@ class LIAISIPR_Admin {
 		$this->table = $this->logger->get_table_name();
 		$this->wpsp_utility = new LIAISIPR_Utility( $logger );
 
-        add_action('admin_menu', array($this, 'admin_menu'));
+        add_action( 'admin_menu', array($this, 'admin_menu'));
 		add_action( 'wp_ajax_plugin_select',     array( $this, 'ajax_plugin_select' ) );
 
-		add_action('custom_log_add'  , array( $this->wpsp_utility, 'add_custom_log' ), 10, 4 );	
+		add_action( 'custom_log_add'  , array( $this->wpsp_utility, 'add_custom_log' ), 10, 4 );	
 		add_action( 'custom_log_session_begin', array( $this->wpsp_utility, 'begin_session' ), 10, 4 );
 		add_action( 'custom_log_session_end', array( $this->wpsp_utility, 'end_session' ) );
+
+		add_action( 'wpsp_implicit_log_add'  , array( $this->wpsp_utility, 'add_log_implicit' ), 10, 4 );	
 		
 		// handle csv export
 		add_action( 'admin_post_WP_Site_Prober_export_csv', [ $this->wpsp_utility, 'handle_export_csv' ] );

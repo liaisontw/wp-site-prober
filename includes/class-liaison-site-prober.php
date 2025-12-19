@@ -45,8 +45,6 @@ class LIAISIPR {
 	protected $table_name_custom_log_session;
 	public $dir;
 
-	const TAXONOMY = LIAISIP_TAXONOMY;
-	const CPT      = LIAISIP_CPT;
 	/**
 	 * Define the core functionality of the plugin.
 	 *
