@@ -15,14 +15,83 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 		}
 		return $message;
     }
+
+	protected function get_log_generate_url() {
+		return wp_nonce_url(
+			add_query_arg(
+				[
+					'action' => 'WP_Implicit_Log_log_generate',
+					//'tab'    => $_GET['tab'] ?? 'log',
+					'tab'    => 'implicit',
+				],
+				admin_url('admin-post.php')
+			),
+			'wpsp_log_generate_implicit_log',
+			'wpsp_nonce_implicit_log'
+		);
+	}
+
+	protected function render_log_generate_button() {
+		printf(
+			'<a class="button" href="%s">%s</a> <br class="clear" />',
+			esc_url($this->get_log_generate_url()),
+			esc_html__('Implicit Log Generate', 'liaison-site-prober')
+		);
+	}
+
+	protected function get_session_generate_url() {
+		return wp_nonce_url(
+			add_query_arg(
+				[
+					'action' => 'WP_Implicit_Log_session_generate',
+					//'tab'    => $_GET['tab'] ?? 'log',
+					'tab'    => 'implicit',
+				],
+				admin_url('admin-post.php')
+			),
+			'wpsp_session_generate_implicit_log',
+			'wpsp_nonce_implicit_log'
+		);
+	}
+
+	protected function render_session_generate_button() {
+		printf(
+			'<a class="button" href="%s">%s</a> <br class="clear" />',
+			esc_url($this->get_session_generate_url()),
+			esc_html__('Implicit Session Generate', 'liaison-site-prober')
+		);
+	}
+
+	protected function get_export_url() {
+		return wp_nonce_url(
+			add_query_arg(
+				[
+					'action' => 'WP_Site_Prober_export_csv_implicit_log',
+					'tab'    => 'implicit',
+				],
+				admin_url('admin-post.php')
+			),
+			'wpsp_export_implicit_log',
+			'wpsp_nonce_implicit_log'
+		);
+	}
+
+	protected function render_export_button() {
+		printf(
+			'<a class="button" href="%s">%s</a> <br class="clear" />',
+			esc_url($this->get_export_url()),
+			esc_html__('Export CSV (Implicit Log)', 'liaison-site-prober')
+		);
+	}
+
 	public function build_query_args() {
 		global $wpdb;
 
 		$where = [];
-		$post_where    = "post_type = 'log-catcher' OR post_type = 'wp-logger' AND post_parent != 0";
-		$comment_where = "comment_approved = 'log-catcher' OR comment_approved = 'wp-logger' ";
-		//$post_where    = "post_type = '" . esc_sql( self::CPT ) . "' AND post_parent != 0";
-		//$comment_where = "comment_approved = '" . esc_sql( self::CPT ) . "'";
+		$post_where    = "post_type = 'log-catcher' OR post_type = 'wp-logger' OR post_type = 'liaisip-logs-cpt' AND post_parent != 0";
+		$comment_where = "comment_approved = 'log-catcher' OR comment_approved = 'wp-logger' OR comment_approved = 'liaisip-logs-cpt'";
+		//$post_where    .= "OR post_type = '" . esc_sql( LIAISIP_CPT ) . "'";
+		//$comment_where .= "OR comment_approved = '" . esc_sql( LIAISIP_CPT ) . "'";
 
 		if ( ! empty( $_REQUEST['severityshow'] ) ) {
 			// $where[] = $wpdb->prepare(

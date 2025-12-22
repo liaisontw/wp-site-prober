@@ -55,16 +55,22 @@ class LIAISIPR_Admin {
 		add_action( 'custom_log_session_end', array( $this->wpsp_utility, 'end_session' ) );
 
 		add_action( 'wpsp_implicit_log_add'  , array( $this->wpsp_utility, 'add_log_implicit' ), 10, 4 );	
+		//add_action( 'wpsp_implicit_log_add'  , array( $this->wpsp_utility, 'add_log_entry' ), 10, 4 );	
+		
 		
 		// handle csv export
 		add_action( 'admin_post_WP_Site_Prober_export_csv', [ $this->wpsp_utility, 'handle_export_csv' ] );
-
 		// handle csv export: custom log
 		add_action( 'admin_post_WP_Site_Prober_export_csv_custom_log', [ $this->wpsp_utility, 'handle_export_csv_custom_log' ] );
+		// handle csv export: implicit log
+		add_action( 'admin_post_WP_Site_Prober_export_csv_implicit_log', [ $this->wpsp_utility, 'handle_export_csv_implicit_log' ] );
 
 		// Generate custom log for testing
 		add_action( 'admin_post_WP_Custom_Log_custom_log_generate', [ $this->wpsp_utility, 'handle_custom_log_generate' ] );
 		add_action( 'admin_post_WP_Custom_Log_session_generate', [ $this->wpsp_utility, 'handle_session_generate' ] );
+		// Generate implicit log for testing
+		add_action( 'admin_post_WP_Implicit_Log_log_generate', [ $this->wpsp_utility, 'handle_implicit_log_generate' ] );
+		add_action( 'admin_post_WP_Implicit_Log_session_generate', [ $this->wpsp_utility, 'handle_implicit_session_generate' ] );
 	}
 
 	    /**

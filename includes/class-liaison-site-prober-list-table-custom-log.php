@@ -96,7 +96,8 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 			add_query_arg(
 				[
 					'action' => 'WP_Custom_Log_custom_log_generate',
-					'tab'    => $_GET['tab'] ?? 'log',
+					//'tab'    => $_GET['tab'] ?? 'log',
+					'tab'    => 'custom',
 				],
 				admin_url('admin-post.php')
 			),
@@ -118,7 +119,8 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 			add_query_arg(
 				[
 					'action' => 'WP_Custom_Log_session_generate',
-					'tab'    => $_GET['tab'] ?? 'log',
+					//'tab'    => $_GET['tab'] ?? 'log',
+					'tab'    => 'custom',
 				],
 				admin_url('admin-post.php')
 			),

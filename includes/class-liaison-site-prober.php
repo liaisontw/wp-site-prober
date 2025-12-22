@@ -66,6 +66,7 @@ class LIAISIPR {
 		//$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
+		add_action( 'init' , array( $this, 'init_liaison_site_prober' ), 1 );
 
 		global $wpdb;
 		$wpdb->wpsp_activity = $wpdb->prefix . 'liaison_site_prober';
@@ -242,5 +243,51 @@ class LIAISIPR {
 
 	public function get_plugin_dir() {
 		return $this->dir;
+	}
+
+	function init_liaison_site_prober() {
+		register_post_type(
+			LIAISIP_CPT,
+			array(
+				'public'        => false,
+				'show_ui'       => false,
+				'rewrite'       => false,
+				'menu_position' => 100,
+				'supports'      => false,
+				'labels'        => array(
+					'name'               => esc_html__( 'Logs'                  , 'liaison-site-prober' ),
+					'singular_name'      => esc_html__( 'Log'                   , 'liaison-site-prober' ),
+					'add_new'            => esc_html__( 'Add New Log'           , 'liaison-site-prober' ),
+					'add_new_item'       => esc_html__( 'Add New Log'           , 'liaison-site-prober' ),
+					'edit_item'          => esc_html__( 'Edit Log'              , 'liaison-site-prober' ),
+					'new_item'           => esc_html__( 'Add New Log'           , 'liaison-site-prober' ),
+					'view_item'          => esc_html__( 'View Log'              , 'liaison-site-prober' ),
+					'search_items'       => esc_html__( 'Search Logs'           , 'liaison-site-prober' ),
+					'not_found'          => esc_html__( 'No logs found'         , 'liaison-site-prober' ),
+					'not_found_in_trash' => esc_html__( 'No logs found in trash', 'liaison-site-prober' )
+				),
+				'capabilities' => array(
+					'edit_post'          => 'update_core',
+					'read_post'          => 'update_core',
+					'delete_post'        => 'update_core',
+					'edit_posts'         => 'update_core',
+					'edit_others_posts'  => 'update_core',
+					'publish_posts'      => 'update_core',
+					'read_private_posts' => 'update_core',
+					'create_posts'       => false,
+				),
+			)
+		);
+
+		register_taxonomy(
+			LIAISIP_TAXONOMY,
+			LIAISIP_CPT,
+			array(
+				'query_var' => false,
+				'public'    => false,
+				'rewrite'   => false,
+			)
+		);
+
 	}
 }
