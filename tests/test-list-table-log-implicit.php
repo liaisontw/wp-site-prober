@@ -125,13 +125,12 @@ class Tests_LIAISIPR_List_Table_Log_Implicit extends WP_UnitTestCase {
 	public function test_get_items_with_cache_generates_sql_and_returns_array() {
 		global $wpdb;
 
-		// Mock DB responses
-		add_filter( 'query', function( $sql ) {
-			if ( stripos( $sql, 'COUNT(*)' ) !== false ) {
-				return 5;
-			}
-			return $sql;
-		});
+		add_filter( 'pre_query', function( $retval, $sql ) {
+            if ( stripos( $sql, 'COUNT(*)' ) !== false ) {
+                return 5; // mock return
+            }
+            return $retval;
+        }, 10, 2 );
 
 		$wpdb->query( "DELETE FROM {$wpdb->comments}" ); // clean test DB
 
