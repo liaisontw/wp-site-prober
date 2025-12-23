@@ -14,6 +14,11 @@ class Tests_LIAISIPR_List_Table_Log_Implicit extends WP_UnitTestCase {
 		$wpdb->wpsp_custom_log_session = $wpdb->prefix . 'wpsp_custom_log_session';
 
 		$this->table = new LIAISIPR_List_Table_Log_Implicit();
+
+        add_filter('admin_url', function($url) {
+            return 'http://example.org/wp-admin/' . ltrim($url, '/');
+        });
+
 	}
 
 	/** -----------------------------------------------------------
