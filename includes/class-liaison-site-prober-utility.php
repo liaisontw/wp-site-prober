@@ -7,6 +7,7 @@ class LIAISIPR_Utility {
 
     protected $logger;
     protected static $session_id_in_use = null;
+    protected static $session_id_in_use_implicit = null;
     const TAXONOMY = LIAISIP_TAXONOMY;
 	const CPT      = LIAISIP_CPT;
 
@@ -288,7 +289,6 @@ class LIAISIPR_Utility {
         $args = [
             'post_type'      => self::CPT,
             'post_status'    => 'publish',
-            //'post_name'      => $this->prefix_slug( $category, $plugin_name ),
             'post_name'      => $this->build_slug( $category, $plugin_name ),
             'post_title'     => $category,
         ];
@@ -326,8 +326,8 @@ class LIAISIPR_Utility {
         $severity    = intval( $severity );
 
         // 1. 決定寫在哪個 post
-        if ( self::$session_id_in_use ) {
-            $post_id = self::$session_id_in_use;
+        if ( self::$session_id_in_use_implicit ) {
+            $post_id = self::$session_id_in_use_implicit;
         } else {
             $post_id = $this->ensure_category_post( $plugin_name, $category );
             if ( ! $post_id ) {
@@ -349,14 +349,14 @@ class LIAISIPR_Utility {
             'user_id'              => $severity,
         ];
 
-        if ( self::$session_id_in_use ) {
+        if ( self::$session_id_in_use_implicit ) {
             $comment['comment_parent'] = 1; // session child
         }
 
         $comment_id = wp_insert_comment( wp_filter_comment( $comment ) );
 
         // 3. 如果沒有 session → 套用保留數量限制（避免爆 table）
-        if ( ! self::$session_id_in_use ) {
+        if ( ! self::$session_id_in_use_implicit ) {
             $this->limit_plugin_logs( $plugin_name, $category, $post_id );
         }
 
@@ -388,6 +388,21 @@ class LIAISIPR_Utility {
 		}
 	}
 
+    function begin_session_implicit( $plugin_name, $category, $session_title, $severity = 0 ) {
+		$post_id = $this->create_category_post( $plugin_name, $category, $session_title, $severity );
+		if ( false == $post_id ) {
+			return false;
+		} else {
+            self::$session_id_in_use_implicit = $post_id;
+		    return true;
+        }		
+	}
+
+	function end_session_implicit( ...$args ) {
+		self::$session_id_in_use_implicit = null;
+		return true;
+	}
+
 	public function get_custom_log_table() {
 		return sanitize_key( $this->logger->get_table_name_custom_log() );
 	}
@@ -411,9 +426,7 @@ class LIAISIPR_Utility {
 		);
 
 		if ( $result !== false ) {
-			$last_inserted_id = $wpdb->insert_id;
-			$session_id = $last_inserted_id;
-			self::$session_id_in_use = $session_id;
+            self::$session_id_in_use = $wpdb->insert_id;
 		} else {
 			error_log( 'Error inserting data.');
 		}
@@ -470,8 +483,6 @@ class LIAISIPR_Utility {
 
     // Generate implicit log for testing
 	//add_action( 'admin_post_WP_Implicit_Log_log_generate', [ $this->wpsp_utility, 'handle_implicit_log_generate' ] );
-	//add_action( 'admin_post_WP_Implicit_Log_session_generate', [ $this->wpsp_utility, 'handle_implicit_session_generate' ] );
-    //add_action( 'wpsp_implicit_log_add'
     public function handle_implicit_log_generate() {
 		$appends = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '!', '@', '#'];
 		
@@ -485,6 +496,30 @@ class LIAISIPR_Utility {
 		//do_action( 'wpsp_implicit_log_add', 'liaison-site-prober', 'message-'.$append_now, 'step-'.$append_now, 2 );
         do_action( 'wpsp_implicit_log_add', 'plugin-'.$append_now, 'message-'.$append_now, 'step-'.$append_now, 2); 
 		
+		add_action('shutdown', function () {
+			wp_safe_redirect(
+				add_query_arg(
+					[
+						'page' => 'wpsp_site_prober_log_list',
+						'tab'  => 'implicit',
+					],
+					admin_url('admin.php')
+				)
+			);
+			exit;	
+		} );
+	}
+
+    //add_action( 'admin_post_WP_Implicit_Log_session_generate', [ $this->wpsp_utility, 'handle_implicit_session_generate' ] );
+    public function handle_implicit_session_generate() {
+        //add_action( 'wpsp_implicit_log_session_begin', array( $this->wpsp_utility, 'begin_session_implicit' ), 10, 4 );
+		//add_action( 'wpsp_implicit_log_session_end', array( $this->wpsp_utility, 'end_session_implicit' ) );
+		do_action( 'wpsp_implicit_log_session_begin', 'liaison-site-prober', 'message-session-begin', 'session-begin !', 0 );
+            do_action( 'wpsp_implicit_log_add', 'liaison-site-prober', 'session-message-1', 'session-step-1', 1 );
+            do_action( 'wpsp_implicit_log_add', 'liaison-site-prober', 'session-message-2', 'session-step-2', 2 );
+            do_action( 'wpsp_implicit_log_add', 'liaison-site-prober', 'session-message-3', 'session-step-3', 3 );
+			do_action( 'wpsp_implicit_log_add', 'liaison-site-prober', 'session-message-4', 'session-step-4', 4 );
+		do_action( 'wpsp_implicit_log_session_end' );
 		add_action('shutdown', function () {
 			wp_safe_redirect(
 				add_query_arg(
