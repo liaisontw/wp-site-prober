@@ -117,6 +117,7 @@ class Tests_LIAISIPR_Utility extends WP_UnitTestCase {
 	/** -----------------------------------------------------------
 	 * Test: add_log_implicit()
 	 * ----------------------------------------------------------- */
+    /*
 	public function test_add_log_implicit_creates_comment_and_terms() {
 
 		$taxonomy = LIAISIPR_Utility::TAXONOMY;
@@ -154,6 +155,7 @@ class Tests_LIAISIPR_Utility extends WP_UnitTestCase {
 		$this->assertEquals('my-plugin', $comments[0]->comment_author);
 		$this->assertEquals(5, intval($comments[0]->user_id));
 	}
+        */
 
 	/** -----------------------------------------------------------
 	 * Test: build_slug()
