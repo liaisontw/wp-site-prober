@@ -7,6 +7,8 @@ if ( ! class_exists( 'LIAISIPR_List_Table_Custom_Log' ) )
 #[AllowDynamicProperties]
 class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 	
+	protected $table;
+	
 	public function column_message( $item ) {
 		if ( 1 == $item['session_type'] ) {
 			$session_url = esc_url( admin_url( 'admin.php?page=wpsp_site_prober_log_list&tab=implicit&session-select=' . intval( $item['id'] ) ) );
