@@ -4,6 +4,7 @@
  */
 class Tests_LIAISIPR_List_Table_Log_Implicit extends WP_UnitTestCase {
 
+    protected $table;
 	public function setUp(): void {
 		parent::setUp();
 
