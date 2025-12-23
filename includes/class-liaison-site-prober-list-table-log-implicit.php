@@ -84,14 +84,29 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 		);
 	}
 
+	
+	public function search_box( $text, $input_id ) {
+		$search_data = isset( $_REQUEST['s_implicit_log'] ) ? sanitize_text_field( wp_unslash($_REQUEST['s_implicit_log'] ) ) : '';
+
+		$input_id = $input_id . '-search-input-implicit-log';
+		?>
+			<p class="search-box">
+				<label class="screen-reader-text" for="<?php echo esc_attr($input_id); ?>"><?php echo esc_attr($text); ?>:</label>
+				<input type="search" id="<?php echo esc_attr($input_id); ?>" name="s_implicit_log" value="<?php echo esc_attr( $search_data ); ?>" placeholder="<?php esc_attr_e( 'Search plugins, messages', 'liaison-site-prober' ); ?>"/>
+				<?php submit_button( $text, 'button', false, false, array('id' => 'search-submit') ); ?>
+			</p>
+		<?php
+	}
+
+
 	public function build_query_args() {
 		global $wpdb;
 
 		$where = [];
-		$post_where    = "post_type = 'log-catcher' OR post_type = 'wp-logger' OR post_type = 'liaisip-logs-cpt' AND post_parent != 0";
-		$comment_where = "comment_approved = 'log-catcher' OR comment_approved = 'wp-logger' OR comment_approved = 'liaisip-logs-cpt'";
-		//$post_where    .= "OR post_type = '" . esc_sql( LIAISIP_CPT ) . "'";
-		//$comment_where .= "OR comment_approved = '" . esc_sql( LIAISIP_CPT ) . "'";
+		//$post_where    = "post_type = 'log-catcher' OR post_type = 'wp-logger' OR post_type = 'liaisip-logs-cpt' AND post_parent != 0";
+		//$comment_where = "comment_approved = 'log-catcher' OR comment_approved = 'wp-logger' OR comment_approved = 'liaisip-logs-cpt'";
+		$post_where    = "post_type = '" . esc_sql( LIAISIP_CPT ) . "' AND post_parent != 0";
+		$comment_where = "comment_approved = '" . esc_sql( LIAISIP_CPT ) . "'";
 
 		if ( ! empty( $_REQUEST['severityshow'] ) ) {
 			// $where[] = $wpdb->prepare(
@@ -114,16 +129,24 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 			}
 		}
 
-		if ( ! empty( $_REQUEST['s_custom_log'] ) ) {
+		if ( ! empty( $_REQUEST['s_implicit_log'] ) ) {
 			$like = '%' . $wpdb->esc_like(
-				sanitize_text_field( wp_unslash( $_REQUEST['s_custom_log'] ) )
+				sanitize_text_field( wp_unslash( $_REQUEST['s_implicit_log'] ) )
 			) . '%';
 
+			$post_where .= $wpdb->prepare( " 
+				AND ( {$wpdb->posts}.post_title LIKE %s )", $like );
+			$comment_where .= $wpdb->prepare( " 
+			    AND ( {$wpdb->comments}.comment_content LIKE %s 
+				OR {$wpdb->comments}.comment_author LIKE %s )"
+				, $like, $like );
+			/*
 			$where[] = $wpdb->prepare(
 				'(plugin_name LIKE %s OR message LIKE %s)',
 				$like,
 				$like
 			);
+			*/
 		}
 
 		return [

@@ -207,7 +207,6 @@ class LIAISIPR_Utility {
 		global $wpdb;
 		$session_id = self::$session_id_in_use;
 		$table = $this->get_custom_log_table();
-		error_log( sprintf( 'inserted data to: %s', $table) );
 
 		$wpdb->insert(
 			$table,
@@ -224,33 +223,14 @@ class LIAISIPR_Utility {
 
 	}
 
-    public function build_slug_old( $slug, $prefix = '' ) {
-		if ( ! empty( $prefix ) ) {
-            error_log( sprintf( 'Old: $prefix is: %s', $prefix) );
-			return sanitize_title( $prefix ) . '-' . sanitize_title( $slug );
-		} else {
-            error_log( 'Old: $prefix is empty' );
-			return 'msg_category-' . sanitize_title( $slug );
-		}
-	}
-
     private function build_slug( $slug, $prefix = '' ) {
         $slug = sanitize_title( $slug );
         $prefix = sanitize_title( $prefix );
-
         
-        if ( $prefix ) {
-            error_log( sprintf( 'New: $prefix is: %s', $prefix) );
-        } else {
-            error_log( 'New: $prefix is empty' );
-        }
-        
-
         return $prefix ? "{$prefix}-{$slug}" : "msg_category-{$slug}";
     }
 
     private function ensure_plugin_term( $plugin_name ) {
-        error_log( sprintf( 'ensure_plugin_term: $plugin_name is: %s', $plugin_name) );
         $slug = $this->build_slug( $plugin_name );
 
         if ( ! term_exists( $slug, self::TAXONOMY ) ) {
@@ -288,8 +268,6 @@ class LIAISIPR_Utility {
 
     private function create_category_post( $plugin_name, $category, $session_title = '', $severity = 0  ) {
         $term_slug = $this->ensure_plugin_term( $plugin_name );
-        //$term_slug = $this->do_plugin_term( $plugin_name );
-        error_log( sprintf( 'create_category_post: $term_slug is: %s', $term_slug) );
         if ( ! $term_slug ) return false;
 
         // Step 1: Determine parent log ID
@@ -336,7 +314,6 @@ class LIAISIPR_Utility {
 
     private function ensure_category_post( $plugin_name, $category ) {
         $post_id = $this->find_category_post( $plugin_name, $category );
-        error_log( sprintf( 'ensure_category_post: $post_id is: %d', $post_id) );
         return $post_id ?: $this->create_category_post( $plugin_name, $category );
     }
 
@@ -355,7 +332,6 @@ class LIAISIPR_Utility {
         } else {
             $post_id = $this->ensure_category_post( $plugin_name, $category );
             if ( ! $post_id ) {
-                error_log('add_log_implicit: $post_id is false');
                 return false;
             } else {
                 error_log( sprintf( 'add_log_implicit: $post_id is: %d', $post_id) );
@@ -364,11 +340,14 @@ class LIAISIPR_Utility {
 
         // 2. 建 comment （真正的 log）
         $comment = [
-            'comment_post_ID'  => $post_id,
-            'comment_content'  => wp_kses_post( $message ),
-            'comment_author'   => $plugin_name,
-            'comment_approved' => self::CPT,
-            'user_id'          => $severity,
+            'comment_post_ID'      => $post_id,
+            'comment_content'      => wp_kses_post( $message ),
+            'comment_author'       => $plugin_name,
+            'comment_approved'     => self::CPT,
+            'comment_author_IP'    => '',
+			'comment_author_url'   => '',
+			'comment_author_email' => '',
+            'user_id'              => $severity,
         ];
 
         if ( self::$session_id_in_use ) {
@@ -385,6 +364,31 @@ class LIAISIPR_Utility {
         return (bool)$comment_id;
     }
 
+    // limit plugin logs with filter wpsp_implicit_log_limit_{plugin_name} 
+	private function limit_plugin_logs( $plugin_name, $log_name, $log_id ) {
+		global $wpdb;
+
+		$limit = apply_filters( 'wpsp_implicit_log_limit_' . $plugin_name, 20, $log_name );
+
+		$comments = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM $wpdb->comments WHERE comment_approved = %s AND comment_author = %s AND comment_post_ID = %d ORDER BY comment_date ASC",
+				self::CPT,
+				$plugin_name,
+				$log_id
+			)
+		);
+
+		$count = $wpdb->num_rows;
+
+		if ( $count > $limit ) {
+			$diff = $count - $limit;
+			for ( $i = 0; $i < $diff; $i++ ) {
+				wp_delete_comment( $comments[ $i ]->comment_ID, true );
+			}
+		}
+	}
+
 	public function get_custom_log_table() {
 		return sanitize_key( $this->logger->get_table_name_custom_log() );
 	}
@@ -395,8 +399,6 @@ class LIAISIPR_Utility {
 	function begin_session( $plugin_name, $message, $session_title, $severity = 0 ) {
 		global $wpdb;
 		
-		error_log('begin_session');
-		//do_action( 'liaison-site-prober', 'message-session-begin', 'session-begin !', 0 );
 		$table_session = $this->get_custom_log_session_table();
 
 		$result = $wpdb->insert(
@@ -411,7 +413,6 @@ class LIAISIPR_Utility {
 
 		if ( $result !== false ) {
 			$last_inserted_id = $wpdb->insert_id;
-			error_log( sprintf( 'Successfully inserted data. Last inserted ID: %d', $last_inserted_id) );
 			$session_id = $last_inserted_id;
 			self::$session_id_in_use = $session_id;
 		} else {
@@ -422,7 +423,6 @@ class LIAISIPR_Utility {
 	}
 
 	function end_session( ...$args ) {
-		error_log('end_session');
 		self::$session_id_in_use = null;
 		return true;
 	}
@@ -453,7 +453,6 @@ class LIAISIPR_Utility {
 	}
 	public function handle_session_generate() {
 		do_action( 'custom_log_session_begin', 'liaison-site-prober', 'message-session-begin', 'session-begin !', 0 );
-			error_log('in_session');
 			do_action( 'custom_log_add', 'liaison-site-prober', 'message-in-session', 'step-in-session', 4 );
 		do_action( 'custom_log_session_end' );
 		add_action('shutdown', function () {
@@ -499,180 +498,6 @@ class LIAISIPR_Utility {
 			);
 			exit;	
 		} );
-	}
-
-    public function add_log_entry( $plugin_name, $log, $message, $severity = 1 ) {
-		$plugin_name = sanitize_text_field( (string) $plugin_name );
-		$log         = sanitize_text_field( (string) $log );
-		$message     = (string) $message;
-		$severity    = intval( $severity );
-
-		if ( self::$session_id_in_use ) {
-			$post_id = self::$session_id_in_use;
-		} else {
-			$post_id = $this->check_existing_log( $plugin_name, $log );
-			if ( false == $post_id ) {
-				$post_id = $this->create_post_with_terms( $plugin_name, $log );
-				if ( false == $post_id ) {
-                    error_log( sprintf( '$post_id is: %d', $post_id) );
-					return false;
-				}
-			}
-            error_log( sprintf( '$post_id is: %d', $post_id) );
-		}
-
-		$comment_data = array(
-			'comment_post_ID'      => $post_id,
-			'comment_content'      => wp_kses_post( $message ),
-			'comment_author'       => $plugin_name,
-			'comment_approved'     => self::CPT,
-			'comment_author_IP'    => '',
-			'comment_author_url'   => '',
-			'comment_author_email' => '',
-			'user_id'              => $severity,
-		);
-
-		if ( self::$session_id_in_use ) {
-			$comment_data['comment_parent'] = 1;
-		}
-
-		$comment_id = wp_insert_comment( wp_filter_comment( $comment_data ) );
-
-		if ( ! self::$session_id_in_use ) {
-			$this->limit_plugin_logs( $plugin_name, $log, $post_id );
-		}
-
-		return (bool) $comment_id;
-	}
-
-	/* limit plugin logs with filter wp_logger_limit_{plugin_name} */
-	private function limit_plugin_logs( $plugin_name, $log_name, $log_id ) {
-		global $wpdb;
-
-		$limit = apply_filters( 'wp_logger_limit_' . $plugin_name, 20, $log_name );
-
-		$comments = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT * FROM $wpdb->comments WHERE comment_approved = %s AND comment_author = %s AND comment_post_ID = %d ORDER BY comment_date ASC",
-				self::CPT,
-				$plugin_name,
-				$log_id
-			)
-		);
-
-		$count = $wpdb->num_rows;
-
-		if ( $count > $limit ) {
-			$diff = $count - $limit;
-			for ( $i = 0; $i < $diff; $i++ ) {
-				wp_delete_comment( $comments[ $i ]->comment_ID, true );
-			}
-		}
-	}
-	
-	/*
-    public function clear_logs($plugin_name ) {
-		$logs = $this->plugin_admin->get_logs( $plugin_name, 'purge' );
-		if ( $logs->have_posts() ) {
-			while ( $logs->have_posts() ) {
-				$logs->the_post();
-				wp_delete_post( get_the_ID(), true );
-			}
-			wp_reset_postdata();
-		}
-	}
-        */
-
-	/* ensure a taxonomy term exists for plugin and return slug */
-	private function do_plugin_term( $plugin_name ) {
-		//$prefixed_term = $this->plugin_admin->prefix_slug( $plugin_name );
-        $prefixed_term = $this->build_slug( $plugin_name );
-
-		if ( ! term_exists( $prefixed_term, self::TAXONOMY ) ) {
-			$registered = wp_insert_term(
-				$plugin_name,
-				self::TAXONOMY,
-				array( 'slug' => $prefixed_term )
-			);
-			if ( is_wp_error( $registered ) ) {
-                error_log( sprintf( 'insert term wp_error: %s', $registered->get_error_message()) );
-				return false;
-			}
-		}
-		return $prefixed_term;
-	}
-
-	/* helper: check existing log post */
-	private function check_existing_log( $plugin_name, $log ) {
-		$prefixed_term = $this->do_plugin_term( $plugin_name );
-
-		$log_exists = new WP_Query(
-			array(
-				'post_type' => self::CPT,
-				//'name'      => $this->prefix_slug( $log, $plugin_name ),
-                'name'      => $this->build_slug( $log, $plugin_name ),
-				'tax_query' => array(
-					array(
-						'taxonomy' => self::TAXONOMY,
-						'field'    => 'slug',
-						'terms'    => $prefixed_term
-					)
-				)
-			)
-		);
-
-		if ( $log_exists->have_posts() ) {
-			$log_exists->the_post();
-			$id = get_the_ID();
-			wp_reset_postdata();
-			return $id;
-		}
-
-		return false;
-	}
-
-	/* create CPT + assign plugin taxonomy term */
-	private function create_post_with_terms( $plugin_name, $log, $session_title = '', $severity = 0 ) {
-		$prefixed_term = $this->do_plugin_term( $plugin_name );
-
-		$args = array(
-			'post_title'     => sanitize_text_field( $log ),
-			//'post_name'      => $this->plugin_admin->prefix_slug( $log, $plugin_name ),
-            'post_name'      => $this->build_slug( $log, $plugin_name ),
-			'post_type'      => self::CPT,
-			'comment_status' => 'closed',
-			'ping_status'    => 'closed',
-			'post_status'    => 'publish',
-		);
-
-		if ( ! empty( $session_title ) ) {
-			$existing_log = $this->check_existing_log( $plugin_name, $log );
-			if ( false == $existing_log ) {
-				$existing_log = $this->create_post_with_terms( $plugin_name, $log );
-			}
-			$args['post_parent']  = $existing_log;
-			$args['post_title']   = sanitize_text_field( $session_title );
-			$args['post_excerpt'] = sanitize_text_field( $plugin_name );
-			$args['menu_order']   = intval( $severity );
-		}
-
-		$post_id = wp_insert_post( $args );
-
-		if ( 0 == $post_id ) {
-			return false;
-		}
-
-		$add_terms = wp_set_post_terms(
-			$post_id,
-			$prefixed_term,
-			self::TAXONOMY
-		);
-
-		if ( ! is_array( $add_terms ) ) {
-			return false;
-		}
-
-		return $post_id;		
 	}
 }
 

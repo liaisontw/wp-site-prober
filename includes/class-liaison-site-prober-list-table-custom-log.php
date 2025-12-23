@@ -186,7 +186,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		});
 	}
 
-	protected function render_plugin_filter($plugins, $selected) {
+	public function render_plugin_filter($plugins, $selected) {
 		echo '<select name="pluginshow" id="pluginshow">';
 		echo '<option value="">' . esc_html__('All Plugins', 'liaison-site-prober') . '</option>';
 
@@ -265,6 +265,19 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		submit_button(__('Filter', 'liaison-site-prober'), 'button', '', false);
 
 		echo '</div>';
+	}
+
+	public function search_box( $text, $input_id ) {
+		$search_data = isset( $_REQUEST['s_custom_log'] ) ? sanitize_text_field( wp_unslash($_REQUEST['s_custom_log'] ) ) : '';
+
+		$input_id = $input_id . '-search-input-custom-log';
+		?>
+			<p class="search-box">
+				<label class="screen-reader-text" for="<?php echo esc_attr($input_id); ?>"><?php echo esc_attr($text); ?>:</label>
+				<input type="search" id="<?php echo esc_attr($input_id); ?>" name="s_custom_log" value="<?php echo esc_attr( $search_data ); ?>" placeholder="<?php esc_attr_e( 'Search plugins, messages', 'liaison-site-prober' ); ?>"/>
+				<?php submit_button( $text, 'button', false, false, array('id' => 'search-submit') ); ?>
+			</p>
+		<?php
 	}
 
 	public function display_tablenav($which) {
