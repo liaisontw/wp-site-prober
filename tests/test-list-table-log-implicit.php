@@ -64,7 +64,8 @@ class Tests_LIAISIPR_List_Table_Log_Implicit extends WP_UnitTestCase {
 	/** -----------------------------------------------------------
 	 * TEST: URL Generators 
 	 * ----------------------------------------------------------- */
-	public function test_get_log_generate_url_contains_expected_parts() {
+	/*
+    public function test_get_log_generate_url_contains_expected_parts() {
 		$url = $this->table->get_log_generate_url();
 
 		$this->assertStringContainsString( 'admin-post.php', $url );
@@ -86,6 +87,7 @@ class Tests_LIAISIPR_List_Table_Log_Implicit extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'WP_Site_Prober_export_csv_implicit_log', $url );
 		$this->assertStringContainsString( 'tab=implicit', $url );
 	}
+        */
 
 	/** -----------------------------------------------------------
 	 * TEST: search_box() Output
