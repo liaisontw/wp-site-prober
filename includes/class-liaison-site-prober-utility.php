@@ -51,7 +51,8 @@ class LIAISIPR_Utility {
 
 		if ( false === $rows ) {
             if ( 'implicit_logs' === $table ) {
-                $comment_where = "comment_approved = 'log-catcher' OR comment_approved = 'wp-logger' ";
+                //$post_where    = "post_type = '" . esc_sql( LIAISIP_CPT ) . "' AND post_parent != 0";
+		        $comment_where = "comment_approved = '" . esc_sql( LIAISIP_CPT ) . "'";
                 $rows = $wpdb->get_results(
                     "SELECT
                         comment_ID AS id,
@@ -177,7 +178,6 @@ class LIAISIPR_Utility {
 		] );
 	}
 
-    //add_action( 'admin_post_WP_Site_Prober_export_csv_implicit_log', [ $this->wpsp_utility, 'handle_export_csv_implicit_log' ] );
     public function handle_export_csv_implicit_log() {
 		$this->export_csv_generic( [
 			'capability' => 'manage_options',
@@ -319,7 +319,6 @@ class LIAISIPR_Utility {
 
     //do_action( 'wpsp_implicit_log_add', 'liaison-site-prober', 'msg_category', 'session test !!!!!', 5 );
     public function add_log_implicit( $plugin_name, $category, $message, $severity = 1 ) {
-        global $wpdb;
 
         $plugin_name = sanitize_text_field( $plugin_name );
         $category    = sanitize_text_field( $category );
