@@ -190,7 +190,7 @@ class Test_LIAISIPR_List_Table_Custom_Log extends WP_UnitTestCase {
 
         ob_start();
         //$table->log_plugin_select('test-plugin');
-        $table->render_plugin_filter('test-plugin');
+        $table->render_plugin_filter('test-plugin', 'test-plugin');
         $html = ob_get_clean();
 
         $this->assertStringContainsString('<select', $html);
