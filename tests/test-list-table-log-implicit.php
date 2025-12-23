@@ -13,7 +13,18 @@ class Tests_LIAISIPR_List_Table_Log_Implicit extends WP_UnitTestCase {
 		$wpdb->wpsp_custom_log         = $wpdb->prefix . 'wpsp_custom_log';
 		$wpdb->wpsp_custom_log_session = $wpdb->prefix . 'wpsp_custom_log_session';
 
-		$this->table = new LIAISIPR_List_Table_Log_Implicit();
+		//$this->table = new LIAISIPR_List_Table_Log_Implicit();
+
+        update_option( 'siteurl', 'http://example.org' );
+        update_option( 'home', 'http://example.org' );
+
+        // 強制 WordPress 重新載入 URL 設定
+        wp_load_alloptions();
+
+        $this->table = new LIAISIPR_List_Table_Log_Implicit([
+            'table_name'         => 'wp_wpsp_custom_log',
+            'table_name_session' => 'wp_wpsp_custom_log_session',
+        ]);
 
         add_filter('admin_url', function($url) {
             return 'http://example.org/wp-admin/' . ltrim($url, '/');
