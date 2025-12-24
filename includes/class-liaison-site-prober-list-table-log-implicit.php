@@ -44,7 +44,6 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 			add_query_arg(
 				[
 					'action' => 'WP_Implicit_Log_session_generate',
-					//'tab'    => $_GET['tab'] ?? 'log',
 					'tab'    => 'implicit',
 				],
 				admin_url('admin-post.php')
@@ -84,7 +83,22 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 		);
 	}
 
-	
+	public function extra_tablenav_footer() {
+	    ?>
+			<br class="clear" />
+            <form id="wpsp-form-delete-implicit" method="post" action="">
+                <input type="hidden" id="clearLogsImplicitLog" name="clearLogsImplicitLog" value="Yes">
+				<?php wp_nonce_field( 'wpsp_delete_implicit_log', 'wpsp_nonce_delete_implicit_log' ); ?>
+
+                <div class="alignleft actions">
+                    <?php submit_button( __( 'Clear Implicit Logs', 'liaison-site-prober' ), '', 'clear_action', false ); ?>
+                </div>
+			</form>
+			
+		<?php
+	}
+
+
 	public function search_box( $text, $input_id ) {
 		$search_data = isset( $_REQUEST['s_implicit_log'] ) ? sanitize_text_field( wp_unslash($_REQUEST['s_implicit_log'] ) ) : '';
 
@@ -98,6 +112,19 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 		<?php
 	}
 
+	public function delete_all_items_custom_log() {
+		$plugin_select = 'liaison-site-prober';
+		do_action( 'wpsp_implicit_log_clean', $plugin_select );
+	}
+
+	public function maybe_handle_clear_action() {
+		if ( empty( $_POST['clearLogsImplicitLog'] ) ) {
+			return;
+		}
+
+		check_admin_referer( 'wpsp_delete_implicit_log', 'wpsp_nonce_delete_implicit_log' );
+		$this->delete_all_items_custom_log();
+	}
 
 	public function build_query_args() {
 		global $wpdb;
@@ -121,6 +148,7 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 			// 	'plugin_name = %s',
 			// 	sanitize_text_field( wp_unslash( $_REQUEST['pluginshow'] ) )
 			// );
+			$term = '';
 			//$term = get_term_by( 'slug', $this->prefix_slug( sanitize_text_field( wp_unslash( $_POST['plugin-select'] ) ) ), self::TAXONOMY );
 			if ( $term ) {
 				$post_where .= $wpdb->prepare( " AND (wp_term_relationships.term_taxonomy_id IN (%d))", intval( $term->term_id ) );
@@ -140,13 +168,6 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 			    AND ( {$wpdb->comments}.comment_content LIKE %s 
 				OR {$wpdb->comments}.comment_author LIKE %s )"
 				, $like, $like );
-			/*
-			$where[] = $wpdb->prepare(
-				'(plugin_name LIKE %s OR message LIKE %s)',
-				$like,
-				$like
-			);
-			*/
 		}
 
 		return [

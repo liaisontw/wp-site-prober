@@ -203,7 +203,6 @@ class LIAISIPR_Utility {
 		] );
 	}
 
-
 	public function add_custom_log( $plugin_name, $log, $message, $severity = 1 ) {
 		global $wpdb;
 		$session_id = self::$session_id_in_use;
@@ -385,6 +384,45 @@ class LIAISIPR_Utility {
 			for ( $i = 0; $i < $diff; $i++ ) {
 				wp_delete_comment( $comments[ $i ]->comment_ID, true );
 			}
+		}
+	}
+
+    public function get_posts( $plugin_term, $clean = false ) {
+		if ( ! $plugin_term ) {
+			return false;
+		}
+
+		//const TAXONOMY = LIAISIP_TAXONOMY;
+	    //const CPT      = LIAISIP_CPT;
+		$args = array(
+			'post_type'      => self::CPT,
+			'posts_per_page' => -1,
+			'tax_query'      => array(
+				array(
+					'taxonomy' => self::TAXONOMY,
+					'field'    => 'slug',
+					'terms'    => $this->build_slug( $plugin_term )
+				)
+			)
+		);
+
+		if ( false == $clean ) {
+			$args['post_parent'] = 0;
+		}
+
+		$posts = new WP_Query( $args );
+		return $posts;
+	}
+
+    //add_action( 'wpsp_implicit_log_clean', array( $this->wpsp_utility, 'clean_logs_implicit' ) );
+    public function clean_logs_implicit($plugin_name ) {
+		$posts = $this->get_posts( $plugin_name, 'clean' );
+		if ( $posts->have_posts() ) {
+			while ( $posts->have_posts() ) {
+				$posts->the_post();
+				wp_delete_post( get_the_ID(), true );
+			}
+			wp_reset_postdata();
 		}
 	}
 

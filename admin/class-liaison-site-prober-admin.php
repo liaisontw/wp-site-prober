@@ -51,10 +51,12 @@ class LIAISIPR_Admin {
 		add_action( 'wp_ajax_plugin_select',     array( $this, 'ajax_plugin_select' ) );
 
 		add_action( 'custom_log_add'  , array( $this->wpsp_utility, 'add_custom_log' ), 10, 4 );	
+		add_action( 'custom_log_clean', array( $this, 'clean_custom_logs' ) );
 		add_action( 'custom_log_session_begin', array( $this->wpsp_utility, 'begin_session' ), 10, 4 );
 		add_action( 'custom_log_session_end', array( $this->wpsp_utility, 'end_session' ) );
 
 		add_action( 'wpsp_implicit_log_add'  , array( $this->wpsp_utility, 'add_log_implicit' ), 10, 4 );	
+		add_action( 'wpsp_implicit_log_clean', array( $this->wpsp_utility, 'clean_logs_implicit' ) );
 		add_action( 'wpsp_implicit_log_session_begin', array( $this->wpsp_utility, 'begin_session_implicit' ), 10, 4 );
 		add_action( 'wpsp_implicit_log_session_end', array( $this->wpsp_utility, 'end_session_implicit' ) );
 		
@@ -259,6 +261,11 @@ class LIAISIPR_Admin {
 			'plugin_select' => $plugin_select,
 		] );
 	}
+
+	//add_action( 'custom_log_clean', array( $this->wpsp_utility, 'clean_custom_logs' ) );
+    public function clean_custom_logs( $arg ) {
+        $this->get_list_table_custom_log()->delete_all_items_custom_log();
+    }
 }
 
 
