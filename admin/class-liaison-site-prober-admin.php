@@ -225,6 +225,8 @@ class LIAISIPR_Admin {
 		<div class="wrap">
 			<h1><?php echo esc_html( $title ); ?></h1>
 
+			<?php $list_table->render_log_clear_button(); ?>
+
 			<form method="get">
 				<input type="hidden" name="page" value="wpsp_site_prober_log_list">
 				<input type="hidden" name="tab" value="<?php echo esc_attr( $_GET['tab'] ?? 'log' ); ?>">

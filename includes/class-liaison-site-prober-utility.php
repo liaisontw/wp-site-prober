@@ -483,11 +483,12 @@ class LIAISIPR_Utility {
 		// 從 option 讀取
 		$x = intval( get_option('liaison_custom_log_x', 0) );
 		$append_now = $appends[$x];
+        $append_toggle = intval( $append_now ) % 2;
 		// 計算下一個值
         ( ($x + 1) >= count($appends) ) ? $x = 0 : $x++;
 		// 寫回 option
 		update_option('liaison_custom_log_x', $x);
-		do_action( 'custom_log_add', 'liaison-site-prober', 'message-'.$append_now, 'step-'.$append_now, 2 );
+		do_action( 'custom_log_add', 'liaison-site-prober-'.$append_toggle, 'message-'.$append_now, 'step-'.$append_now, 2 );
 		add_action('shutdown', function () {
 			wp_safe_redirect(
 				add_query_arg(

@@ -108,7 +108,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 
 	protected function render_log_generate_button() {
 		printf(
-			'<a class="button" href="%s">%s</a> <br class="clear" />',
+			'<a class="button" href="%s">%s</a>',
 			esc_url($this->get_log_generate_url()),
 			esc_html__('Custom Log Generate', 'liaison-site-prober')
 		);
@@ -186,6 +186,22 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		});
 	}
 
+	public function render_plugin_filter_delete($plugins, $selected) {
+		echo '<select name="plugindelete" id="plugindelete">';
+		echo '<option value="">' . esc_html__('All Plugins', 'liaison-site-prober') . '</option>';
+
+		foreach ($plugins as $p) {
+			printf(
+				'<option value="%s"%s>%s</option>',
+				esc_attr($p),
+				selected($selected, $p, false),
+				esc_html($p)
+			);
+		}
+
+		echo '</select>';
+	}
+	
 	public function render_plugin_filter($plugins, $selected) {
 		echo '<select name="pluginshow" id="pluginshow">';
 		echo '<option value="">' . esc_html__('All Plugins', 'liaison-site-prober') . '</option>';
@@ -218,7 +234,70 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		echo '</select>';
 	}
 
-    public function extra_tablenav_footer() {
+	public function delete_all_items_custom_log() {
+		global $wpdb;
+
+		if ( empty($_REQUEST['plugindelete']) ) {
+			return;
+		}
+
+		$plugin_to_delete = sanitize_text_field( $_REQUEST['plugindelete'] );
+
+		$table = $this->table_name;
+		$table_session = $this->table_name_session;
+
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$table} WHERE plugin_name = %s",
+				$plugin_to_delete
+			)
+		);
+
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$table_session} WHERE plugin_name = %s",
+				$plugin_to_delete
+			)
+		);
+	}
+    
+
+	public function maybe_handle_clear_action() {
+		if ( empty( $_POST['clearLogsCustomLog'] ) ) {
+			return;
+		}
+
+		check_admin_referer( 'wpsp_delete_custom_log', 'wpsp_nonce_delete_custom_log' );
+		$this->delete_all_items_custom_log();
+		wp_cache_delete('site_prober_logs_page_custom_log', 'liaison-site-prober');
+		//wp_safe_redirect( admin_url('admin.php?page=wpsp_site_prober_log_list&tab=custom') );
+		//exit;
+	}
+
+	public function render_log_clear_button() {
+	?>
+		<div class="alignleft actions"> 
+			<label for="plugin-select">
+				<?php esc_html_e( 'Log Clear for Plugin:', 'liaison-site-prober' ); ?>
+			</label>
+			<br class="clear" />
+			<form id="wpsp-form-delete" method="post" action="">
+                <input type="hidden" id="clearLogsCustomLog" name="clearLogsCustomLog" value="Yes">
+				<?php wp_nonce_field( 'wpsp_delete_custom_log', 'wpsp_nonce_delete_custom_log' ); ?>
+				<?php
+					$filters_delete = $this->load_filter_options();
+					$selected_plugin  = $_REQUEST['plugindelete']   ?? '';
+					if ($filters_delete['plugins']) {
+						$this->render_plugin_filter_delete($filters_delete['plugins'], $selected_plugin);
+					}
+				?>
+				<?php submit_button( __( 'Clear', 'liaison-site-prober' ), '', 'clear_action', false ); ?>
+			</form>
+		</div>
+	<?php
+	}
+
+	public function render_log_clear_button2() {
 	    ?>
 			<br class="clear" />
             <form id="wpsp-form-delete" method="post" action="">
@@ -233,6 +312,10 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		<?php
 	}
 
+    public function extra_tablenav_footer() {
+	    //$this->render_log_clear_button2();
+	}
+
 	public function extra_tablenav($which) {
 		if ($which === 'bottom') {
 			echo '<div class="alignleft actions">';
@@ -245,6 +328,11 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		}
 
 		if ($which !== 'top') return;
+
+		if ($which === 'top') {
+			//$this->render_log_clear_button2();   
+			//$this->search_box(__('Search', 'liaison-site-prober'), 'wpsp-search');
+		}
 
 		$filters = $this->load_filter_options();
 
@@ -281,9 +369,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 	}
 
 	public function display_tablenav($which) {
-		if ($which === 'top') {
-			$this->search_box(__('Search', 'liaison-site-prober'), 'wpsp-search');
-		}
+		$this->search_box(__('Search', 'liaison-site-prober'), 'wpsp-search');
 
 		echo '<div class="tablenav ' . esc_attr($which) . '">';
 		$this->extra_tablenav($which);
@@ -292,25 +378,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 	}
 
 
-    public function delete_all_items_custom_log() {
-		global $wpdb;
-		$table = sanitize_key( $this->table_name );
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name sanitized above.
-		$wpdb->query( "TRUNCATE TABLE {$table}" );
-
-		$table_session = sanitize_key( $this->table_name_session );
-		$wpdb->query( "TRUNCATE TABLE {$table_session}" );
-	}
     
-
-	public function maybe_handle_clear_action() {
-		if ( empty( $_POST['clearLogsCustomLog'] ) ) {
-			return;
-		}
-
-		check_admin_referer( 'wpsp_delete_custom_log', 'wpsp_nonce_delete_custom_log' );
-		$this->delete_all_items_custom_log();
-	}
 
 	public function get_orderby() {
 		$allowed = [ 'created_at', 'plugin', 'severity' ];
