@@ -339,7 +339,11 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		$selected_plugin  = $_REQUEST['pluginshow']   ?? '';
 		$selected_sev     = $_REQUEST['severityshow'] ?? '';
 
-		echo '<div class="alignleft actions">';
+		echo '<label for="plugin-filter">';
+		echo esc_html_e( 'Plugin Display Filter:', 'liaison-site-prober' );
+		echo '</label>';
+		//echo '<div class="alignleft actions">';
+		
 
 		//$this->render_export_button();
 		if ($filters['plugins']) {
@@ -352,7 +356,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 
 		submit_button(__('Filter', 'liaison-site-prober'), 'button', '', false);
 
-		echo '</div>';
+		//echo '</div>';
 	}
 
 	public function search_box( $text, $input_id ) {

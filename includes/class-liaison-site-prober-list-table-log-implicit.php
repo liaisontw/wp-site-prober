@@ -33,7 +33,7 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 
 	protected function render_log_generate_button() {
 		printf(
-			'<a class="button" href="%s">%s</a> <br class="clear" />',
+			'<a class="button" href="%s">%s</a>',
 			esc_url($this->get_log_generate_url()),
 			esc_html__('Implicit Log Generate', 'liaison-site-prober')
 		);
@@ -83,7 +83,7 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 		);
 	}
 
-	public function extra_tablenav_footer() {
+	public function render_log_clear_button2() {
 	    ?>
 			<br class="clear" />
             <form id="wpsp-form-delete-implicit" method="post" action="">
@@ -96,6 +96,9 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 			</form>
 			
 		<?php
+	}
+	public function extra_tablenav_footer() {
+	    
 	}
 
 
