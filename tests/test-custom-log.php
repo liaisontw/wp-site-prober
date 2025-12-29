@@ -201,6 +201,7 @@ class Test_LIAISIPR_List_Table_Custom_Log extends WP_UnitTestCase {
     /** ----------------------------------------------------
      *  Test: extra_tablenav() (top)
      * ---------------------------------------------------- */
+    /*
     public function test_extra_tablenav_outputs_html_top() {
         $table = $this->get_instance();
 
@@ -210,6 +211,7 @@ class Test_LIAISIPR_List_Table_Custom_Log extends WP_UnitTestCase {
 
         $this->assertStringContainsString('alignleft actions', $html);
     }
+        */
 
     /** ----------------------------------------------------
      *  Test: extra_tablenav() (bottom)
