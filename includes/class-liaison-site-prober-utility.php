@@ -483,7 +483,8 @@ class LIAISIPR_Utility {
 		// 從 option 讀取
 		$x = intval( get_option('liaison_custom_log_x', 0) );
 		$append_now = $appends[$x];
-        $append_toggle = intval( $append_now ) % 2;
+        //$append_toggle = intval( $append_now ) % 2;
+		$append_toggle = $x % 2;
 		// 計算下一個值
         ( ($x + 1) >= count($appends) ) ? $x = 0 : $x++;
 		// 寫回 option
@@ -504,7 +505,10 @@ class LIAISIPR_Utility {
 	}
 	public function handle_session_generate() {
 		do_action( 'custom_log_session_begin', 'liaison-site-prober', 'message-session-begin', 'session-begin !', 0 );
-			do_action( 'custom_log_add', 'liaison-site-prober', 'message-in-session', 'step-in-session', 4 );
+			do_action( 'custom_log_add', 'liaison-site-prober', 'message1-in-session', 'step1-in-session', 1 );
+			do_action( 'custom_log_add', 'liaison-site-prober', 'message2-in-session', 'step2-in-session', 2 );
+			do_action( 'custom_log_add', 'liaison-site-prober', 'message3-in-session', 'step3-in-session', 3 );	
+			do_action( 'custom_log_add', 'liaison-site-prober', 'message4-in-session', 'step4-in-session', 4 );
 		do_action( 'custom_log_session_end' );
 		add_action('shutdown', function () {
 			wp_safe_redirect(
@@ -527,13 +531,13 @@ class LIAISIPR_Utility {
 		
 		// 從 option 讀取
 		$x = intval( get_option('liaison_custom_log_x', 0) );
+		$append_toggle = $x % 3;
 		$append_now = $appends[$x];
 		// 計算下一個值
         ( ($x + 1) >= count($appends) ) ? $x = 0 : $x++;
 		// 寫回 option
 		update_option('liaison_custom_log_x', $x);
-		//do_action( 'wpsp_implicit_log_add', 'liaison-site-prober', 'message-'.$append_now, 'step-'.$append_now, 2 );
-        do_action( 'wpsp_implicit_log_add', 'plugin-'.$append_now, 'message-'.$append_now, 'step-'.$append_now, 2); 
+        do_action( 'wpsp_implicit_log_add', 'liaison-site-prober-'.$append_toggle, 'message-'.$append_now, 'step-'.$append_now, 2); 
 		
 		add_action('shutdown', function () {
 			wp_safe_redirect(

@@ -5,6 +5,8 @@ if ( ! class_exists( 'LIAISIPR_List_Table_Custom_Log' ) )
 	require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-liaison-site-prober-list-table-custom-log.php';
 
 class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
+	const TAXONOMY = LIAISIP_TAXONOMY;
+	const CPT      = LIAISIP_CPT;
 
 	public function column_message( $item ) {
 		if ( 1 == $item['session_type'] ) {
@@ -116,8 +118,11 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 	}
 
 	public function delete_all_items_custom_log() {
-		$plugin_select = 'liaison-site-prober';
-		do_action( 'wpsp_implicit_log_clean', $plugin_select );
+		if ( empty($_REQUEST['plugindelete']) ) {
+			return;
+		}
+		$plugin_to_delete = sanitize_text_field( $_REQUEST['plugindelete'] );
+		do_action( 'wpsp_implicit_log_clean', $plugin_to_delete );
 	}
 
 	public function maybe_handle_clear_action() {
@@ -129,14 +134,72 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 		$this->delete_all_items_custom_log();
 	}
 
+	public function render_log_clear_button() {
+	?>
+		<div class="alignleft actions"> 
+			<label for="plugin-select">
+				<?php esc_html_e( 'Log Clear for Plugin:', 'liaison-site-prober' ); ?>
+			</label>
+			<br class="clear" />
+			<form id="wpsp-form-delete" method="post" action="">
+                <input type="hidden" id="clearLogsImplicitLog" name="clearLogsImplicitLog" value="Yes">
+				<?php wp_nonce_field( 'wpsp_delete_implicit_log', 'wpsp_nonce_delete_implicit_log' ); ?>
+				<?php
+					$filters_delete = $this->load_filter_options();
+					$selected_plugin  = $_REQUEST['plugindelete']   ?? '';
+					if ($filters_delete['plugins']) {
+						$this->render_plugin_filter_delete($filters_delete['plugins'], $selected_plugin);
+					}
+				?>
+				<?php submit_button( __( 'Clear', 'liaison-site-prober' ), '', 'clear_action', false ); ?>
+			</form>
+		</div>
+	<?php
+	}
+
+	protected function load_filter_options() {		
+		global $wpdb;
+		return $this->get_cached_list('implicit_log_filter_options', function() use ($wpdb) {
+			//global $wpdb;
+			$comment_where = "comment_approved = '" . esc_sql( self::CPT ) . "'";
+
+			return [
+				'plugins' => $wpdb->get_col(
+					"SELECT DISTINCT 
+						comment_author AS plugin_name
+					FROM `{$wpdb->comments}` 
+					WHERE {$comment_where} 
+					ORDER BY plugin_name 
+					DESC LIMIT 200"
+				),
+				'severity' => $wpdb->get_col(
+					"SELECT DISTINCT 
+						user_ID AS severity
+					FROM `{$wpdb->comments}` 
+					WHERE {$comment_where} 
+					ORDER BY severity
+					DESC LIMIT 200"
+				),
+			];
+		});
+		
+	}
+
+	public function build_slug( $slug, $prefix = '' ) {
+        $slug = sanitize_title( $slug );
+        $prefix = sanitize_title( $prefix );
+        
+        return $prefix ? "{$prefix}-{$slug}" : "msg_category-{$slug}";
+    }
+
 	public function build_query_args() {
 		global $wpdb;
 
 		$where = [];
-		//$post_where    = "post_type = 'log-catcher' OR post_type = 'wp-logger' OR post_type = 'liaisip-logs-cpt' AND post_parent != 0";
-		//$comment_where = "comment_approved = 'log-catcher' OR comment_approved = 'wp-logger' OR comment_approved = 'liaisip-logs-cpt'";
-		$post_where    = "post_type = '" . esc_sql( LIAISIP_CPT ) . "' AND post_parent != 0";
-		$comment_where = "comment_approved = '" . esc_sql( LIAISIP_CPT ) . "'";
+		//$post_where    = "post_type = '" . esc_sql( LIAISIP_CPT ) . "' AND post_parent != 0";
+		//$comment_where = "comment_approved = '" . esc_sql( LIAISIP_CPT ) . "'";
+		$post_where    = "post_type = '" . esc_sql( self::CPT ) . "' AND post_parent != 0";
+		$comment_where = "comment_approved = '" . esc_sql( self::CPT ) . "'";
 
 		if ( ! empty( $_REQUEST['severityshow'] ) ) {
 			// $where[] = $wpdb->prepare(
@@ -146,17 +209,13 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 		}
 
 		$join = '';
-		if ( ! empty( $_REQUEST['pluginshow'] ) ) {
-			// $where[] = $wpdb->prepare(
-			// 	'plugin_name = %s',
-			// 	sanitize_text_field( wp_unslash( $_REQUEST['pluginshow'] ) )
-			// );
-			$term = '';
-			//$term = get_term_by( 'slug', $this->prefix_slug( sanitize_text_field( wp_unslash( $_POST['plugin-select'] ) ) ), self::TAXONOMY );
+		$selected_plugin  = sanitize_text_field( wp_unslash( $_REQUEST['pluginshow'] ))  ?? '';
+		if ( ! empty( $selected_plugin) ) {
+			$term = get_term_by( 'slug', $this->build_slug( $selected_plugin ), self::TAXONOMY );
 			if ( $term ) {
-				$post_where .= $wpdb->prepare( " AND (wp_term_relationships.term_taxonomy_id IN (%d))", intval( $term->term_id ) );
-				$comment_where .= $wpdb->prepare( " AND comment_author = %s", sanitize_text_field( wp_unslash( $_POST['plugin-select'] ) ) );
-				$join = 'INNER JOIN ' . $wpdb->term_relationships . ' ON ' . $wpdb->posts . '.ID = ' . $wpdb->term_relationships . '.object_id ';
+				//$post_where .= $wpdb->prepare( " AND (wp_term_relationships.term_taxonomy_id IN (%d))", intval( $term->term_id ) );
+				$comment_where .= $wpdb->prepare( " AND comment_author = %s", $selected_plugin );
+				//$join = 'INNER JOIN ' . $wpdb->term_relationships . ' ON ' . $wpdb->posts . '.ID = ' . $wpdb->term_relationships . '.object_id ';
 			}
 		}
 
@@ -172,6 +231,7 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 				OR {$wpdb->comments}.comment_author LIKE %s )"
 				, $like, $like );
 		}
+
 
 		return [
 			'where'   => $where, // array of conditions
@@ -191,12 +251,14 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 		$cache_key   = 'site_prober_logs_page_log_implicit';
 		$cache_group = 'liaison-site-prober';
 
+		/*
 		$cached = wp_cache_get( $cache_key, $cache_group );
 		if ( is_array( $cached )
 			&& isset( $cached['items'], $cached['total_items'] )
 		) {
 			return $cached;
 		}
+			*/
 
 		$post_where    = $args['post_where'];
 		$comment_where = $args['comment_where'];	
@@ -229,6 +291,8 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 		$total_items += $wpdb->get_var( 
 				"SELECT COUNT(*) FROM {$wpdb->comments} WHERE {$comment_where}" );
 
+		//var_dump($comment_where);
+
 		$logs_sql ="(
 			SELECT
 				comment_ID AS id,
@@ -241,6 +305,8 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 			WHERE {$comment_where}
 		)";
 
+		// ****Combine $session_sql & $logs_sql
+		
 		$sql = $wpdb->prepare(
 			"
 			{$session_sql}
@@ -251,7 +317,7 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 			$args['offset'],
 			$args['limit']
 		);
-
+		
 		$items = $wpdb->get_results( $sql, ARRAY_A );
 		$result = [
 			'items'       => $items,
