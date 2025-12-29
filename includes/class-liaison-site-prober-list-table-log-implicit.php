@@ -117,6 +117,20 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 		<?php
 	}
 
+	public function render_plugin_filter($plugins, $selected) {
+		echo '<select name="implicit_plugin_filter" id="implicit_plugin_filter">';
+		echo '<option value="">' . esc_html__('All Plugins', 'liaison-site-prober') . '</option>';
+		foreach ($plugins as $p) {
+			printf(
+				'<option value="%s"%s>%s</option>',
+				esc_attr($p),
+				selected($selected, $p, false),
+				esc_html($p)
+			);
+		}
+		echo '</select>';
+	}
+
 	public function delete_all_items_custom_log() {
 		if ( empty($_REQUEST['plugindelete']) ) {
 			return;
@@ -325,6 +339,115 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 		wp_cache_set( $cache_key, $result, $cache_group, 5 * MINUTE_IN_SECONDS );
 
 		return $result;
+	}
+
+	/*
+	public function extra_tablenav($which) {
+		if ($which === 'bottom') {
+			echo '<div class="alignleft actions">';
+			$this->render_export_button();
+			$this->render_log_generate_button();
+			$this->render_session_generate_button();
+			$this->extra_tablenav_footer();
+			echo '</div>';
+			return;
+		}
+
+		if ($which !== 'top') return;
+
+		if ($which === 'top') {
+			//$this->search_box(__('Search', 'liaison-site-prober'), 'wpsp-search');
+		}
+
+		$filters = $this->load_filter_options();
+
+		$selected_plugin  = $_REQUEST['pluginshow']   ?? '';
+		$selected_sev     = $_REQUEST['severityshow'] ?? '';
+
+		echo '<label for="plugin-filter">';
+		echo esc_html_e( 'Plugin Display Filter:', 'liaison-site-prober' );
+		echo '</label>';
+
+		if ($filters['plugins']) {
+			$this->render_plugin_filter($filters['plugins'], $selected_plugin);
+		}
+
+		if ($filters['severity']) {
+			$this->render_severity_filter($filters['severity'], $selected_sev);
+		}
+
+		submit_button(__('Filter', 'liaison-site-prober'), 'button', '', false);
+
+		echo '<span id="log-select">';
+		// AJAX will rerender，call here first time
+		$this->log_plugin_select( $this->plugin_select );
+		echo '</span>';
+	}
+		*/
+
+	
+	public function log_plugin_select( $plugin_select ) {
+		global $wpdb;
+
+		error_log( sprintf('implicit_plugin_filter : %s', $plugin_select) );		
+		return false;
+		if ( '' === $plugin_select ) {
+			return false;
+		}
+
+		$messages = '';
+		/*
+		$where = $wpdb->prepare( 
+				' WHERE `plugin_name` = %s', 
+				$plugin_select 
+			);
+
+		//error_log( sprintf('where : %s', $where) );		
+		$cache_key   = 'ajax_custom_log';
+		$cache_group = 'liaison-site-prober';
+		// 嘗試從快取抓資料
+		$results = false;
+		$results = wp_cache_get( $cache_key, $cache_group );
+		
+		if ( is_array( $results ) && isset( $results )
+		) {
+			$messages = $results;
+		} else {
+			// Safe direct database access (custom table, prepared query)
+			$table = sanitize_key( $this->table_name );		
+			$sql = "SELECT message AS message
+					FROM {$table} {$where} ";				
+			$messages = $wpdb->get_results( $sql, 'ARRAY_A' );
+			wp_cache_set( $cache_key, $messages, $cache_group, 5 * MINUTE_IN_SECONDS );
+		}
+
+		foreach ( $messages as $message ) {
+			foreach ( $message as $key => $_message ) {
+				//error_log( sprintf('$key : %s,$_messageg : %s', $key, $_message) );		
+			}
+		}
+
+		*/
+		if ( false !== $messages ) {
+		?>
+			<select id="log-select" name="log-select">
+			<option value=""><?php echo esc_html__( 'All Messages', 'liaison-site-prober' ) ?></option>
+			<?php 
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Fully escaped when building each option
+				$message_output = array();	
+				foreach ( $messages as $_message ) {
+					$message_output[] = sprintf(
+						'<option value="%s"%s>%s</option>',
+						esc_html( $_message['message'] ), // escape attribute
+						selected( $_message['message'], true, false ),
+						esc_html( $_message['message'] )  // escape display text
+					);
+				}
+				echo implode( '', $message_output );
+			?>
+			</select>
+		<?php 
+		}
 	}
 
 }

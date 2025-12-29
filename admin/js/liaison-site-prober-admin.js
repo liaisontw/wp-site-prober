@@ -50,5 +50,21 @@
 	 			$( '#log-select' ).html( response );
 			});
 		});
+
+		$('#implicit_plugin_filter').on('change', function() {
+			var pluginName = $(this).val();
+
+			var data = {
+				action: 'implicit_plugin_filter',
+				plugin_select: pluginName,
+				//custom_log_form_nonce: $('#custom_log_form_nonce').val()
+			};
+
+			//alert(data.plugin_name);
+			$.post(ajaxurl, data, function(response) {
+				//$('#log-select').replaceWith(response);
+	 			$( '#log-select' ).html( response );
+			});
+		});
 	} );
 })( jQuery );

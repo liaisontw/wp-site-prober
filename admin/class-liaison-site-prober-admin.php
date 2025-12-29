@@ -49,6 +49,7 @@ class LIAISIPR_Admin {
 
         add_action( 'admin_menu', array($this, 'admin_menu'));
 		add_action( 'wp_ajax_plugin_select',     array( $this, 'ajax_plugin_select' ) );
+		add_action( 'wp_ajax_implicit_plugin_filter',     array( $this, 'ajax_implicit_plugin_filter' ) );
 
 		add_action( 'custom_log_add'  , array( $this->wpsp_utility, 'add_custom_log' ), 10, 4 );	
 		add_action( 'custom_log_clean', array( $this, 'clean_custom_logs' ) );
@@ -145,6 +146,14 @@ class LIAISIPR_Admin {
 		$plugin_select = isset( $_POST['plugin_select'] ) ? $_POST['plugin_select'] : '';
 		error_log( sprintf('plugin_select : %s', $plugin_select) );		
 		$this->get_list_table_custom_log()->log_plugin_select( sanitize_text_field( $plugin_select ) );
+		exit;
+	}
+
+	//implicit_plugin_filter
+	function ajax_implicit_plugin_filter() {
+		$plugin_select = isset( $_POST['implicit_plugin_filter'] ) ? $_POST['implicit_plugin_filter'] : '';
+		error_log( sprintf('implicit_plugin_filter : %s', $plugin_select) );		
+		//$this->get_list_table_custom_log()->log_plugin_select( sanitize_text_field( $plugin_select ) );
 		exit;
 	}
 
