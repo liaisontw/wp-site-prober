@@ -251,14 +251,12 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 		$cache_key   = 'site_prober_logs_page_log_implicit';
 		$cache_group = 'liaison-site-prober';
 
-		/*
 		$cached = wp_cache_get( $cache_key, $cache_group );
 		if ( is_array( $cached )
 			&& isset( $cached['items'], $cached['total_items'] )
 		) {
 			return $cached;
 		}
-			*/
 
 		$post_where    = $args['post_where'];
 		$comment_where = $args['comment_where'];	
