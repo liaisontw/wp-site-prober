@@ -170,7 +170,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		return $result;
 	}
 
-	protected function load_filter_options() {
+	public function load_filter_options() {
 		global $wpdb;
 		$table = esc_sql($this->table_name);
 
@@ -330,7 +330,6 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 		if ($which !== 'top') return;
 
 		if ($which === 'top') {
-			//$this->render_log_clear_button2();   
 			//$this->search_box(__('Search', 'liaison-site-prober'), 'wpsp-search');
 		}
 

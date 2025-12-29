@@ -157,7 +157,7 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 	<?php
 	}
 
-	protected function load_filter_options() {		
+	public function load_filter_options() {		
 		global $wpdb;
 		return $this->get_cached_list('implicit_log_filter_options', function() use ($wpdb) {
 			//global $wpdb;
