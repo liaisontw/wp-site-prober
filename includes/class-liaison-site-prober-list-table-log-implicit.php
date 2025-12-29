@@ -209,8 +209,8 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 		}
 
 		$join = '';
-		$selected_plugin  = sanitize_text_field( wp_unslash( $_REQUEST['pluginshow'] ))  ?? '';
-		if ( ! empty( $selected_plugin) ) {
+		if ( ! empty( $_REQUEST['pluginshow']) ) {
+			$selected_plugin  = sanitize_text_field( wp_unslash( $_REQUEST['pluginshow'] ))  ?? '';
 			$term = get_term_by( 'slug', $this->build_slug( $selected_plugin ), self::TAXONOMY );
 			if ( $term ) {
 				//$post_where .= $wpdb->prepare( " AND (wp_term_relationships.term_taxonomy_id IN (%d))", intval( $term->term_id ) );
