@@ -37,6 +37,8 @@
 	$(function() {   
 		$('#pluginshow').on('change', function() {
 			var pluginName = $(this).val();
+			//console.log('plugin changed!');
+			//alert(pluginName);
 
 			var data = {
 				action: 'plugin_select',
@@ -44,7 +46,6 @@
 				//custom_log_form_nonce: $('#custom_log_form_nonce').val()
 			};
 
-			//alert(data.plugin_name);
 			$.post(ajaxurl, data, function(response) {
 				//$('#log-select').replaceWith(response);
 	 			$( '#log-select' ).html( response );
@@ -53,17 +54,18 @@
 
 		$('#implicit_plugin_filter').on('change', function() {
 			var pluginName = $(this).val();
+			//console.log('implicit changed!');
+			//alert(pluginName);
 
+			//$_POST['action'] = 'implicit_plugin_filter';
 			var data = {
 				action: 'implicit_plugin_filter',
-				plugin_select: pluginName,
+				implicit_plugin_filter: pluginName,
 				//custom_log_form_nonce: $('#custom_log_form_nonce').val()
 			};
 
-			//alert(data.plugin_name);
 			$.post(ajaxurl, data, function(response) {
-				//$('#log-select').replaceWith(response);
-	 			$( '#log-select' ).html( response );
+	 			$( '#log-select-container' ).html( response );
 			});
 		});
 	} );

@@ -341,7 +341,7 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 		return $result;
 	}
 
-	/*
+	
 	public function extra_tablenav($which) {
 		if ($which === 'bottom') {
 			echo '<div class="alignleft actions">';
@@ -378,56 +378,56 @@ class LIAISIPR_List_Table_Log_Implicit extends LIAISIPR_List_Table_Custom_Log {
 
 		submit_button(__('Filter', 'liaison-site-prober'), 'button', '', false);
 
-		echo '<span id="log-select">';
+		echo '<span id="log-select-container">';
 		// AJAX will rerender，call here first time
 		$this->log_plugin_select( $this->plugin_select );
 		echo '</span>';
 	}
-		*/
+	
 
 	
 	public function log_plugin_select( $plugin_select ) {
 		global $wpdb;
 
-		error_log( sprintf('implicit_plugin_filter : %s', $plugin_select) );		
-		return false;
+		error_log( sprintf('implicit_log_plugin_select : %s', $plugin_select) );				
 		if ( '' === $plugin_select ) {
 			return false;
 		}
 
 		$messages = '';
-		/*
 		$where = $wpdb->prepare( 
-				' WHERE `plugin_name` = %s', 
+				' WHERE `comment_author` = %s', 
 				$plugin_select 
 			);
 
-		//error_log( sprintf('where : %s', $where) );		
-		$cache_key   = 'ajax_custom_log';
+		$results = false;
+		/*
+		$cache_key   = 'ajax_implicit_log';
 		$cache_group = 'liaison-site-prober';
 		// 嘗試從快取抓資料
-		$results = false;
 		$results = wp_cache_get( $cache_key, $cache_group );
-		
 		if ( is_array( $results ) && isset( $results )
 		) {
 			$messages = $results;
 		} else {
 			// Safe direct database access (custom table, prepared query)
-			$table = sanitize_key( $this->table_name );		
-			$sql = "SELECT message AS message
-					FROM {$table} {$where} ";				
+			$sql = "SELECT comment_content AS message
+					FROM `{$wpdb->comments}` {$where} ";				
 			$messages = $wpdb->get_results( $sql, 'ARRAY_A' );
 			wp_cache_set( $cache_key, $messages, $cache_group, 5 * MINUTE_IN_SECONDS );
 		}
+		*/
 
+		$sql = "SELECT comment_content AS message
+					FROM `{$wpdb->comments}` {$where} ";				
+		$messages = $wpdb->get_results( $sql, 'ARRAY_A' );
 		foreach ( $messages as $message ) {
 			foreach ( $message as $key => $_message ) {
-				//error_log( sprintf('$key : %s,$_messageg : %s', $key, $_message) );		
+				//error_log( sprintf('$key : %s,$_message : %s', $key, $_message) );		
 			}
 		}
 
-		*/
+		
 		if ( false !== $messages ) {
 		?>
 			<select id="log-select" name="log-select">
