@@ -128,6 +128,13 @@ class LIAISIPR {
 
 		$this->loader = new LIAISIPR_Loader();
 
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-liaison-rest-controller.php';
+		add_action( 'rest_api_init', function () {
+			$controller = new LIAISIPR_REST_Controller();
+			$controller->register_routes();
+		} );
+
+
 	}
 
 	/**
