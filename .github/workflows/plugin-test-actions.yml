@@ -55,6 +55,10 @@ jobs:
         extensions: mbstring, mysql, mysqli
         tools: composer
 
+    - name: Create test database
+      run: |
+        mysql -h 127.0.0.1 -uroot -proot -e "CREATE DATABASE IF NOT EXISTS wordpress_test;"
+
     # ------------------------
     # Install WP Test Suite
     # ------------------------
