@@ -62,7 +62,7 @@ class LIAISIPR_Admin {
 		add_action( 'wpsp_implicit_log_clean', array( $this->wpsp_utility, 'clean_logs_implicit' ) );
 		add_action( 'wpsp_implicit_log_session_begin', array( $this->wpsp_utility, 'begin_session_implicit' ), 10, 4 );
 		add_action( 'wpsp_implicit_log_session_end', array( $this->wpsp_utility, 'end_session_implicit' ) );
-		
+		  
 		// handle csv export
 		add_action( 'admin_post_WP_Site_Prober_export_csv', [ $this->wpsp_utility, 'handle_export_csv' ] );
 		// handle csv export: custom log

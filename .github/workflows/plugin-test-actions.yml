@@ -12,7 +12,9 @@ jobs:
       mysql:
         image: mariadb:10.6
         env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          #MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress_test
         ports:
           - 3306:3306
 
