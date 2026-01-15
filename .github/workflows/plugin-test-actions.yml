@@ -1,11 +1,12 @@
-name: Plugin PHPUnit Tests
+name: WordPress Plugin Tests
 
-on: 
+on:
   push:
   pull_request:
 
 jobs:
-  test:
+
+  phpunit:
     runs-on: ubuntu-latest
 
     services:
@@ -17,68 +18,51 @@ jobs:
           MYSQL_DATABASE: wordpress_test
         ports:
           - 3306:3306
+      
+        #image: mysql:8.0
+        #env:
+        #  MYSQL_ROOT_PASSWORD: root
+        #  MYSQL_DATABASE: wordpress_test
+        #ports:
+        #  - 3306:3306
+        #options: >-
+        #  --health-cmd="mysqladmin ping --silent"
+        #  --health-interval=10s
+        #  --health-timeout=5s
+        #  --health-retries=5
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - uses: actions/checkout@v4
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mysqli, zip
+          coverage: none
 
-    # ------------------------
-    # Cache Composer
-    # ------------------------
-    - name: Cache Composer files
-      uses: actions/cache@v4
-      with:
-        path: vendor
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-composer-
+      #- name: Install system dependencies
+      #  run: |
+      #    sudo apt-get update
+      #    sudo apt-get install -y subversion mysql-client unzip
 
-    # ------------------------
-    # Cache WordPress test suite
-    # ------------------------
-    - name: Cache WP Test Suite
-      uses: actions/cache@v4
-      with:
-        path: |
-          /tmp/wordpress-tests-lib
-          /tmp/wordpress
-        key: ${{ runner.os }}-wp-tests-${{ hashFiles('bin/install-wp-tests.sh') }}
-        restore-keys: |
-          ${{ runner.os }}-wp-tests-
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
 
-    # ------------------------
-    # Setup PHP
-    # ------------------------
-    - uses: shivammathur/setup-php@v2
-      with:
-        php-version: 8.2
-        extensions: mbstring, mysql, mysqli
-        tools: composer
+      - name: Install WordPress test suite
+        run: |
+          bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 latest
+          sed -n '1,200p' bin/install-wp-tests.sh
 
-    - name: Create test database
-      run: |
-        mysql -h 127.0.0.1 -uroot -proot -e "CREATE DATABASE IF NOT EXISTS wordpress_test;"
+      - name: Install PHPUnit
+        run: |
+          curl -sSLo phpunit.phar https://phar.phpunit.de/phpunit-9.phar
+          chmod +x phpunit.phar
+          sudo mv phpunit.phar /usr/local/bin/phpunit
 
-    # ------------------------
-    # Install WP Test Suite
-    # ------------------------
-    - name: Install WP Test Suite
-      run: bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 latest
-
-    # ------------------------
-    # Install Composer deps
-    # ------------------------
-    - name: Install Composer deps
-      run: composer install --no-interaction --prefer-dist
-
-    # ------------------------
-    # Run PHPUnit
-    # ------------------------
-    - name: Run PHPUnit
-      env:
-        DB_NAME: wordpress_test
-        DB_USER: root
-        DB_PASSWORD: root
-        DB_HOST: 127.0.0.1
-      run: vendor/bin/phpunit
+      - name: Run PHPUnit
+        run: |
+          phpunit
+          
 

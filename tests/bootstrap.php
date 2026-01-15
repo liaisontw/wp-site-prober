@@ -26,6 +26,12 @@ function _manually_load_plugin() {
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
 // Start up the WP testing environment.
+
+define( 'DB_NAME', getenv( 'DB_NAME' ) ?: 'wordpress_test' );
+define( 'DB_USER', getenv( 'DB_USER' ) ?: 'root' );
+define( 'DB_PASSWORD', getenv( 'DB_PASSWORD' ) ?: 'root' );
+define( 'DB_HOST', getenv( 'DB_HOST' ) ?: '127.0.0.1' );
+
 require $_tests_dir . '/includes/bootstrap.php';
 
 
