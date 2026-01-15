@@ -75,4 +75,10 @@ jobs:
     # Run PHPUnit
     # ------------------------
     - name: Run PHPUnit
+      env:
+        DB_NAME: wordpress_test
+        DB_USER: root
+        DB_PASSWORD: root
+        DB_HOST: 127.0.0.1
       run: vendor/bin/phpunit
+
