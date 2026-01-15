@@ -1,6 +1,16 @@
 <?php
-
 /**
+ * Plugin Name:       Liaison Site Prober
+ * Plugin URI:        https://github.com/liaisontw/wp-site-prober
+ * Description:       Simple activity / audit logger for WordPress. Creates activity table, hooks common events, admin UI and CSV export.
+ * Version:           1.2.1
+ * Author:            liason
+ * Author URI:        https://github.com/liaisontw/
+ * License: 		  GPLv3 or later  
+ * License URI: 	  https://www.gnu.org/licenses/gpl-3.0.html  
+ * Text Domain:       liaison-site-prober
+ * Domain Path:       /languages
+ *
  * The plugin bootstrap file
  *
  * This file is read by WordPress to generate the plugin information in the plugin
@@ -13,16 +23,6 @@
  * @package           liaison-site-prober
  *
  * @wordpress-plugin
- * Plugin Name:       Liaison Site Prober
- * Plugin URI:        https://github.com/liaisontw/wp-site-prober
- * Description:       Simple activity / audit logger for WordPress. Creates activity table, hooks common events, admin UI and CSV export.
- * Version:           1.0.0
- * Author:            liason
- * Author URI:        https://github.com/liaisontw/
- * License: 		  GPLv3 or later  
- * License URI: 	  https://www.gnu.org/licenses/gpl-3.0.html  
- * Text Domain:       liaison-site-prober
- * Domain Path:       /languages
  */
 
 
@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'LIAISIPR_VERSION', '1.0.0' );
+define( 'LIAISIPR_VERSION', '1.2.0' );
 
 //define( 'LIAISIP_IMPLICIT_CUSTOM_LOG', 'true' );
 define( 'LIAISIP_TAXONOMY', 'liaisip-logs-taxonomy' );
@@ -85,4 +85,6 @@ function liaisonsp_run_wp_site_prober() {
 
 }
 liaisonsp_run_wp_site_prober();
+
+
 

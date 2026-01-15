@@ -4,7 +4,7 @@ Donate link:
 Tags: site monitoring, activity log, security, audit log  
 Requires at least: 6.8  
 Tested up to: 6.8  
-Stable tag: 1.0.0  
+Stable tag: 1.2.0  
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -64,6 +64,10 @@ Yes. You can export your site’s activity log to a CSV file from the plugin’s
 1. Dashboard: Liaison Site Prober Settings panel. Example view of logged activities.  
 
 == Changelog ==
+
+= 1.2.0 =
+- Added REST API endpoint: `/wp-json/site-prober/v1/logs`
+- Enables JavaScript applications to retrieve action logs.
 
 = 1.1.0 =
 * Add PHPUnit test cases.
