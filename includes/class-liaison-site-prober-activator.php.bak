@@ -34,7 +34,6 @@ class LIAISIPR_Activator {
 		add_option( 'liaisipr_active', 'yes' );
 		add_option( 'liaisipr_version', 'LIAISIPR_VERSION' );
 		add_option('wpsp_custom_log_x', 0);
-		
 		self::_create_tables();
 		self::_create_tables_custom_log();
 		self::_create_tables_custom_log_session();

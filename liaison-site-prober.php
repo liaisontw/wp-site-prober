@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       Liaison Site Prober
+ * Plugin Name:       Liaison Site Prober DEV
  * Plugin URI:        https://github.com/liaisontw/wp-site-prober
  * Description:       Simple activity / audit logger for WordPress. Creates activity table, hooks common events, admin UI and CSV export.
  * Version:           1.2.1
