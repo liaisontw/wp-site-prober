@@ -317,7 +317,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 	public function log_plugin_select( $plugin_select ) {
 		global $wpdb;
 
-		error_log( sprintf('log_plugin_select : %s', $plugin_select) );		
+		//error_log( sprintf('log_plugin_select : %s', $plugin_select) );		
 		if ( '' === $plugin_select ) {
 			return false;
 		}

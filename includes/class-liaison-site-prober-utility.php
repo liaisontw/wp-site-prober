@@ -332,7 +332,7 @@ class LIAISIPR_Utility {
             if ( ! $post_id ) {
                 return false;
             } else {
-                error_log( sprintf( 'add_log_implicit: $post_id is: %d', $post_id) );
+                //error_log( sprintf( 'add_log_implicit: $post_id is: %d', $post_id) );
             }
         }
 

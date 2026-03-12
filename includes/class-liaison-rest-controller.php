@@ -47,8 +47,7 @@ class LIAISIPR_REST_Controller {
      * ----------------------------------------------------------------- */
 
     public function permissions_read() {
-        return __return_true();
-        //return current_user_can( 'read' );
+        return current_user_can( 'manage_options' );
     }
 
     public function permissions_write() {
