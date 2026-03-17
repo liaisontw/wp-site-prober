@@ -10,6 +10,7 @@ class Liaison_Site_Prober_REST_Test extends WP_UnitTestCase {
     public function setUp(): void {
         parent::setUp();
 
+        LIAISIPR_Activator::activate();
         // 初始化 REST Server
         global $wp_rest_server;
         $this->server = $wp_rest_server = new WP_REST_Server();
