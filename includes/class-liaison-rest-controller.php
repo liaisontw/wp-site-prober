@@ -77,35 +77,6 @@ class LIAISIPR_REST_Controller {
     /* -----------------------------------------------------------------
      * Callbacks
      * ----------------------------------------------------------------- */
-    /*
-        $limit  = (int) $request->get_param( 'limit' );
-        $plugin = sanitize_text_field( $request->get_param( 'plugin' ) );
-
-        $where = '1=1';
-
-        if ( $plugin ) {
-            $where .= $wpdb->prepare(
-                ' AND comment_author = %s',
-                $plugin
-            );
-        }
-
-        $sql = $wpdb->prepare(
-            "
-            SELECT
-                comment_ID   AS id,
-                comment_author AS plugin,
-                comment_content AS message,
-                comment_date AS created_at
-            FROM {$wpdb->comments}
-            WHERE {$where}
-            ORDER BY comment_date DESC
-            LIMIT %d
-            ",
-            $limit
-        );
-        */
-
     public function get_logs( WP_REST_Request $request ) {
         global $wpdb;
 
@@ -121,9 +92,10 @@ class LIAISIPR_REST_Controller {
                 object_type,
                 description
             FROM {$table} 
-            "
+            WHERE 1=%d 
+            ORDER BY id DESC",
+            1
         );
-
         
         $results = $wpdb->get_results( $sql, ARRAY_A );
 
