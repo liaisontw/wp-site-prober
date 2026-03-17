@@ -1,7 +1,7 @@
 <?php
 
 if ( ! class_exists( 'LIAISIPR_Activator' ) )
-	require_once dirname( __DIR__ ) . 'includes/class-liaison-site-prober-activator.php';
+	require_once dirname( __DIR__ ) . '/includes/class-liaison-site-prober-activator.php';
 
 /**
  * REST API Permission Test: CVE-2026-3569 防禦測試
