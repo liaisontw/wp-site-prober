@@ -47,7 +47,27 @@ class LIAISIPR_REST_Controller {
      * ----------------------------------------------------------------- */
 
     public function permissions_read() {
-        return current_user_can( 'manage_options' );
+        // 1. 標準檢查：如果已經登入就放行
+        if ( current_user_can( 'manage_options' ) ) {
+            return true;
+        }
+
+        // 2. 開發環境測試：手動解析 Basic Auth Header
+        // 僅在開發環境運作，且測試完應移除
+        // $auth_header = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        // if ( strpos( $auth_header, 'Basic ' ) === 0 ) {
+        //     $credentials = explode( ':', base64_decode( substr( $auth_header, 6 ) ) );
+        //     $user_login = $credentials[0];
+        //     $password   = $credentials[1];
+
+        //     // 嘗試驗證使用者
+        //     $user = wp_authenticate( $user_login, $password );
+        //     if ( ! is_wp_error( $user ) && user_can( $user, 'manage_options' ) ) {
+        //         return true; 
+        //     }
+        // }
+
+        return false;
     }
 
     public function permissions_write() {
