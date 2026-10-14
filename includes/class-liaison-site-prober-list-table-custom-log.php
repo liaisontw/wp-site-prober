@@ -327,32 +327,42 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 			);
 
 		//error_log( sprintf('where : %s', $where) );		
-		$cache_key   = 'ajax_custom_log';
+		$cache_key   = 'ajax_custom_log_' . md5( $plugin_select );
 		$cache_group = 'liaison-site-prober';
 		// 嘗試從快取抓資料
-		$results = false;
 		$results = wp_cache_get( $cache_key, $cache_group );
 		
-		if ( is_array( $results ) && isset( $results )
-		) {
+		if ( false !== $results ) {
+			// Cache hit.
 			$messages = $results;
 		} else {
+			// Cache miss.
 			// Safe direct database access (custom table, prepared query)
 			$table = sanitize_key( $this->table_name );		
 			$sql = "SELECT message AS message
 					FROM {$table} {$where} ";				
 			$messages = $wpdb->get_results( $sql, 'ARRAY_A' );
-			wp_cache_set( $cache_key, $messages, $cache_group, 5 * MINUTE_IN_SECONDS );
-		}
-
-		foreach ( $messages as $message ) {
-			foreach ( $message as $key => $_message ) {
-				//error_log( sprintf('$key : %s,$_messageg : %s', $key, $_message) );		
+			if ( ! is_array( $messages ) ) {
+				return false;
 			}
+
+			wp_cache_set( 
+				$cache_key, 
+				$messages, 
+				$cache_group, 
+				5 * MINUTE_IN_SECONDS );
 		}
 
+		if ( ! is_array( $messages ) ) {
+			return false;
+		}
 
-		if ( false !== $messages ) {
+		// foreach ( $messages as $message ) {
+		// 	foreach ( $message as $key => $_message ) {
+		// 		error_log( sprintf('$key : %s,$_messageg : %s', $key, $_message) );		
+		// 	}
+		// }
+
 		?>
 			<select id="log-select" name="log-select">
 			<option value=""><?php echo esc_html__( 'All Messages', 'liaison-site-prober' ) ?></option>
@@ -362,7 +372,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 				foreach ( $messages as $_message ) {
 					$message_output[] = sprintf(
 						'<option value="%s"%s>%s</option>',
-						esc_html( $_message['message'] ), // escape attribute
+						esc_attr( $_message['message'] ), // escape attribute
 						selected( $_message['message'], true, false ),
 						esc_html( $_message['message'] )  // escape display text
 					);
@@ -371,7 +381,6 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 			?>
 			</select>
 		<?php 
-		}
 	}
 
     public function extra_tablenav_footer() {
