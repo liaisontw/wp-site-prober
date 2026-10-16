@@ -48,7 +48,13 @@ download() {
   curl -fLsS "$1" -o "$2"
 }
 
-download "$WP_TARBALL" /tmp/wordpress.tar.gz
+#download "$WP_TARBALL" /tmp/wordpress.tar.gz
+
+echo "WP_VERSION=[$WP_VERSION]"
+echo "WP_TARBALL=[$WP_TARBALL]"
+curl -fLsS "$WP_TARBALL" -o /tmp/wordpress.tar.gz
+
+
 
 if ! tar -tzf /tmp/wordpress.tar.gz >/dev/null 2>&1; then
   echo "Error: Invalid WordPress archive: $WP_TARBALL"
