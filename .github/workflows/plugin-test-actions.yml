@@ -62,10 +62,6 @@ jobs:
 
           bash -x bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 7.1 true
 
-          echo "=== WordPress directory ==="
-          ls -la /tmp/wordpress/ || true
-          ls -la /tmp/wordpress/wp-includes/ || true
-
           echo "=== Locate version.php ==="
           find /tmp -maxdepth 5 -name version.php -print 2>/dev/null || true
 
@@ -75,9 +71,15 @@ jobs:
 
       - name: Debug WordPress test versions
         run: |
+          echo "=== WordPress version ==="
           grep -n "wp_version =" /tmp/wordpress/wp-includes/version.php
-          grep -R -n "WP_Secrets_Store" /tmp/wordpress /tmp/wordpress-tests-lib/includes | head -20
-          grep -n "WP_TESTS_DIR" phpunit.xml.dist
+
+          echo "=== WP_Secrets_Store references ==="
+          grep -R -n "WP_Secrets_Store" /tmp/wordpress /tmp/wordpress-tests-lib/includes | head -20 || true
+
+          echo "=== PHPUnit config ==="
+          ls -l phpunit.xml.dist
+          grep -n "WP_TESTS_DIR" phpunit.xml.dist || true
 
       - name: Install PHPUnit
         run: |
