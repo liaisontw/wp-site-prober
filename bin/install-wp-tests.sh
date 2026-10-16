@@ -28,15 +28,26 @@ else
 fi
 
 download "$WP_TARBALL" /tmp/wordpress.tar.gz
+
+
 tar -xzf /tmp/wordpress.tar.gz --strip-components=1 -C "$WP_CORE_DIR"
 
 
 echo "### Download WP test suite (GitHub mirror)"
 
 
-TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/${TESTS_TAG}.zip"
+#TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/${TESTS_TAG}.zip"
 
-download "$TESTS_REPO" /tmp/wp-tests.zip
+#download "$TESTS_REPO" /tmp/wp-tests.zip
+
+if [ "$WP_VERSION" = "latest" ]; then
+    TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/heads/trunk.zip"
+else
+    TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/tags/${WP_VERSION}.zip"
+fi
+
+curl -fLsS "$TESTS_REPO" -o /tmp/wp-tests.zip
+
 unzip -q /tmp/wp-tests.zip -d /tmp/
 
 cp -R /tmp/wordpress-develop-trunk/tests/phpunit/includes "$WP_TESTS_DIR/"
