@@ -19,9 +19,13 @@ echo "### Download WordPress Core"
 rm -rf "$WP_CORE_DIR" "$WP_TESTS_DIR"
 mkdir -p "$WP_CORE_DIR" "$WP_TESTS_DIR"
 
+
 if [ "$WP_VERSION" = "latest" ]; then
   WP_TARBALL="https://wordpress.org/latest.tar.gz"
   TESTS_TAG="trunk"
+elif [[ "$WP_VERSION" =~ ^[0-9]+\.[0-9]+$ ]]; then
+  WP_TARBALL="https://wordpress.org/wordpress-${WP_VERSION}.tar.gz"
+  TESTS_TAG="branches/${WP_VERSION}"
 else
   WP_TARBALL="https://wordpress.org/wordpress-${WP_VERSION}.tar.gz"
   TESTS_TAG="tags/${WP_VERSION}"
@@ -40,13 +44,16 @@ echo "### Download WP test suite (GitHub mirror)"
 
 #download "$TESTS_REPO" /tmp/wp-tests.zip
 
-if [ "$WP_VERSION" = "latest" ]; then
-    TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/heads/trunk.zip"
-else
-    TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/tags/${WP_VERSION}.zip"
-fi
-
+TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/${TESTS_TAG}.zip"
 curl -fLsS "$TESTS_REPO" -o /tmp/wp-tests.zip
+
+#if [ "$WP_VERSION" = "latest" ]; then
+#    TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/heads/trunk.zip"
+#else
+#    TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/tags/${WP_VERSION}.zip"
+#fi
+
+#curl -fLsS "$TESTS_REPO" -o /tmp/wp-tests.zip
 
 unzip -q /tmp/wp-tests.zip -d /tmp/
 
