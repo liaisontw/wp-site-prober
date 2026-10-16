@@ -16,7 +16,8 @@ download() {
 
 echo "### Download WordPress Core"
 
-mkdir -p "$WP_CORE_DIR"
+rm -rf "$WP_CORE_DIR" "$WP_TESTS_DIR"
+mkdir -p "$WP_CORE_DIR" "$WP_TESTS_DIR"
 
 if [ "$WP_VERSION" = "latest" ]; then
   WP_TARBALL="https://wordpress.org/latest.tar.gz"
@@ -32,10 +33,8 @@ tar -xzf /tmp/wordpress.tar.gz --strip-components=1 -C "$WP_CORE_DIR"
 
 echo "### Download WP test suite (GitHub mirror)"
 
-mkdir -p "$WP_TESTS_DIR"
 
-
-TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/heads/trunk.zip"
+TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/${TESTS_TAG}.zip"
 
 download "$TESTS_REPO" /tmp/wp-tests.zip
 unzip -q /tmp/wp-tests.zip -d /tmp/
