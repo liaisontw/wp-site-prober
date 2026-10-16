@@ -28,6 +28,7 @@ else
   TESTS_TAG="tags/${WP_VERSION}"
 fi
 
+
 echo "WP_VERSION=[$WP_VERSION]"
 echo "WP_TARBALL=[$WP_TARBALL]"
 
@@ -44,20 +45,9 @@ tar -xzf /tmp/wordpress.tar.gz --strip-components=1 -C "$WP_CORE_DIR"
 echo "### Download WP test suite (GitHub mirror)"
 
 
+TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/heads/trunk.zip"
 #TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/${TESTS_TAG}.zip"
-
-#download "$TESTS_REPO" /tmp/wp-tests.zip
-
-TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/${TESTS_TAG}.zip"
 curl -fLsS "$TESTS_REPO" -o /tmp/wp-tests.zip
-
-#if [ "$WP_VERSION" = "latest" ]; then
-#    TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/heads/trunk.zip"
-#else
-#    TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/tags/${WP_VERSION}.zip"
-#fi
-
-#curl -fLsS "$TESTS_REPO" -o /tmp/wp-tests.zip
 
 unzip -q /tmp/wp-tests.zip -d /tmp/
 
