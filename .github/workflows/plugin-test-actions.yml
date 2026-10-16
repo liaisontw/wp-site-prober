@@ -55,6 +55,12 @@ jobs:
           bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 7.1
           sed -n '1,200p' bin/install-wp-tests.sh
 
+      - name: Debug WordPress test versions
+        run: |
+          grep -n "wp_version =" /tmp/wordpress/wp-includes/version.php
+          grep -R -n "WP_Secrets_Store" /tmp/wordpress /tmp/wordpress-tests-lib/includes | head -20
+          grep -n "WP_TESTS_DIR" phpunit.xml.dist
+
       - name: Install PHPUnit
         run: |
           curl -sSLo phpunit.phar https://phar.phpunit.de/phpunit-9.phar
