@@ -517,7 +517,22 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 	public function get_items_with_cache( $args ) {
 		global $wpdb;
 
-		$cache_key   = 'site_prober_logs_page_custom_log';
+		$session_id = isset( $_REQUEST['session-select'] )
+			? absint( wp_unslash( $_REQUEST['session-select'] ) )
+			: 0;
+
+		$cache_args = array(
+			'where'      => $args['where'],
+			'orderby'    => $args['orderby'],
+			'order'      => $args['order'],
+			'offset'     => $args['offset'],
+			'limit'      => $args['limit'],
+			'session_id' => $session_id,
+		);
+
+		$cache_key = 'site_prober_logs_page_custom_log_' .
+			md5( wp_json_encode( $cache_args ) );
+
 		$cache_group = 'liaison-site-prober';
 
 		$cached = wp_cache_get( $cache_key, $cache_group );
@@ -532,10 +547,12 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 
 		$total_items = 0;
 		$session = '';
-		if ( ! empty( $_REQUEST['session-select'] ) ) {
-			$args['where'] .= $wpdb->prepare( " AND `session_id` = %d", $_REQUEST['session-select'] );
+		$where = $args['where'];
+
+		if ( $session_id ) {
+			$where .= $wpdb->prepare( " AND `session_id` = %d", $session_id );
 		} else {
-			$total_items = $wpdb->get_var( "SELECT COUNT(*) FROM {$table_session}" );
+			$total_items = $wpdb->get_var( "SELECT COUNT(*) FROM {$table_session} {$where}" );
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name sanitized and validated above.
 			$session = "SELECT 
 						id AS id,
@@ -544,22 +561,21 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 						severity AS severity,
 						created_at AS created_at,
 						session_type AS session_type
-					FROM {$table_session} {$args['where']} 
+					FROM {$table_session} {$where} 
 					UNION
 					";
 
-			$args['where'] .= ' AND ( session_id = 0 OR session_id IS NULL )';
+			$where .= ' AND ( session_id = 0 OR session_id IS NULL )';
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is sanitized above.
 			//Since pagiation gets LIMIT $items_per_page=20 from DB table.
 			//$total_items must get whole table count directly.
 			//$total_items = count( $this->items ); gets only $items_per_page.
-			$total_items += $wpdb->get_var( "SELECT COUNT(*) FROM {$table} {$args['where']}" );
+			$total_items += $wpdb->get_var( "SELECT COUNT(*) FROM {$table} {$where}" );
 		}
 
 		$sql = $wpdb->prepare(
 			"SELECT id, plugin_name, message, severity, created_at, session_type
-			FROM {$table}
-			{$args['where']}
+			FROM {$table} {$where}
 			ORDER BY {$args['orderby']} {$args['order']}
 			LIMIT %d, %d",
 			$args['offset'],
@@ -574,7 +590,7 @@ class LIAISIPR_List_Table_Custom_Log extends WP_List_Table {
 
 		$result = [
 			'items'       => $items,
-			'total_items' => (int) $total_items ?: count( $items ),
+			'total_items' => (int) $total_items,
 		];
 
 		wp_cache_set( $cache_key, $result, $cache_group, 5 * MINUTE_IN_SECONDS );
