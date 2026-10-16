@@ -50,6 +50,11 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist
 
+      - name: Check WordPress version
+        run: |
+          grep -n "wp_version =" /tmp/wordpress/wp-includes/version.php
+          echo "grep exit code: $?"
+
       - name: Install WordPress test suite
         run: |
           mysql --host=127.0.0.1 --protocol=tcp \
