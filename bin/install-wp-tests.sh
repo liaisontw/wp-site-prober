@@ -20,21 +20,29 @@ rm -rf "$WP_CORE_DIR" "$WP_TESTS_DIR"
 mkdir -p "$WP_CORE_DIR" "$WP_TESTS_DIR"
 
 
-if [ "$WP_VERSION" = "latest" ]; then
-  WP_TARBALL="https://wordpress.org/latest.tar.gz"
-  TESTS_TAG="trunk"
+if [[ "$WP_VERSION" == "latest" ]]; then
+    TESTS_TAG="trunk"
 elif [[ "$WP_VERSION" =~ ^[0-9]+\.[0-9]+$ ]]; then
-  WP_TARBALL="https://wordpress.org/wordpress-${WP_VERSION}.tar.gz"
-  TESTS_TAG="branches/${WP_VERSION}"
+    TESTS_TAG="branches/$WP_VERSION"
 else
-  WP_TARBALL="https://wordpress.org/wordpress-${WP_VERSION}.tar.gz"
-  TESTS_TAG="tags/${WP_VERSION}"
+    TESTS_TAG="tags/$WP_VERSION"
 fi
 
-download "$WP_TARBALL" /tmp/wordpress.tar.gz
+if [[ "$TESTS_TAG" == "trunk" ]]; then
+    TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/heads/trunk.zip"
+elif [[ "$TESTS_TAG" == branches/* ]]; then
+    BRANCH="${TESTS_TAG#branches/}"
+    TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/heads/${BRANCH}.zip"
+else
+    TAG="${TESTS_TAG#tags/}"
+    TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/tags/${TAG}.zip"
+fi
 
+curl -fLsS "$TESTS_REPO" -o /tmp/wp-tests.zip
 
-tar -xzf /tmp/wordpress.tar.gz --strip-components=1 -C "$WP_CORE_DIR"
+tar -xzf /tmp/wp-tests.zip --strip-components=1 -C /tmp
+
+#tar -xzf /tmp/wordpress.tar.gz --strip-components=1 -C "$WP_CORE_DIR"
 
 
 echo "### Download WP test suite (GitHub mirror)"
