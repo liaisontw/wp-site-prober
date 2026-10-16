@@ -20,40 +20,18 @@ rm -rf "$WP_CORE_DIR" "$WP_TESTS_DIR"
 mkdir -p "$WP_CORE_DIR" "$WP_TESTS_DIR"
 
 
-if [[ "$WP_VERSION" == "latest" ]]; then
-    TESTS_TAG="trunk"
-elif [[ "$WP_VERSION" =~ ^[0-9]+\.[0-9]+$ ]]; then
-    TESTS_TAG="branches/$WP_VERSION"
+if [ "$WP_VERSION" = "latest" ]; then
+  WP_TARBALL="https://wordpress.org/latest.tar.gz"
+  TESTS_TAG="trunk"
 else
-    TESTS_TAG="tags/$WP_VERSION"
+  WP_TARBALL="https://wordpress.org/wordpress-${WP_VERSION}.tar.gz"
+  TESTS_TAG="tags/${WP_VERSION}"
 fi
-
-if [[ "$TESTS_TAG" == "trunk" ]]; then
-    TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/heads/trunk.zip"
-elif [[ "$TESTS_TAG" == branches/* ]]; then
-    BRANCH="${TESTS_TAG#branches/}"
-    TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/heads/${BRANCH}.zip"
-else
-    TAG="${TESTS_TAG#tags/}"
-    TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/tags/${TAG}.zip"
-fi
-
-#curl -fLsS "$TESTS_REPO" -o /tmp/wp-tests.zip
-
-#tar -xzf /tmp/wp-tests.zip --strip-components=1 -C /tmp
-
-#tar -xzf /tmp/wordpress.tar.gz --strip-components=1 -C "$WP_CORE_DIR"
-
-download() {
-  curl -fLsS "$1" -o "$2"
-}
-
-#download "$WP_TARBALL" /tmp/wordpress.tar.gz
 
 echo "WP_VERSION=[$WP_VERSION]"
 echo "WP_TARBALL=[$WP_TARBALL]"
-curl -fLsS "$WP_TARBALL" -o /tmp/wordpress.tar.gz
 
+download "$WP_TARBALL" /tmp/wordpress.tar.gz
 
 
 if ! tar -tzf /tmp/wordpress.tar.gz >/dev/null 2>&1; then
