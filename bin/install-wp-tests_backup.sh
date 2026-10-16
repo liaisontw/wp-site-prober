@@ -19,6 +19,7 @@ echo "### Download WordPress Core"
 rm -rf "$WP_CORE_DIR" "$WP_TESTS_DIR"
 mkdir -p "$WP_CORE_DIR" "$WP_TESTS_DIR"
 
+
 if [ "$WP_VERSION" = "latest" ]; then
   WP_TARBALL="https://wordpress.org/latest.tar.gz"
   TESTS_TAG="trunk"
@@ -27,25 +28,25 @@ else
   TESTS_TAG="tags/${WP_VERSION}"
 fi
 
+
+echo "WP_VERSION=[$WP_VERSION]"
+echo "WP_TARBALL=[$WP_TARBALL]"
+
 download "$WP_TARBALL" /tmp/wordpress.tar.gz
 
 
-tar -xzf /tmp/wordpress.tar.gz --strip-components=1 -C "$WP_CORE_DIR"
+if ! tar -tzf /tmp/wordpress.tar.gz >/dev/null 2>&1; then
+  echo "Error: Invalid WordPress archive: $WP_TARBALL"
+  exit 1
+fi
 
+tar -xzf /tmp/wordpress.tar.gz --strip-components=1 -C "$WP_CORE_DIR"
 
 echo "### Download WP test suite (GitHub mirror)"
 
 
+TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/heads/trunk.zip"
 #TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/${TESTS_TAG}.zip"
-
-#download "$TESTS_REPO" /tmp/wp-tests.zip
-
-if [ "$WP_VERSION" = "latest" ]; then
-    TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/heads/trunk.zip"
-else
-    TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/tags/${WP_VERSION}.zip"
-fi
-
 curl -fLsS "$TESTS_REPO" -o /tmp/wp-tests.zip
 
 unzip -q /tmp/wp-tests.zip -d /tmp/
