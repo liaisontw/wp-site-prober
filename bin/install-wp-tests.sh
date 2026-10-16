@@ -301,7 +301,7 @@ install_db() {
 	if $DB_CLIENT --user="$DB_USER" --password="$DB_PASS"$EXTRA --execute='show databases;' | grep -q "^$DB_NAME$";
 	then
 		echo -e "${YELLOW}Reinstalling will delete the existing test database ($DB_NAME)${RESET}"
-		read -p 'Are you sure you want to proceed? [y/N]: ' DELETE_EXISTING_DB
+		#read -p 'Are you sure you want to proceed? [y/N]: ' DELETE_EXISTING_DB
 		recreate_db $DELETE_EXISTING_DB
 	else
 		echo -e "${CYAN}Creating database ($DB_NAME)...${RESET}"
