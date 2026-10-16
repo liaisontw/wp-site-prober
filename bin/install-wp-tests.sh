@@ -1,4 +1,4 @@
-```bash
+
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
@@ -151,4 +151,4 @@ grep -n '^\$wp_version' "$WP_CORE_DIR/wp-includes/version.php"
 echo "WordPress Core: $WP_VERSION"
 echo "Test suite: $TESTS_REF"
 echo "✓ WordPress test suite installed"
-```
+
