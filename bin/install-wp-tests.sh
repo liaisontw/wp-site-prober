@@ -38,12 +38,24 @@ else
     TESTS_REPO="https://github.com/WordPress/wordpress-develop/archive/refs/tags/${TAG}.zip"
 fi
 
-curl -fLsS "$TESTS_REPO" -o /tmp/wp-tests.zip
+#curl -fLsS "$TESTS_REPO" -o /tmp/wp-tests.zip
 
-tar -xzf /tmp/wp-tests.zip --strip-components=1 -C /tmp
+#tar -xzf /tmp/wp-tests.zip --strip-components=1 -C /tmp
 
 #tar -xzf /tmp/wordpress.tar.gz --strip-components=1 -C "$WP_CORE_DIR"
 
+download() {
+  curl -fLsS "$1" -o "$2"
+}
+
+download "$WP_TARBALL" /tmp/wordpress.tar.gz
+
+if ! tar -tzf /tmp/wordpress.tar.gz >/dev/null 2>&1; then
+  echo "Error: Invalid WordPress archive: $WP_TARBALL"
+  exit 1
+fi
+
+tar -xzf /tmp/wordpress.tar.gz --strip-components=1 -C "$WP_CORE_DIR"
 
 echo "### Download WP test suite (GitHub mirror)"
 
